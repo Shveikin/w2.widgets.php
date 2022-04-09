@@ -1,0 +1,25 @@
+{
+    "name": "pw2/widgets",
+    "description": "php widgets",
+    "autoload": {
+        "psr-4": {
+            "Widgets\\": "src/",
+            "Widgets\\state\\": "src/state/",
+            "Widgets\\widget\\": "src/widget/",
+            "Widgets\\widget\\tools\\": "src/widget/tools/",
+            "Widgets\\tools\\": "src/tools",
+            "Widgets\\conventor\\": "src/conventor",
+
+
+
+            "Tests\\states\\": "tests/state/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Ilya Shveikin",
+            "email": "no_soap_0@mail.ru"
+        }
+    ],
+    "require": {}
+}
