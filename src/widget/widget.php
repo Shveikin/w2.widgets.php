@@ -10,6 +10,7 @@ class widget {
     use widget__html;
     use widget__element;
 
+    private $layout;
     function __construct($tag, $props){
         $this->element = $tag;
 
@@ -37,6 +38,14 @@ class widget {
 
         $this->child = widgetconventor::toArray($child);
         $this->props = $attrs;
+    }
+
+
+    function element(...$props){
+        $widget = new static::class();
+        $widget->draw($props);
+
+        return $widget;
     }
 
 

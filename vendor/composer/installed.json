@@ -1,5 +1,47 @@
 {
-    "packages": [],
+    "packages": [
+        {
+            "name": "di2/container",
+            "version": "dev-main",
+            "version_normalized": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Shveikin/DI2.Container.git",
+                "reference": "a4a924fbb1d63921a06566ee79ab918111fc984d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/a4a924fbb1d63921a06566ee79ab918111fc984d",
+                "reference": "a4a924fbb1d63921a06566ee79ab918111fc984d",
+                "shasum": ""
+            },
+            "time": "2022-04-11T06:51:04+00:00",
+            "default-branch": true,
+            "type": "library",
+            "installation-source": "dist",
+            "autoload": {
+                "psr-4": {
+                    "DI2\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "picus23",
+                    "email": "picus.2022@mail.ru"
+                }
+            ],
+            "description": "DI2",
+            "support": {
+                "issues": "https://github.com/Shveikin/DI2.Container/issues",
+                "source": "https://github.com/Shveikin/DI2.Container/tree/main"
+            },
+            "install-path": "../di2/container"
+        }
+    ],
     "dev": true,
     "dev-package-names": []
 }

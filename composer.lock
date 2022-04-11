@@ -4,12 +4,53 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e1476146f4eed6a8b31b4a9e5c10bc7a",
-    "packages": [],
+    "content-hash": "fecd29429dba4f30832708105806c2bb",
+    "packages": [
+        {
+            "name": "di2/container",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Shveikin/DI2.Container.git",
+                "reference": "a4a924fbb1d63921a06566ee79ab918111fc984d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/a4a924fbb1d63921a06566ee79ab918111fc984d",
+                "reference": "a4a924fbb1d63921a06566ee79ab918111fc984d",
+                "shasum": ""
+            },
+            "default-branch": true,
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DI2\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "picus23",
+                    "email": "picus.2022@mail.ru"
+                }
+            ],
+            "description": "DI2",
+            "support": {
+                "issues": "https://github.com/Shveikin/DI2.Container/issues",
+                "source": "https://github.com/Shveikin/DI2.Container/tree/main"
+            },
+            "time": "2022-04-11T06:51:04+00:00"
+        }
+    ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {
+        "di2/container": 20
+    },
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

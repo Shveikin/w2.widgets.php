@@ -6,10 +6,13 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'Widgets\\widget\\tools\\' => array($baseDir . '/src/widget/tools'),
     'Widgets\\widget\\' => array($baseDir . '/src/widget'),
     'Widgets\\tools\\' => array($baseDir . '/src/tools'),
     'Widgets\\state\\' => array($baseDir . '/src/state'),
     'Widgets\\conventor\\' => array($baseDir . '/src/conventor'),
     'Widgets\\' => array($baseDir . '/src'),
     'Tests\\states\\' => array($baseDir . '/tests/state'),
+    'Tests\\component\\' => array($baseDir . '/tests/component'),
+    'DI2\\' => array($vendorDir . '/di2/container/src'),
 );

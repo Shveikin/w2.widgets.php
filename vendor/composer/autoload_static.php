@@ -9,6 +9,7 @@ class ComposerStaticInitf1fac348b073938f10ce264fe715e45a
     public static $prefixLengthsPsr4 = array (
         'W' => 
         array (
+            'Widgets\\widget\\tools\\' => 21,
             'Widgets\\widget\\' => 15,
             'Widgets\\tools\\' => 14,
             'Widgets\\state\\' => 14,
@@ -18,10 +19,19 @@ class ComposerStaticInitf1fac348b073938f10ce264fe715e45a
         'T' => 
         array (
             'Tests\\states\\' => 13,
+            'Tests\\component\\' => 16,
+        ),
+        'D' => 
+        array (
+            'DI2\\' => 4,
         ),
     );
 
     public static $prefixDirsPsr4 = array (
+        'Widgets\\widget\\tools\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/widget/tools',
+        ),
         'Widgets\\widget\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/widget',
@@ -45,6 +55,14 @@ class ComposerStaticInitf1fac348b073938f10ce264fe715e45a
         'Tests\\states\\' => 
         array (
             0 => __DIR__ . '/../..' . '/tests/state',
+        ),
+        'Tests\\component\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/tests/component',
+        ),
+        'DI2\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/di2/container/src',
         ),
     );
 

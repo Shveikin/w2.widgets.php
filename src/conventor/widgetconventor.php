@@ -4,8 +4,9 @@ namespace Widgets\conventor;
 
 use Widgets\state\state;
 use Widgets\state\state__method;
-use Widgets\tools\Container;
 use Widgets\widget\widget;
+
+use DI2\Container;
 
 class widgetconventor {
     use Container;

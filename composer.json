@@ -12,7 +12,8 @@
 
 
 
-            "Tests\\states\\": "tests/state/"
+            "Tests\\states\\": "tests/state/",
+            "Tests\\component\\": "tests/component/"
         }
     },
     "authors": [
@@ -21,5 +22,7 @@
             "email": "no_soap_0@mail.ru"
         }
     ],
-    "require": {}
+    "require": {
+        "di2/container": "@dev"
+    }
 }

@@ -4,13 +4,10 @@ require  "./vendor/autoload.php";
 use Tests\states\TempState;
 use Widgets\state\widgetstate;
 use Widgets\widget\c;
+use Tests\component\Table;
 
 
 
-echo c::app(
-    ['Hello', 'message']
-);
+$wgt = Table::element();
 
-echo c::app(
-    ['33', '22']
-);
+echo $wgt;
