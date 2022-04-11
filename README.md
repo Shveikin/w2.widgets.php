@@ -15,6 +15,32 @@
  + lpushto
 
 
+
+-----
+### example
+
+
+create - SliderState::create('rashod', default() )
+php    - SliderState::rashod()->set('min', 11)
+js     - state.SliderState.rashod.set('min', 11)
+
+
+
+---
+
+
+SliderState::create('Rashod', default())
+
+php    - SliderState::Rashod::set('min', 11)
+js     - state.SliderStateRashod.set('min', 11)
+
+
+
+
+-----
+
+
+
 state__method (class)
    + toHTML (+?)
    + toElement (+)

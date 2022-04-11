@@ -3,7 +3,7 @@
 
 namespace Widgets\state;
 
-use Widgets\tools\Container;
+use DI2\Container;
 
 class widgetstate {
     use Container;
