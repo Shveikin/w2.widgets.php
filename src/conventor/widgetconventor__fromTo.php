@@ -2,6 +2,7 @@
 
 namespace Widgets\conventor;
 
+use Widgets\state\state__method;
 use Widgets\widget\widget;
 
 trait widgetconventor__fromTo {
@@ -10,8 +11,8 @@ trait widgetconventor__fromTo {
         return $widget;
     }
 
-    protected function StateMethodToString($statemethod): string {
-        return $statemethod;
+    protected function StateMethodToString(state__method $statemethod): string {
+        return $statemethod->toHTML();
     }
 
 }

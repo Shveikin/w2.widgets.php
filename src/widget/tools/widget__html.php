@@ -5,6 +5,17 @@ namespace Widgets\widget\tools;
 use Widgets\conventor\widgetconventor;
 
 trait widget__html {
+
+    public function toHTML(){
+        $html = widgetconventor::$opentag .
+            $this->element .
+            $this->renderProps() .
+            widgetconventor::$closetag .
+            $this->renderChilds() .
+            $this->closeTag();
+
+        return $html;
+    }
     
     private function renderProps() {
         $result = '';

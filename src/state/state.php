@@ -19,6 +19,10 @@ abstract class state {
         widgetstate::reg($this);
     }
 
+    private function init(){
+
+    }
+
     function setName($name){
         if ($this->name==false)
             $this->name = $name;
@@ -29,7 +33,11 @@ abstract class state {
     }
 
     protected function get($key){
-        return $this->data[$key];
+        if (isset($this->data[$key])){
+            return $this->data[$key];
+        } else {
+            return false;
+        }
     }
 
     protected function default(...$data){
@@ -47,7 +55,14 @@ abstract class state {
         $this->alias = $url_key;
     }
 
+
+    public function __any($method, $props){
+        return new state__method($this->name, $method, $props);
+    }
+/* 
     function __call($method, $props){
         return new state__method($this->name, $method, $props);
     }
+     */
+
 }

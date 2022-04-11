@@ -11,17 +11,28 @@ class state__method {
         $this->props = $props;
     }
 
-    function __toString(){
+    function toHTML(){
         $state = widgetstate::name($this->stateName);
-        $value = $state->get($this->props);
+        $values = '';
+        foreach($this->props as $key){
+            $values = $state->get($key);
+        }
 
-        return $this->render($value);
+        return $this->render($values);
+    }
+
+    function toElement(){
+        return [
+            'element' => $this->method,
+            'props' => $this->props,
+            'state' => $this->stateName,
+        ];
     }
 
     function render($value){
         switch($this->method){
             case 'watch':
-                return widgetconventor::toString($value);
+                return $value;
             break;
             default:
                 return "<!-- not visual method ($this->method) -->";

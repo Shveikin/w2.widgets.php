@@ -12,7 +12,11 @@ class widgetstate {
     private $hash = [];
 
     private function name($stateName){
-        return $this->global[$stateName];
+        if (isset($this->global[$stateName])){
+            return $this->global[$stateName];
+        } else {
+            // $stateName
+        }
     }
 
 

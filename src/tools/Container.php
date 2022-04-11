@@ -2,6 +2,8 @@
 
 namespace Widgets\tools;
 
+use Exception;
+
 class ContainerManager {
     static $container = false;
     private $containers = [];
@@ -19,7 +21,8 @@ class ContainerManager {
             if (!isset($this->containers[$class])){
                 $this->reg[$class] = true;
 
-                $tempElement = new $class(function($el) use($class){
+                $tempElement = new $class(function($el){
+                    $class = get_class($el);
                     $this->containers[$class] = $el;
                 });
 
@@ -41,7 +44,6 @@ class ContainerManager {
 }
 
 trait Container {
-
     static function main(){
         return ContainerManager::container()->class(static::class);
     }
@@ -53,14 +55,22 @@ trait Container {
 
     function __apply($func, $arguments){
         if (method_exists($this, $func)){
-            $method = (new \ReflectionObject($this))->getMethod($func);
+            $method = new \ReflectionMethod($this, $func);
+            $parameters = $method->getParameters();
+
             $method->setAccessible(true);
             return $method->invoke($this, ...$arguments);
         } else {
-            return $this->{$func}(...$arguments);
+            return $this->__any($func, $arguments);
         }
     }
 
-}
+    function __call($func, $arguments){
+        return $this->__apply($func, $arguments);
+    }
 
+    function __any($func, $arguments){
+        throw new Exception(get_class($this) . " method $func - отсутствует ");
+    }
+}
 
