@@ -39,4 +39,8 @@ class widget {
         $this->props = $attrs;
     }
 
+
+    function __toString(){
+        return $this->toHTML();
+    }
 }

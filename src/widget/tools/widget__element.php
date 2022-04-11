@@ -19,5 +19,7 @@ trait widget__element {
         foreach($this->child as $child){
             array_push($result['child'], widgetconventor::toElement($child));
         }
+
+        return $result;
     }
 }

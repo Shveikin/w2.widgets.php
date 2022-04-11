@@ -24,4 +24,17 @@ trait widgetconventor__to {
         return c::div($element);
     }
 
+    private function toElement($element){
+        $type = $this->getType($element);
+
+        switch ($type) {
+            case 'String':
+                return $element;
+            break;
+            default:
+                return widgetconventor::convert($type, 'Element', $element);
+            break;
+        }
+    }
+
 }

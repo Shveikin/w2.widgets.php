@@ -21,14 +21,6 @@ class state__method {
         return $this->render($values);
     }
 
-    function toElement(){
-        return [
-            'element' => $this->method,
-            'props' => $this->props,
-            'state' => $this->stateName,
-        ];
-    }
-
     function render($value){
         switch($this->method){
             case 'watch':
@@ -38,5 +30,16 @@ class state__method {
                 return "<!-- not visual method ($this->method) -->";
             break;
         }
+    }
+
+
+    function toElement(){
+        return [
+            'element' => $this->method,
+            'props' => [
+                'props' => $this->props,
+                'stateName' => $this->stateName,
+            ]
+        ];
     }
 }
