@@ -10,3 +10,7 @@ use Widgets\widget\c;
 echo c::app(
     ['Hello', 'message']
 );
+
+echo c::app(
+    ['33', '22']
+);

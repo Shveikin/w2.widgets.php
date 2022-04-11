@@ -2,7 +2,6 @@
 
 namespace Widgets\tools;
 
-use Exception;
 
 class ContainerManager {
     static $container = false;
@@ -70,7 +69,6 @@ trait Container {
     }
 
     function __any($func, $arguments){
-        throw new Exception(get_class($this) . " method $func - отсутствует ");
+        throw new \Exception(get_class($this) . " method $func - отсутствует ");
     }
 }
-

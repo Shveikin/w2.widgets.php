@@ -18,16 +18,16 @@ class c {
     static function app($element){
         $widget = widgetconventor::toWidget($element);
         $html = $widget->toHTML();
-        $el = $widget->toElement();
+        // $el = $widget->toElement();
 
         $appcount = self::getappcount();
 
         $result = <<<HTML
             <div id='app____{$appcount}'>.$html.</div>
             <script>
-                ${json_encode($el)}
-            </script>
-        HTML;
+          
+            </script>\n 
+            HTML;
 
 
         return $result;
