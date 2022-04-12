@@ -1,6 +1,7 @@
 
 ### stateconfig
 
+PHP
 ```php
 class SliderState extends state {
    function default(){
@@ -19,6 +20,7 @@ SliderState::name('Rashod')->get('unit'); // next
 
 ```
 
+JS
 
 ```js
 state.SliderState.get('unit')
