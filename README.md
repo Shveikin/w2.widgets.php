@@ -20,8 +20,11 @@ SliderState::name('Rashod')->get('unit'); // next
 ```
 
 
+```js
+state.SliderState.get('unit')
+state.SpiderState.Rashod.get('unit')
 
-
+```
 
 
 ### TODOS
