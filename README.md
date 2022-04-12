@@ -29,6 +29,26 @@ state.SliderState.Rashod.get('unit')
 ```
 
 
+
+
+
+###widget
+PHP
+```php
+
+class ibutton extends widget {
+.   function __construct($title) {
+.       this->style = "padding: 20px";
+.       this->child = title
+.   }
+}
+
+```
+
+
+
+
+
 ### TODOS
 
 ##element -> наименшая единица в которой есть 2 свойства - elemenent, props\
