@@ -40,14 +40,15 @@ class widget {
         $this->props = $attrs;
     }
 
-
-    function element(...$props){
-        $widget = new static::class();
-        $widget->draw($props);
-
-        return $widget;
+    function set($key, $value){
+.       if (key=='child') {
+.           array_push(this->child, value)
+.       } else {
+.           this->props[key] = value
+.       }
     }
 
+    
 
     function __toString(){
         return $this->toHTML();
