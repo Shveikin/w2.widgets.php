@@ -1,7 +1,8 @@
 
 ### stateconfig
 
-class SliderState e.. s.. {
+```php
+class SliderState extends state {
    function default(){
       return ['unit' => 'def'];
    }
@@ -16,7 +17,7 @@ class SliderState e.. s.. {
 SliderState::get('unit'); // def
 SliderState::name('Rashod')->get('unit'); // next
 
-
+```
 
 
 
