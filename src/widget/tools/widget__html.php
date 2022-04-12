@@ -7,12 +7,13 @@ use Widgets\conventor\widgetconventor;
 trait widget__html {
 
     public function toHTML(){
-        $html = widgetconventor::$opentag .
-            $this->element .
-            $this->renderProps() .
-            widgetconventor::$closetag .
-            $this->renderChilds() .
-            $this->closeTag();
+        $html = widgetconventor::$opentag;
+
+        $html .= $this->element;
+        $html .= $this->renderProps();
+        $html .= widgetconventor::$closetag;
+        $html .= $this->renderChilds();
+        $html .= $this->closeTag();
 
         return $html;
     }
@@ -20,7 +21,8 @@ trait widget__html {
     private function renderProps() {
         $result = '';
         foreach($this->props as $attr => $value) {
-            $result .= " $attr='$value'";
+            if (!in_array($attr, ['innerHTML', 'innerText']))
+                $result .= " $attr='" . trim($value) . "'";
         }
         
         return $result;
@@ -29,9 +31,14 @@ trait widget__html {
     private function renderChilds(){
         $result = '';
 
-        foreach($this->child as $child){
-            $result .= widgetconventor::toHTML($child);
-        }
+        if (isset($this->props['innerHTML']))
+            $result = $this->props['innerHTML'];
+        else if (isset($this->props['innerText']))
+            $result = $this->props['innerText'];
+        else
+            foreach($this->child as $child){
+                $result .= widgetconventor::toHTML($child);
+            }
 
         return $result;
     }

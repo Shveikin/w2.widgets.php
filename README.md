@@ -3,6 +3,7 @@
 
 PHP
 ```php
+
 class SliderState extends state {
    function default(){
       return ['unit' => 'def'];
@@ -23,6 +24,7 @@ SliderState::name('Rashod')->get('unit'); // next
 JS
 
 ```js
+
 state.SliderState.get('unit')
 state.SliderState.Rashod.get('unit')
 
@@ -32,16 +34,18 @@ state.SliderState.Rashod.get('unit')
 
 
 
-###widget
+### widget
 PHP
 ```php
 
 class ibutton extends widget {
-.   function __construct($title) {
-.       this->style = "padding: 20px";
-.       this->child = title
-.   }
+   function __construct($title) {
+      $this->style = "padding: 20px";
+      $this->child = $title;
+   }
 }
+
+ibutton::c('say hello');
 
 ```
 

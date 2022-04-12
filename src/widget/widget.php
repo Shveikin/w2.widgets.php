@@ -10,7 +10,10 @@ class widget {
     use widget__html;
     use widget__element;
 
-    private $layout;
+    public $element = 'div';
+    private $props = [];
+    private $child = [];
+
     function __construct($tag, $props){
         $this->element = $tag;
 
@@ -40,17 +43,21 @@ class widget {
         $this->props = $attrs;
     }
 
-    function set($key, $value){
-.       if (key=='child') {
-.           array_push(this->child, value)
-.       } else {
-.           this->props[key] = value
-.       }
+    function __set($key, $value){
+        if ($key=='child') {
+            array_push($this->child, $value);
+        } else {
+            $this->props[$key] = $value;
+        }
     }
 
     
 
     function __toString(){
         return $this->toHTML();
+    }
+
+    static function c(...$props){
+        return new (static::class)(...$props);
     }
 }
