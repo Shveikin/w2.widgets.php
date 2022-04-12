@@ -24,7 +24,7 @@ JS
 
 ```js
 state.SliderState.get('unit')
-state.SpiderState.Rashod.get('unit')
+state.SliderState.Rashod.get('unit')
 
 ```
 
@@ -38,8 +38,7 @@ state.SpiderState.Rashod.get('unit')
 
 ##state (container)
  + state\
-   widgetstate::name\
-   widgetstate::create(stateName, array): state
+   widgetstate::name
  + get
  + set
  + pushto
