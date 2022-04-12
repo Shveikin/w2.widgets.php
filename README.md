@@ -1,3 +1,28 @@
+
+### stateconfig
+
+class SliderState e.. s.. {
+   function default(){
+      return ['unit' => 'def'];
+   }
+
+   function Rashod(){
+      return ['unit' => 'next'];
+   }
+}
+
+
+
+SliderState::get('unit'); // def
+SliderState::name('Rashod')->get('unit'); // next
+
+
+
+
+
+
+
+
 ### TODOS
 
 ##element -> наименшая единица в которой есть 2 свойства - elemenent, props\
@@ -15,28 +40,6 @@
  + lpushto
 
 
-
------
-### example
-
-
-
-create - SliderState::create('rashod', default() )
-php    - SliderState::rashod()->set('min', 11)
-js     - state.SliderState.rashod.set('min', 11)
-
----
-
-
-widgetstate::create(name: stateName, from: SliderState::class, default: function(){})
-
-
-SliderState::create('Rashod', default())
-
-php    - SliderState::Rashod::set('min', 11)
-js     - state.SliderStateRashod.set('min', 11)
-
------
 
 
 
