@@ -11,5 +11,11 @@ class iButton extends widget {
         $this->style = "
             padding: 20px;
         ";
+
+        $this->onclick = $this->sayHello;
+    }
+
+    function sayHello(){
+        return 'alert(11)';
     }
 }

@@ -10,6 +10,7 @@ class widget {
     use widget__html;
     use widget__element;
 
+    public $url = '/';
     public $element = 'div';
     private $props = [];
     private $child = [];
@@ -51,7 +52,11 @@ class widget {
         }
     }
 
-    
+    function __get($key){
+        if (method_exists($this, $key)){
+            return "method::$key";
+        }
+    }
 
     function __toString(){
         return $this->toHTML();

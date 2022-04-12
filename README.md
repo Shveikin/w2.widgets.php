@@ -49,7 +49,7 @@ class iButton extends widget {
 }
 
 
-echo iButton:c('hello');
+echo iButton:c('hello'); // <button style='padding: 20px;'>Hello</button>
 
 ```
 
@@ -59,12 +59,13 @@ echo iButton:c('hello');
 
 ### TODOS
 
-##element -> наименшая единица в которой есть 2 свойства - elemenent, props\
+## element -> 
+наименшая единица в которой есть 2 свойства - elemenent, props\
    element: *element_name* (watch, map, div)\
    props: [props] ('temp', ['array', func], 'hello world')
 
 
-##state (container)
+## state (container)
  + state\
    widgetstate::name
  + get
@@ -72,19 +73,15 @@ echo iButton:c('hello');
  + pushto
  + lpushto
 
-
-
-
-
 state__method (class)
    + toHTML (+?)
    + toElement (+)
 
 
-##widget (class)
+## widget (class)
    + url
    + toHTML (str wath tags) (+)
    + toElement (obj) (+?)
 
 
-##widgetrequest (?)
+## widgetrequest (?)
