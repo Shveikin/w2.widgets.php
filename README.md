@@ -38,14 +38,18 @@ state.SliderState.Rashod.get('unit')
 PHP
 ```php
 
-class ibutton extends widget {
-   function __construct($title) {
-      $this->style = "padding: 20px";
-      $this->child = $title;
-   }
+class iButton extends widget {
+    public $element = 'button';
+    function __construct($title){
+        $this->innerHTML = $title;
+        $this->style = "
+            padding: 20px;
+        ";
+    }
 }
 
-ibutton::c('say hello');
+
+echo iButton:c('hello');
 
 ```
 
