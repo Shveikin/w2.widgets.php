@@ -7,7 +7,10 @@ use Widgets\widget\c;
 use Tests\component\Table;
 
 
+widgetstate::create(name: 'Rashod', from: TempState::class, default: ['min' => 12]);
 
-$wgt = Table::element();
+echo TempState::state('Rashod')->get('min');
 
-echo $wgt;
+// $wgt = Table::element();
+
+// echo $wgt;

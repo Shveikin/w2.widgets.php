@@ -20,22 +20,21 @@
 ### example
 
 
+
 create - SliderState::create('rashod', default() )
 php    - SliderState::rashod()->set('min', 11)
 js     - state.SliderState.rashod.set('min', 11)
 
-
-
 ---
+
+
+widgetstate::create(name: stateName, from: SliderState::class, default: function(){})
 
 
 SliderState::create('Rashod', default())
 
 php    - SliderState::Rashod::set('min', 11)
 js     - state.SliderStateRashod.set('min', 11)
-
-
-
 
 -----
 

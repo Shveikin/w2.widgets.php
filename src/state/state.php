@@ -6,7 +6,7 @@ use DI2\Container;
 
 
 
-abstract class state {
+class state {
     use Container;
 
     private $data = false;
@@ -14,6 +14,21 @@ abstract class state {
     private $alias = false;
 
     private $name = false;
+
+
+    function __construct(
+        $super = false, 
+        $default = false
+    ){
+        if ($super) $super($this);
+
+    }
+
+    private function state($suffix){
+        $stateName = widgetstate::getChildName(static::class, $suffix);
+        
+    } 
+
 
     function __parent(){
         widgetstate::reg($this);
@@ -59,10 +74,5 @@ abstract class state {
     public function __any($method, $props){
         return new state__method($this->name, $method, $props);
     }
-/* 
-    function __call($method, $props){
-        return new state__method($this->name, $method, $props);
-    }
-     */
 
 }
