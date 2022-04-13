@@ -7,4 +7,6 @@ use Tests\states\TempState;
 use Widgets\state\widgetstate;
 
 
-echo iButton::c('Hello');
+TempState::get('unit');
+
+// echo iButton::c('Hello');

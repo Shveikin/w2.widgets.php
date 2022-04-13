@@ -2,6 +2,34 @@
 
 namespace DI2;
 
+class DependencyWrap {
+    private $element = false;
+
+    function __construct($class){
+        $this->class = $class;
+    }
+
+    function __init(){
+        if ($this->element == false) 
+            $this->element = ContainerManager::container()->class($this->class);
+    }
+
+    function __call($func, $args){
+        $this->__init();
+        return $this->element->{$func}(...$args);
+    }
+
+    function __get($key){
+        $this->__init();
+        return $this->element->{$key};
+    }
+
+    function __set($key, $value){
+        $this->__init();
+        $this->element->{$key} = $value;
+    }
+}
+
 class ContainerManager {
     static $container = false;
     private $containers = [];
@@ -22,6 +50,11 @@ class ContainerManager {
                 $tempElement = new $class(function($el){
                     $class = get_class($el);
                     $this->containers[$class] = $el;
+
+                    if ($el->dependency)
+                    foreach($el->dependency as $val => $className){
+                        $el->{$val} = new DependencyWrap($className);
+                    }
                 });
 
                 if (method_exists($tempElement, '__parent')){

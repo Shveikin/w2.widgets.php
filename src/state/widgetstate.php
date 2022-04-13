@@ -7,12 +7,26 @@ use DI2\Container;
 use Exception;
 use Reflection;
 use ReflectionClass;
+use Widget\request\widgetrequest;
 
 class widgetstate {
     use Container;
 
     private $global = [];
     private $hash = [];
+
+    private $post = [];
+
+    public $dep = [
+        'requestController' => widgetrequest::class
+    ];
+
+    function __construct($super){
+        $super();
+
+        var_dump($this->requestController->post);
+    }
+
 
     private function name($stateName){
         if (isset($this->global[$stateName])){
@@ -38,8 +52,12 @@ class widgetstate {
         $this->global[$stateName] = $state;
     }
 
+    private function applyDefaultToState(state $state){
+        $name = $state->getName();
 
-        
+    }
+
+
     private function create(...$props){
         $name = $props['name'];
 

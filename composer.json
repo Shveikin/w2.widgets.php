@@ -4,6 +4,7 @@
     "autoload": {
         "psr-4": {
             "Widgets\\": "src/",
+            "Widgets\\request\\": "src/request/",
             "Widgets\\state\\": "src/state/",
             "Widgets\\widget\\": "src/widget/",
             "Widgets\\widget\\tools\\": "src/widget/tools/",

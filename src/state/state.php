@@ -21,17 +21,16 @@ class state {
         $default = false
     ){
         if ($super) $super($this);
-
     }
 
     private function state($suffix){
         $stateName = widgetstate::getChildName(static::class, $suffix);
-        
     } 
 
 
     function __parent(){
         widgetstate::reg($this);
+        widgetstate::applyDefaultToState($this);
     }
 
     private function init(){
@@ -41,6 +40,10 @@ class state {
     function setName($name){
         if ($this->name==false)
             $this->name = $name;
+    }
+
+    function getName(){
+        return $this->name;
     }
 
     protected function set($key, $value){
@@ -55,19 +58,16 @@ class state {
         }
     }
 
-    protected function default(...$data){
-        $this->default = $data;
-        if ($this->data == false){
-            $this->data = $data;
-        }
-    }
-
     protected function getdefault($key){
         return $this->default[$key];
     }
 
-    protected function alias(...$url_key){
-        $this->alias = $url_key;
+    public function default(): array {
+        return [];
+    }
+
+    public function alias(): array {
+        return [];
     }
 
 
