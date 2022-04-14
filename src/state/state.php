@@ -4,8 +4,6 @@ namespace Widgets\state;
 
 use DI2\Container;
 
-
-
 class state {
     use Container;
 
@@ -15,23 +13,50 @@ class state {
 
     private $name = false;
 
+    private $childs = [];
 
-    function __construct(
-        $super = false, 
-        $default = false
-    ){
-        if ($super) $super($this);
+    function __construct($name = false){
+
+        widgetstate::reg($this, $name);
+
+        if (method_exists($this, 'alias')){
+            $this->alias = $this->alias();
+        }
+
+        $preload = widgetrequest::fillState($this);
+
+        $dafault = [];
+        if (method_exists($this, $this->name)){
+            $dafault = $this->{$this->name}($preload);
+        } else
+        if (method_exists($this, 'default')){
+            $dafault = $this->default($preload);
+        }
+        $this->default = $dafault;
+        $this->data = $dafault;
+
+
+
+        if (method_exists($this, 'alias')){
+            $this->alias = $this->alias();
+        }
+
+        $postload = widgetrequest::fillState($this);
+        foreach ($postload as $statekey => $value) {
+            $this->set($statekey, $value);
+        }
     }
 
-    private function state($suffix){
-        $stateName = widgetstate::getChildName(static::class, $suffix);
-    } 
 
+    private function name($name){
+        return widgetstate::name($name, get_class($this));
+    }
 
+/* 
     function __parent(){
-        widgetstate::reg($this);
-        widgetstate::applyDefaultToState($this);
-    }
+        
+    } 
+*/
 
     private function init(){
 
@@ -62,12 +87,30 @@ class state {
         return $this->default[$key];
     }
 
-    public function default(): array {
+    public function default($preload): array {
         return [];
     }
 
-    public function alias(): array {
-        return [];
+    public function alias() {
+        return false;
+    }
+
+    public function getAliasList(): array {
+        $result = [];
+        if (is_array($this->alias)){
+            $result = $this->alias;
+        } else {
+            if ($this->alias==true && is_array($this->data)) {
+                $defaultkeys = array_keys($this->data);
+                foreach ($defaultkeys as $statekey) {
+                    $result[trim($statekey, '_')] = $statekey;
+                }
+            } else {
+                $result = [];
+            }
+        }
+
+        return $result;
     }
 
 

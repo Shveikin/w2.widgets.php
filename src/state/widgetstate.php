@@ -4,6 +4,7 @@
 namespace Widgets\state;
 
 use DI2\Container;
+use DI2\MP;
 use Exception;
 
 
@@ -21,33 +22,37 @@ class widgetstate {
     }
 
 
-    private function name($stateName){
-        if (isset($this->global[$stateName])){
-            return $this->global[$stateName];
-        } else {
-            // $stateName
+    private function name($stateName, $source = false){
+        if (!isset($this->global[$stateName])){
+            $state = MP::GET(
+                class: $source?$source:state::class, 
+                alias: $stateName,
+                constructor: $stateName
+        );
+            $this->global[$stateName] = $state;
         }
+
+        return $this->global[$stateName];
     }
 
 
-    private function reg(state $state){
-        $stateName = (new \ReflectionClass($state))->getShortName();
+    private function reg(state $state, $customName = false){
+        $stateName = '___';
+        if ($customName==false){
+            $stateName = (new \ReflectionClass($state))->getShortName();
 
-        if (isset($this->global[$stateName])){
-            if (!isset($this->hash[$stateName])){
-                $this->hash[$stateName] = 1;
+            if (isset($this->global[$stateName])){
+                if (!isset($this->hash[$stateName])){
+                    $this->hash[$stateName] = 1;
+                }
+
+                $stateName .= '_' . $this->hash[$stateName]++;
             }
-
-            $stateName .= '_' . $this->hash[$stateName]++;
+        } else {
+            $stateName = $customName;
         }
-
-        $state->setName($stateName);
         $this->global[$stateName] = $state;
-    }
-
-    private function applyDefaultToState(state $state){
-        $name = $state->getName();
-        
+        $state->setName($stateName);
     }
 
 

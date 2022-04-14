@@ -1,5 +1,18 @@
-
 ### stateconfig
+
+При создании стейта проверки осуществяются вледующим образом:
+ - выполняется default (or Name) метод
+ - выполняется alias метод
+ - widgetrequest::fillState
+   - обновляем get данные (from widgetrequest)
+   - обновляем post данные
+
+
+### alias - url параметры
+   при создании стейта проводим проверку есть ли стейт.alias(key) в get параметрах
+   [ 'url' => 'statekey' ]
+
+
 
 PHP
 ```php
@@ -26,7 +39,7 @@ JS
 ```js
 
 state.SliderState.get('unit')
-state.SliderState.Rashod.get('unit')
+state.Rashod.get('unit')
 
 ```
 

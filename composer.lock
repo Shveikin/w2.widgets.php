@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Shveikin/DI2.Container.git",
-                "reference": "a4a924fbb1d63921a06566ee79ab918111fc984d"
+                "reference": "869df43d9345c9cc1140bacffc380bf1877e45fb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/a4a924fbb1d63921a06566ee79ab918111fc984d",
-                "reference": "a4a924fbb1d63921a06566ee79ab918111fc984d",
+                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/869df43d9345c9cc1140bacffc380bf1877e45fb",
+                "reference": "869df43d9345c9cc1140bacffc380bf1877e45fb",
                 "shasum": ""
             },
             "default-branch": true,
@@ -42,7 +42,7 @@
                 "issues": "https://github.com/Shveikin/DI2.Container/issues",
                 "source": "https://github.com/Shveikin/DI2.Container/tree/main"
             },
-            "time": "2022-04-11T06:51:04+00:00"
+            "time": "2022-04-14T08:14:22+00:00"
         }
     ],
     "packages-dev": [],
