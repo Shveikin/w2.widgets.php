@@ -5,26 +5,19 @@ namespace Widgets\state;
 
 use DI2\Container;
 use Exception;
-use Reflection;
-use ReflectionClass;
-use Widget\request\widgetrequest;
+
+
 
 class widgetstate {
     use Container;
 
     private $global = [];
     private $hash = [];
-
     private $post = [];
 
-    public $dep = [
-        'requestController' => widgetrequest::class
-    ];
 
     function __construct($super){
-        $super();
-
-        var_dump($this->requestController->post);
+        $super($this);
     }
 
 
@@ -54,7 +47,7 @@ class widgetstate {
 
     private function applyDefaultToState(state $state){
         $name = $state->getName();
-
+        
     }
 
 

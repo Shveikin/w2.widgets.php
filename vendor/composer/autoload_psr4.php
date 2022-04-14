@@ -10,6 +10,7 @@ return array(
     'Widgets\\widget\\' => array($baseDir . '/src/widget'),
     'Widgets\\tools\\' => array($baseDir . '/src/tools'),
     'Widgets\\state\\' => array($baseDir . '/src/state'),
+    'Widgets\\request\\' => array($baseDir . '/src/request'),
     'Widgets\\conventor\\' => array($baseDir . '/src/conventor'),
     'Widgets\\' => array($baseDir . '/src'),
     'Tests\\states\\' => array($baseDir . '/tests/state'),

@@ -13,6 +13,7 @@ class ComposerStaticInitf1fac348b073938f10ce264fe715e45a
             'Widgets\\widget\\' => 15,
             'Widgets\\tools\\' => 14,
             'Widgets\\state\\' => 14,
+            'Widgets\\request\\' => 16,
             'Widgets\\conventor\\' => 18,
             'Widgets\\' => 8,
         ),
@@ -43,6 +44,10 @@ class ComposerStaticInitf1fac348b073938f10ce264fe715e45a
         'Widgets\\state\\' => 
         array (
             0 => __DIR__ . '/../..' . '/src/state',
+        ),
+        'Widgets\\request\\' => 
+        array (
+            0 => __DIR__ . '/../..' . '/src/request',
         ),
         'Widgets\\conventor\\' => 
         array (

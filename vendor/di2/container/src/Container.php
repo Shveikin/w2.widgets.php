@@ -4,14 +4,16 @@ namespace DI2;
 
 class DependencyWrap {
     private $element = false;
+    private $className;
+
 
     function __construct($class){
-        $this->class = $class;
+        $this->className = $class;
     }
 
     function __init(){
         if ($this->element == false) 
-            $this->element = ContainerManager::container()->class($this->class);
+            $this->element = ContainerManager::container()->class($this->className);
     }
 
     function __call($func, $args){
@@ -51,10 +53,10 @@ class ContainerManager {
                     $class = get_class($el);
                     $this->containers[$class] = $el;
 
-                    if ($el->dependency)
-                    foreach($el->dependency as $val => $className){
-                        $el->{$val} = new DependencyWrap($className);
-                    }
+                    if (isset($el->dependency))
+                        foreach($el->dependency as $val => $className){
+                            $el->{$val} = new DependencyWrap($className);
+                        }
                 });
 
                 if (method_exists($tempElement, '__parent')){
