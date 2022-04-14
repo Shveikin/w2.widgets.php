@@ -28,7 +28,7 @@ class widgetstate {
                 class: $source?$source:state::class, 
                 alias: $stateName,
                 constructor: $stateName
-        );
+            );
             $this->global[$stateName] = $state;
         }
 

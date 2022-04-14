@@ -34,13 +34,21 @@ class widget {
             }
         }
 
-        if (isset(widgetconventor::$singletags[$this->element])){
-            $attrs[widgetconventor::$singletags[$this->element]] = $child;
+        $singleTagValue = widgetconventor::checkSingleTag($this->element);
+        $childType = widgetconventor::getType($child);
+
+        if (in_array($childType, ['Array'])){
+            $this->child = $child;
+        } else {
+            if ($singleTagValue){
+                $attrs[$singleTagValue] = $child;
+            } else {
+                $attrs['innerText'] = $child;
+            }
             $child = [];
         }
 
-
-        $this->child = widgetconventor::toArray($child);
+        
         $this->props = $attrs;
     }
 

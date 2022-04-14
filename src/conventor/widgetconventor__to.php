@@ -37,4 +37,32 @@ trait widgetconventor__to {
         }
     }
 
+    private function toClearElement($element){
+        $type = $this->getType($element);
+
+        switch ($type) {
+            case 'String':
+                return $element;
+            break;
+            default:
+                $element = widgetconventor::convert($type, 'Element', $element);
+            break;
+        }
+
+        if ($element['element']=='div'){
+            unset($element['element']);
+        }
+
+        if (isset($element['props']))
+        if (isset($element['props']['child']))
+        if (count($element['props'])==1){
+            $element = $element['props']['child'];
+            if (count($element)==1){
+                $element = $element[0];
+            }
+        }
+
+        return $element;
+    }
+
 }

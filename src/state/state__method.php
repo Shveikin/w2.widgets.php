@@ -21,6 +21,10 @@ class state__method {
         return $this->render($values);
     }
 
+    function __toString(){
+        return $this->toHTML();
+    }
+
     function render($value){
         switch($this->method){
             case 'watch':

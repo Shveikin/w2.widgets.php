@@ -2,6 +2,7 @@
 
 namespace Tests\component;
 
+use Tests\states\TempState;
 use Widgets\widget\widget;
 
 
@@ -13,10 +14,8 @@ class iButton extends widget {
             padding: 20px;
         ";
 
-        $this->onclick = $this->sayHello;
+        $this->onclick = TempState::name('Rashod')->wrap_set('unit', 'pldx');
     }
 
-    function sayHello(){
-        return 'alert(11)';
-    }
+
 }

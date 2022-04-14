@@ -13,9 +13,38 @@ class widgetconventor {
     use widgetconventor__to;
     use widgetconventor__fromTo;
 
+    private $singletags = [
+		'area' => false,
+		'base' => false,
+		'br' => false,
+		'col' => false,
+		'embed' => false,
+		'hr' => false,
+		'img' => 'src',
+		'input' => 'value',
+		'textarea' => 'value',
+		'link' => 'href',
+		'menuitem' => false,
+		'meta' => false,
+		'param' => false,
+		'source' => false,
+		'track' => false,
+		'wbr' => false,
+	];
+
+    protected function checkSingleTag($tag){
+        if (isset($this->singletags[$tag])){
+            return $this->singletags[$tag];
+        } else {
+            return false;
+        }
+    }
+
+/* 
     static $singletags = [
         'input' => 'value'
-    ];
+    ]; 
+*/
 
     static $opentag = '<';
     static $closetag = '>';

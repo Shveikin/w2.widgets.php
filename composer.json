@@ -4,6 +4,7 @@
     "autoload": {
         "psr-4": {
             "Widgets\\": "src/",
+            "Widgets\\app\\": "src/app/",
             "Widgets\\request\\": "src/request/",
             "Widgets\\state\\": "src/state/",
             "Widgets\\widget\\": "src/widget/",
@@ -14,7 +15,8 @@
 
 
             "Tests\\states\\": "tests/state/",
-            "Tests\\component\\": "tests/component/"
+            "Tests\\component\\": "tests/component/",
+            "Tests\\app\\": "tests/app/"
         }
     },
     "authors": [

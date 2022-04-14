@@ -1,9 +1,9 @@
 ### stateconfig
 
 При создании стейта проверки осуществяются вледующим образом:
- - выполняется default (or Name) метод
- - выполняется alias метод
- - widgetrequest::fillState
+- выполняется default (or Name) метод
+- выполняется alias метод
+- widgetrequest::fillState
    - обновляем get данные (from widgetrequest)
    - обновляем post данные
 
@@ -66,8 +66,11 @@ echo iButton:c('hello'); // <button style='padding: 20px;'>Hello</button>
 
 ```
 
+---
+## структура element
+ - Смотреть в [widgets.js](widgets.js)
 
-
+----
 
 
 ### TODOS

@@ -13,7 +13,7 @@ class TempState extends state {
     }
 
     function Rashod($preload): array {
-        $result = ['unit' => 'm3h'];
+        $result = ['unit' => 'hello'];
 
         return $result;
     }

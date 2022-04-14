@@ -27,4 +27,22 @@ trait widgetconventor__fromTo {
         ];
     } 
 
+    protected function WidgetToElement(widget $widget){
+        return $widget->toElement();
+    }
+
+    protected function StateMethodToElement(state__method $statemethod){
+        return $statemethod->toElement();
+    }
+
+    protected function ArrayToString(array $array){
+        $result = '';
+        foreach ($array as $value) {
+            $result .= widgetconventor::toString($value);
+        }
+        return $result;
+    }
+
+
+
 }

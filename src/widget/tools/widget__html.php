@@ -12,7 +12,8 @@ trait widget__html {
         $html .= $this->element;
         $html .= $this->renderProps();
         $html .= widgetconventor::$closetag;
-        $html .= $this->renderChilds();
+        $childs = $this->renderChilds();
+        $html .= $childs;
         $html .= $this->closeTag();
 
         return $html;
