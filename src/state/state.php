@@ -3,6 +3,7 @@
 namespace Widgets\state;
 
 use DI2\Container;
+use Widgets\widget\tools\widgetrequest;
 
 class state {
     use Container;
@@ -117,5 +118,17 @@ class state {
     public function __any($method, $props){
         return new state__method($this->name, $method, $props);
     }
+
+    public function getdata(){
+        return $this->data;
+    } 
+
+    public function getdefaults(){
+        return $this->default;
+    } 
+
+    public function getalias(){
+        return $this->alias;
+    } 
 
 }

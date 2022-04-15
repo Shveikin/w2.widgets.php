@@ -32,6 +32,8 @@ class widgetconventor {
 		'wbr' => false,
 	];
 
+    static $methods = ['StateMethod', 'WidgetRequest']; 
+
     private $trims = [
         'style' => " \n"
     ];

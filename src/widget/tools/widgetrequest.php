@@ -1,6 +1,6 @@
 <?php
 
-namespace Widgets\state;
+namespace Widgets\widget\tools;
 
 use DI2\Container;
 

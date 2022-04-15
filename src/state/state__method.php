@@ -5,10 +5,15 @@ namespace Widgets\state;
 use Widgets\conventor\widgetconventor;
 
 class state__method {
+
     function __construct($stateName, $method, $props){
         $this->stateName = $stateName;
         $this->method = $method;
         $this->props = $props;
+    }
+
+    function __toString(){
+        return $this->toHTML();
     }
 
     function toHTML(){
@@ -21,13 +26,14 @@ class state__method {
         return $this->render($values);
     }
 
-    function __toString(){
-        return $this->toHTML();
-    }
+
 
     function render($value){
         switch($this->method){
             case 'watch':
+                return $value;
+            break;
+            case 'watchdefault':
                 return $value;
             break;
             default:
@@ -39,7 +45,7 @@ class state__method {
 
     function toElement(){
         return [
-            'element' => 'state_method',
+            'element' => 'StateMethod',
             'props' => [
                 'method' => $this->method,
                 'args'  => $this->props,

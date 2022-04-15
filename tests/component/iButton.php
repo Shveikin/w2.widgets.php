@@ -7,12 +7,14 @@ use Widgets\widget\widget;
 
 
 class iButton extends widget {
-    public $element = 'button';
+    public $element = 'div';
 
     function __construct($title, $do){
         $this->innerHTML = $title;
         $this->style = "
-            padding: 20px;
+            padding: 10px;
+            border: 1px solid #eee;
+            margin-top: -1px;
         ";
 
         $this->onclick = TempState::name('Rashod')->_set('unit', $do);

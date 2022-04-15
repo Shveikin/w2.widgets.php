@@ -21,6 +21,17 @@ class widgetstate {
         $super($this);
     }
 
+    private function render(){
+        $result = '';
+        foreach ($this->global as $key => $value) {
+            $data = json_encode($value->getdata());
+            $default = json_encode($value->getdefaults());
+            $alias = json_encode($value->getalias());
+
+            $result .= "widgetstate.use(\"$key\", $data, $default, $alias) \n\t\t\t";
+        } 
+        return $result;
+    }
 
     private function name($stateName, $source = false){
         if (!isset($this->global[$stateName])){

@@ -69,38 +69,11 @@ class widgetwatcher__link {
 
     update(){
         const value = this._watcher.get_value(this._widget)
-        
-/* 
-        if (this._props=='innerText') // ## 1+
-        if (widgetconvertor.getType(value)=='Array'){
-            this._widget.assignProp('innerText', '')
-            this._props = 'child'
-        }
- */
 
         const changeProps = this._widget.assignProp(this._props, value)
         if (changeProps)
             this._props = changeProps
     }
-}
-// widgetstate__methods.js
-
-class widgetstate__methods {
-
-    static getFromElement(element){
-        let {method, args, stateName} = element.props;
-        const functionWrap = method.substr(0, 1)=='_'
-
-        if (functionWrap)
-            method = method.substr(1)
-
-        const result = function(){
-            return state[stateName][method](...args)
-        }
-
-        return functionWrap?result:result()
-    }
-
 }
 // widgetwatcher__static.js
 
@@ -127,16 +100,12 @@ class widgetwatcher__static {
             strkeys,
         }
     }
-
+/* 
     static by(path, keys, callback = false){
         const j = widgetwatcher__static.parsekeys(keys, callback)
 
         if (path in widgetwatcher.global){
-/*             
-            if (j.strkeys in widgetwatcher.global[path]) {
-                return widgetwatcher.global[path][j.strkeys]
-            }
-*/
+
         } else {
             widgetwatcher.global[path] = {}
         }
@@ -145,6 +114,20 @@ class widgetwatcher__static {
 
         return widgetwatcher.global[path][j.strkeys]
     }
+ */
+
+    static by(path, keys, callback = false){
+        const j = widgetwatcher__static.parsekeys(keys, callback)
+        const watcher = new widgetwatcher(path, j.keys, j.callback)
+        return watcher
+    }
+
+    static addToGlobal(path, watcherKey, link){
+        if (!(path in widgetwatcher.global)) 
+            widgetwatcher.global[path] = {}
+        
+        widgetwatcher.global[path][watcherKey] = link
+    }
 
     key_inside(key){
         return this._keys.includes(key)
@@ -152,9 +135,10 @@ class widgetwatcher__static {
 
     static update_path(path, key){
         if (path in widgetwatcher.global){
-            Object.values(widgetwatcher.global[path]).forEach(watcher => {
-                if (watcher.key_inside(key)){
-                    watcher.update()
+            Object.keys(widgetwatcher.global[path]).forEach(watcherKey => {
+                const link = widgetwatcher.global[path][watcherKey]
+                if (link.key_inside(key)){
+                    link.update()
                 }
             })
         }
@@ -192,9 +176,16 @@ class widgetwatcher extends widgetwatcher__static {
 
     link(widget, props){
         const link = new widgetwatcher__link(widget, props, this)
-        this._link[link.key()] = link
 
-        link.update()
+
+        const watcherKey = link.key()
+        // const watcherKey = this._key = [widget.id, props].join('_')
+        this._link[watcherKey] = link
+
+        
+        widgetwatcher.addToGlobal(this._path, watcherKey, this)
+
+        this.update()
     }
 
     setonlink(callback){
@@ -215,6 +206,55 @@ class widgetwatcher extends widgetwatcher__static {
 
         const result = this._callback.apply(widget, args)
         return result
+    }
+
+}
+// widgetstate__props.js
+
+class widgetstate__props {
+
+    static props = {}
+
+    static setDefault(path, defaults){
+        widgetstate__props.setStateProp(path, 'defaults', defaults);
+    }
+
+    static setAlias(path, alias){
+        widgetstate__props.setStateProp(path, 'alias', alias);
+    }
+
+    static setStateProp(path, prop, data){
+        if (!(path in widgetstate__props.props))
+            widgetstate__props.props[path] = {};
+
+        widgetstate__props.props[path][prop] = data;
+    }
+
+
+    static getDefault(path, key){
+        return widgetstate__props.props[path]?.defaults[key]
+    }
+
+    static getAlias(){
+        return widgetstate__props.props[path]?.alias[key]
+    }
+}
+// widgetstate__methods.js
+
+class widgetstate__methods {
+
+    static getFromElement(element){
+        let {method, args, stateName} = element.props;
+        const functionWrap = method.substr(0, 1)=='_'
+
+        if (functionWrap)
+            method = method.substr(1)
+
+        const result = function(){
+            return state[stateName][method](...args)
+        }
+
+        return functionWrap?result:result()
     }
 
 }
@@ -240,16 +280,29 @@ class widgetstate__static {
         state[to] = data
     }
 
-    static path_from_args(args){
+    static path_from_args(){
+        let result = ''
+        if (Array.isArray(arguments[0])){
+            result = widgetstate.path_from_args(...arguments[0])
+        } else {
+            result = Array.from(arguments).join(widgetstate.splitter)
+        }
+
+        if (result.startsWith(widgetstate.start)){
+            return result;
+        } else {
+            return widgetstate.path_from_args(widgetstate.start, result)
+        }
+        /* let result = ''
         if (Array.isArray(args)){
             if (args.length==1){
                 return widgetstate.path_from_args(args[0])
             } else {
-                return args.join(widgetstate.splitter)
+                return ['#', ...args].join(widgetstate.splitter)
             }
         } else {
             return args.toString()
-        }
+        } */
     }
 
     run_method(method){
@@ -323,8 +376,8 @@ class widgetstate__tools extends widgetstate__static {
     set(key, value){
         if (typeof value == 'object' && !key.startsWith('_')) {
             let tempState = this.to(key)
-            for (const [key, value] of Object.entries(value)) {
-                tempState.set(key, value)
+            for (const [nkey, nvalue] of Object.entries(value)) {
+                tempState.set(nkey, nvalue)
             }
         } else {
             this._data[key] = value
@@ -337,7 +390,7 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     getdefault(key){
-        return this._data[key]
+        return widgetstate__props.getDefault(this._path, key)
     }
 
 
@@ -409,6 +462,17 @@ class widgetstate__tools extends widgetstate__static {
         })
     }
 
+    watchdefault(key, __true, __false){
+        const defaultValue = this.getdefault(key) 
+        return this.watch(key, function(value){
+
+            return value==defaultValue
+                ?__true
+                :__false
+
+        })
+    }
+
 
 
     model(key){
@@ -456,9 +520,11 @@ class widgetstate__tools extends widgetstate__static {
 // widgetstate.js
 
 class widgetstate extends widgetstate__tools {
-    
+
     static global = {}
+    static start = '#' 
     static splitter = '/'
+
     constructor(path){
         super()
         this._path = widgetstate.path_from_args(path)
@@ -469,10 +535,17 @@ class widgetstate extends widgetstate__tools {
         return new widgetstate(Array.from(arguments))
     }
 
+    static use(name, data, defaults = false, alias = false){
+        state[name] = data
+        const path = widgetstate.path_from_args(name)
+        widgetstate__props.setDefault(path, defaults);
+        widgetstate__props.setAlias(path, alias);
+    }
+
 }
 // state.js
 
-const state = new Proxy({path: ['#']}, {
+const state = new Proxy({path: [widgetstate.start]}, {
 	get(sm, to){
         if (widgetstate__static.smart_methods.includes(to)){
             return widgetstate__static[to](sm.path)
@@ -491,7 +564,8 @@ const state = new Proxy({path: ['#']}, {
     set:(sm, to, data) => {
         const stt = new widgetstate(sm.path)
         stt.set(to, data)
-        // widgetstate.by(sm.path).applyTo(to, data)
+
+        return true;
     }
 })
 // widgetconvertor__fromToFunc.js
@@ -630,6 +704,8 @@ class widgetconvertor extends widgetconvertor__tools {
         }
     }
 
+	static methods = ['StateMethod', 'WidgetRequest'];
+
     static getType(element){
 		let type = 'Unknown'
         if (Array.isArray(element))
@@ -649,8 +725,9 @@ class widgetconvertor extends widgetconvertor__tools {
 			else
 			if ('element' in element)
 				type = 'Element'
-				if (element.element == 'state_method')
-					type = 'StateMethod'
+				if (widgetconvertor.methods.includes(element.element)){
+					return element.element
+				}
 /* 
 				if (element.element == 'WidgetTools' || typeof widgettools[element.element] === 'function'){
 					type = 'WidgetTools'
