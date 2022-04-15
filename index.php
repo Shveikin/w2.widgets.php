@@ -13,8 +13,13 @@ use Widgets\widget\c;
 // $tmp3 = TempState::name('Pressure')->get('unit');
 
 
-$btn = c::button('hello', style: 'color: #f00');
-echo main::c($btn);
+
+echo main::app([
+    TempState::name('Rashod')->watch('unit'),
+    iButton::c('Цельсий', 'C'),
+    iButton::c('Фарингейт', 'F'),
+]);
+
 
 
 

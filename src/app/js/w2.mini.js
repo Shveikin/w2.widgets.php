@@ -83,6 +83,25 @@ class widgetwatcher__link {
             this._props = changeProps
     }
 }
+// widgetstate__methods.js
+
+class widgetstate__methods {
+
+    static getFromElement(element){
+        let {method, args, stateName} = element.props;
+        const functionWrap = method.substr(0, 1)=='_'
+
+        if (functionWrap)
+            method = method.substr(1)
+
+        const result = function(){
+            return state[stateName][method](...args)
+        }
+
+        return functionWrap?result:result()
+    }
+
+}
 // widgetwatcher__static.js
 
 class widgetwatcher__static {
@@ -167,8 +186,6 @@ class widgetwatcher extends widgetwatcher__static {
 
     update(){
         for (const [key, link] of Object.entries(this._link)){
-            widgetdom.debug('widgetwatcher', 'update')('update watcher', key)
-
             link.update()
         }
     }
@@ -543,6 +560,10 @@ class widgetconvertor__fromToFunc {
         )
     }
 
+    static StateMethodToWidget(state_method){
+        return widgetstate__methods.getFromElement(state_method);
+    }
+
 }
 // widgetconvertor__tools.js
 
@@ -628,6 +649,8 @@ class widgetconvertor extends widgetconvertor__tools {
 			else
 			if ('element' in element)
 				type = 'Element'
+				if (element.element == 'state_method')
+					type = 'StateMethod'
 /* 
 				if (element.element == 'WidgetTools' || typeof widgettools[element.element] === 'function'){
 					type = 'WidgetTools'
@@ -691,8 +714,7 @@ class widgetconvertor extends widgetconvertor__tools {
 */
 class widgetdom__api {
     static app(element){
-        const widget = widgetconvertor.toWidget(element)
-        widgetdom__api.render('#app', widget)
+        widgetdom__api.render('#app', element)
     }
 
     /**
@@ -1027,6 +1049,9 @@ class widget extends widget__tools {
                     value = this.templateFillContents(value)
                 }
             break;
+            case 'StateMethod':
+                value = widgetstate__methods.getFromElement(value) 
+            break;
         }
         
         if (prop!='child'){
@@ -1081,7 +1106,7 @@ class widget extends widget__tools {
         switch(type){
             case 'Bool':
                 const attrListBool = ['innerHTML'];
-                if (attrListBool.includes(prop)){
+                if (!attrListBool.includes(prop)){
                     this.domElement[prop] = ''
                 } else {
                     this.domElement[prop] = value

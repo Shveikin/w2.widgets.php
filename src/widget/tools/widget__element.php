@@ -14,7 +14,11 @@ trait widget__element {
         foreach($this->props as $prop => $val){
             if (!isset($result['props'])) $result['props'] = [];
 
-            $result['props'][$prop] = widgetconventor::toElement($val);
+            $value = widgetconventor::toElement($val);
+            $trim = widgetconventor::getTrimFor($prop);
+            if ($trim)
+                $value = trim($value, $trim);
+            $result['props'][$prop] = $value;
         }
 
         foreach($this->child as $child){

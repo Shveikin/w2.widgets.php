@@ -14,7 +14,8 @@ class widgetapp {
     public $lang = 'en';
 
     function __construct(){
-        $this->script = file_get_contents(__DIR__ . '/js/w2.mini.js');
+        if ($this->script!=false)
+            $this->script = file_get_contents(__DIR__ . '/js/w2.mini.js');
     }
 
     private static $appcount = 0; 
@@ -24,48 +25,54 @@ class widgetapp {
     }
 
 
-    protected function c($element){
+    protected function app($element){
         $widget = widgetconventor::toWidget($element);
         $html = $widget->toHTML();
         $el = json_encode(widgetconventor::toElement($widget));
 
-        $result = '';
+        $script = '';
 
         $appcount = $this->getappcount();
         if ($this->script && $appcount==1){
             if ($this->script==true){
-                $result .= "<script>$this->script</script>\n";
+                $script = "<script>$this->script</script>\n";
             } else {
-                $result .= "<script src='$this->script'></script>\n";
+                $script = "<script src='$this->script'></script>\n";
             }
         }
 
 
 
         $selector = "app".rand(32, 9992)."{$appcount}";
-        $result .= <<<HTML
+        $result = <<<HTML
             <div id='$selector'>.$html.</div>
             <script>
-                c.render('#$selector',$el);
+                c.render('#$selector',
+                    $el
+                );
             </script>
             HTML;
 
 
-        if ($this->structure)
-        $result = <<<HTML
-            <!DOCTYPE html>
-            <html lang="{$this->lang}">
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>{$this->title}</title>
-            </head>
-                <body>
-                    {$result}
-                </body>
-            </html>
-        HTML;
+        if ($this->structure){
+            $result = <<<HTML
+                <!DOCTYPE html>
+                <html lang="{$this->lang}">
+                <head>
+                    <meta charset="UTF-8">
+                    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>{$this->title}</title>
+                    {$script}
+                </head>
+                    <body>
+                        {$result}
+                    </body>
+                </html>
+            HTML;
+        } else {
+            $result = $script . $result;
+        }
 
         return $result;
     }

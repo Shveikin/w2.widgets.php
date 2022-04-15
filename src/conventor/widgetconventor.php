@@ -32,6 +32,18 @@ class widgetconventor {
 		'wbr' => false,
 	];
 
+    private $trims = [
+        'style' => " \n"
+    ];
+
+    private function getTrimFor($prop){
+        if (isset($this->trims[$prop])) {
+            return $this->trims[$prop];
+        } else {
+            return false;
+        }
+    }
+
     protected function checkSingleTag($tag){
         if (isset($this->singletags[$tag])){
             return $this->singletags[$tag];

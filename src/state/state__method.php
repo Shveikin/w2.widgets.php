@@ -39,9 +39,10 @@ class state__method {
 
     function toElement(){
         return [
-            'element' => $this->method,
+            'element' => 'state_method',
             'props' => [
-                'props' => $this->props,
+                'method' => $this->method,
+                'args'  => $this->props,
                 'stateName' => $this->stateName,
             ]
         ];

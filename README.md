@@ -88,6 +88,7 @@ echo iButton:c('hello'); // <button style='padding: 20px;'>Hello</button>
  + set
  + pushto
  + lpushto
+ + _ * any * - function wrap
 
 state__method (class)
    + toHTML (+?)

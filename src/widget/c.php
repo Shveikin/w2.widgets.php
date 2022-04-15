@@ -11,7 +11,7 @@ abstract class c {
     }
 
     static function app($element){
-        return widgetapp::c($element);
+        return widgetapp::app($element);
     }
 
 }

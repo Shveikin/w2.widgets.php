@@ -5,8 +5,8 @@ namespace Tests\app;
 use Widgets\app\widgetapp;
 
 class main extends widgetapp {
-    public $script = 'hello';
-    public $structure = true;
+    public $script = true;
+    public $structure = false;
     public $title = 'myyydd';
     public $lang = 'ru';
 }
