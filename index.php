@@ -14,7 +14,7 @@ use Widgets\widget\c;
 
 
 $btn = c::button('hello', style: 'color: #f00');
-echo c::app($btn);
+echo main::c($btn);
 
 
 

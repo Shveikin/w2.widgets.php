@@ -537,8 +537,8 @@ class widgetconvertor__fromToFunc {
             'element' in element
                 ?element.element
                 :widgetdom.defaulttag,
-            typeof element == 'object'
-                ?element
+            'props' in element
+                ?element.props
                 :{}
         )
     }
@@ -799,7 +799,7 @@ class widgetdom__tools extends widgetdom__api {
 // widgetdom.js
 
 class widgetdom extends widgetdom__tools {
-    static _debug = false
+    static _debug = true
     static _trace = true
 
 
@@ -1047,6 +1047,7 @@ class widget extends widget__tools {
             switch (type) {
                 case 'Array':
                 case 'Widget':
+                case 'Element':
                     this.sequreAssign('innerText', '')
                     this.childs = []
                     prop = 'child'
