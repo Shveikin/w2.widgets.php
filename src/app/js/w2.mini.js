@@ -73,6 +73,9 @@ class widgetwatcher__link {
         const changeProps = this._widget.assignProp(this._props, value)
         if (changeProps)
             this._props = changeProps
+
+
+        // this._watcher.updateAlias()
     }
 }
 // widgetwatcher__static.js
@@ -208,6 +211,10 @@ class widgetwatcher extends widgetwatcher__static {
         return result
     }
 
+    updateAlias(){
+        
+    }
+
 }
 // widgetstate__props.js
 
@@ -230,14 +237,23 @@ class widgetstate__props {
         widgetstate__props.props[path][prop] = data;
     }
 
+    static by(path){
+        if (path in widgetstate__props.props)
+            return widgetstate__props.props[path]
+        else
+            return false
+    }
 
     static getDefault(path, key){
         return widgetstate__props.props[path]?.defaults[key]
     }
 
-    static getAlias(){
+/*
+    static getAlias(path, key){
         return widgetstate__props.props[path]?.alias[key]
     }
+*/
+
 }
 // widgetstate__methods.js
 
@@ -354,6 +370,7 @@ class widgetstate__tools extends widgetstate__static {
         'watch', 
         'watchif', 
         'watchin', 
+        'watchdefault',
         'model', 
         'modelin',
 
@@ -380,8 +397,33 @@ class widgetstate__tools extends widgetstate__static {
                 tempState.set(nkey, nvalue)
             }
         } else {
-            this._data[key] = value
-            widgetwatcher.update_path(this._path, key)
+            if (this._data[key] != value){
+                this._data[key] = value
+                widgetwatcher.update_path(this._path, key)
+                
+                this.run_request(key)
+            }
+        }
+    }
+
+    run_request(key){
+        if (this.props){
+            const url = this.props?.alias[key]
+            
+            if (url) 
+            if (this.isdefault(key))
+                widgetalias.remove(url)
+            else
+                widgetalias.set(url, this._data[key]) // обновил url без задержек!
+
+            if (this.props?.request)
+                setTimeout(function(){
+
+                    const action = new widgetrequest(this.props.request)
+
+                }, this.props?.delay || 0)
+            
+            console.log(key, this.props)
         }
     }
 
@@ -391,6 +433,10 @@ class widgetstate__tools extends widgetstate__static {
 
     getdefault(key){
         return widgetstate__props.getDefault(this._path, key)
+    }
+
+    isdefault(key){
+        return this.getdefault(key) != $this._data[key]
     }
 
 
@@ -529,6 +575,8 @@ class widgetstate extends widgetstate__tools {
         super()
         this._path = widgetstate.path_from_args(path)
         this._data = this.getdata()
+
+        this.props = widgetstate__props.by(this._path)
     }
 
     static name(){
