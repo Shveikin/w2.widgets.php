@@ -6,8 +6,7 @@ namespace Widgets\state;
 use DI2\Container;
 use DI2\MP;
 use Exception;
-
-
+use Widgets\conventor\widgetconventor;
 
 class widgetstate {
     use Container;
@@ -93,6 +92,24 @@ class widgetstate {
 
     private function global(){
         return $this->global;
+    }
+
+    static function group(...$args){
+        $list = [];
+        foreach ($args as $itm) {
+            if (widgetconventor::canConvertToElement($itm)){
+                $list[] = widgetconventor::toElement($itm);
+            }
+        }
+
+        $result = [
+            'element' => 'group',
+            'props' => [
+                'list' => $list
+            ],
+        ];
+        return $result;
+
     }
 
 }

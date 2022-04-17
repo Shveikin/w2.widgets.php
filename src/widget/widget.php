@@ -3,6 +3,7 @@
 namespace Widgets\widget;
 
 use Widgets\conventor\widgetconventor;
+use Widgets\widget\tools\request;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
 
@@ -14,6 +15,8 @@ class widget {
     public $element = 'div';
     private $props = [];
     private $child = [];
+
+    public $useState = [];
 
     function __construct($tag, $props){
         $this->element = $tag;
@@ -60,10 +63,16 @@ class widget {
         }
     }
 
-    function __get($key){
-        if (method_exists($this, $key)){
-            return "method::$key";
-        }
+    function __get($function_name){
+        // $useStates = $this->useState; //$this->getUseStateList();
+
+        return new request(
+            function: $function_name,
+            url: $this->url,
+            class: get_class($this),
+            useState: $this->useState
+        );
+
     }
 
     function __toString(){

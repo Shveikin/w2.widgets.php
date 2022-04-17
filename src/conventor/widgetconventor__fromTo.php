@@ -43,6 +43,8 @@ trait widgetconventor__fromTo {
         return $result;
     }
 
-
+    protected function RequestToElement($request){
+        return $request->apply();
+    }
 
 }

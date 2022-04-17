@@ -22,8 +22,12 @@ trait widget__html {
     private function renderProps() {
         $result = '';
         foreach($this->props as $attr => $value) {
-            if (!in_array($attr, ['innerHTML', 'innerText']))
-                $result .= " $attr='" . trim($value) . "'";
+            if (!in_array($attr, ['innerHTML', 'innerText'])){
+                $type = widgetconventor::getType($value);
+
+                if (in_array($type, ['String', 'Int', 'Bool']))
+                    $result .= " $attr='" . trim($value) . "'";
+            }
         }
         
         return $result;

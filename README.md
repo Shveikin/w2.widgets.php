@@ -73,6 +73,37 @@ echo iButton:c('hello'); // <button style='padding: 20px;'>Hello</button>
 ----
 
 
+
+
+
+
+
+
+### widgetconventor
+```php
+
+   class widgetconventor {
+      getType($element) // type
+      canConvertToElement($element):bool // Могу конвентировать в Element
+   }
+
+```
+### request
+```php
+   class request {
+      apply(...$props):Element
+   }
+```
+
+
+
+
+
+
+
+
+
+
 ### TODOS
 
 ## element -> 

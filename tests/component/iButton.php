@@ -17,7 +17,11 @@ class iButton extends widget {
             margin-top: -1px;
         ";
 
-        $this->onclick = TempState::name('Rashod')->_set('unit', $do);
+        $this->onclick = $this->ctemp;
+    }
+
+    function ctemp(){
+        TempState::name('Rashod')->_set('unit', 'R');
     }
 
 }

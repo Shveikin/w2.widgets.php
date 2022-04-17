@@ -7,9 +7,11 @@ use Widgets\state\state__method;
 use Widgets\widget\widget;
 
 use DI2\Container;
+use Widgets\widget\tools\request;
 
 class widgetconventor {
     use Container;
+    use widgetconventor__methods;
     use widgetconventor__to;
     use widgetconventor__fromTo;
 
@@ -81,6 +83,9 @@ class widgetconventor {
         } else 
         if ($element instanceof state__method){
             return 'StateMethod';
+        } else
+        if ($element instanceof request){
+            return 'Request';
         } else
         if (is_string($element)){
             return 'String';
