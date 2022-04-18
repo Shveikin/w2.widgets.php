@@ -133,3 +133,18 @@ state__method (class)
 
 
 ## widgetrequest (?)
+
+
+
+
+# widget
+## <a name="useState"> public $useState = []</a>
+> Список стейтов которые использует компонент
+```php
+
+   public $useState = [
+      [myState::class, 'myStateName'], // myState::name('myStateName')->set('unit', 'C')
+      tempState::class, // tempState::set('unit', 'C')
+   ];
+
+```

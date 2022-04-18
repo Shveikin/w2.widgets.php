@@ -30,4 +30,19 @@ trait widget__element {
 
         return $result;
     }
+
+    public function getUseStateDataWithSource(){
+        $result = [];
+        foreach ($this->useState as $source) {
+            $stateClass = is_array($source)?$source[0]:$source;
+            $state = is_array($source)?$stateClass::name($source[1]):$source::main();
+            $shortName = $state->getName();
+
+            if (!isset($result[$shortName])) $result[$shortName] = [];
+            $result[$shortName]['data'] = $state->getdata();
+            $result[$shortName]['source'] = $source;
+        }
+
+        return $result;
+    }
 }

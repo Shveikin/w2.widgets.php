@@ -32,6 +32,15 @@ class widgetstate {
         return $result;
     }
 
+    private function toElement(){
+        $result = [];
+        foreach ($this->global as $key => $value) {
+            $data = $value->getdata();
+            $result[$key] = $data;
+        } 
+        return $result;
+    }
+
     private function name($stateName, $source = false){
         if (!isset($this->global[$stateName])){
             $state = MP::GET(

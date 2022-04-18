@@ -5,7 +5,7 @@ namespace Tests\app;
 use Widgets\app\widgetapp;
 
 class main extends widgetapp {
-    public $script = true;
+    public $script = '/src/app/js/w2.mini.js';
     public $structure = true;
     public $title = 'myyydd';
     public $lang = 'ru';

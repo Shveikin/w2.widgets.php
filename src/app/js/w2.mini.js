@@ -1,5 +1,7 @@
 // c.js
 
+// v18.2
+
 const c = new Proxy({}, {
 	get:(_, _type) => {
         if (typeof widgetdom[_type] == 'function')
@@ -46,6 +48,238 @@ class widgetcallback {
             return 0
         }
     }
+}
+// widgetalias.js
+
+class widgetalias {
+    static global = {}
+    static url = ''
+
+    static set(url, value){
+        widgetalias.global[url] = value
+		widgetalias.updateHistory()
+    }
+
+	static remove(url){
+		if (url in widgetalias.global) {
+			delete widgetalias.global[url]
+			widgetalias.updateHistory()
+		}
+	}
+
+    static getUrl(){
+        let result = '';
+        
+		Object.keys(widgetalias.global).forEach(key => {
+			result += '&' + key
+			if (Array.isArray(widgetalias.global[key])){
+				result += `=${widgetalias.global[key].join(',')}`
+			} else {
+				result += `=${widgetalias.global[key]}`
+			}
+		})
+        
+		return result!=''?result.substring(1):''
+    }
+
+	static updateHistory(){
+		const currentUrl = widgetalias.getUrl()
+        if (currentUrl!=widgetalias.url){
+			window.history.replaceState(0, "", location.origin + location.pathname + '?' + currentUrl);
+			widgetalias.url = currentUrl
+		}
+	}
+}
+// widgetrequest.js
+
+class widgetrequest {
+    static active = {};
+
+    constructor(props, bindToHtmlElement, callback = false){
+        this.props = props
+        this.bindToHtmlElement = bindToHtmlElement
+        this.callback = callback
+
+        this.method = props.method
+        this.props = props.props
+        this.url = props.url
+        this.source = props.source
+        this.useState = props.useState
+        this.extra = props.extra
+        this.view = props.view
+        this.returnType = props.returnType
+        this.bind = props.bind | []
+
+        this.catch = function(result){
+            console.log('widgetrequest', 'result', result)
+        }
+    }
+
+    run(callback = false){
+        if (callback)
+            this.catch = callback
+
+        this.fetch()
+
+        return this
+    }
+
+    wait(check){
+        if (this.bindToHtmlElement && this.bindToHtmlElement.tagName=='BUTTON')
+            if (check) 
+                this.bindToHtmlElement.classList.add('waiting')
+            else
+                this.bindToHtmlElement.classList.remove('waiting')
+    }
+
+    fetch(){
+        const state = this.getStateData()
+        const body = JSON.stringify({
+            state,
+            // this: widget.props
+            executor: {
+                source: this.source,
+                method: this.method,
+                props: this.props,
+                bind: this.bind,
+            },
+            // request_id: widgetstate.current_request,
+        })
+        const signal = this.get_abort_signal(this.url)
+
+        this.wait(true)
+        fetch(this.url, {
+            method: 'POST',
+            body,
+            signal
+        })
+        .then(res => res.json())
+        .then(res => this.apply(res))
+        .catch(error => this.error(error))
+        .finally(() => this.wait(false));
+    }
+
+
+    get_abort_signal(url, method = ''){
+        const active = widgetrequest.active
+
+        const current = url + '|' + method
+		if (current in active){
+			active[current].forEach(ac => {
+				ac.abort();
+				ac = null
+			})
+		}
+
+		active[current] = [];
+		const controller = new AbortController();
+		active[current].push(
+			controller
+		)
+		return controller.signal
+    }
+
+
+    getStateData(){
+        const result = {}
+    
+        this.useState.forEach(useState => {
+            const stateName = Array.isArray(useState)?useState[1]:useState
+            result[stateName] = {
+                data: state[stateName].getRequestData(),
+                source: useState
+            }
+        })
+
+        return result
+    }
+
+
+
+
+
+
+    apply(res){
+        if ('state' in res){
+            Object.keys(res.state).forEach(stateName => {
+                if ('data' in res.state[stateName])
+                    Object.keys(res.state[stateName].data).forEach(propName => {
+                        state[stateName].set(propName, res.state[stateName].data[propName])
+                    })
+
+                if ('runOnFrontend' in res.state[stateName]){
+                    console.log('runOnFrontend', res.state[stateName].runOnFrontend)
+
+                    res.state[stateName].runOnFrontend.forEach(func => {
+                        const func2 = widgetconvertor.toFunction(func)
+                        func2()
+                    })
+                }
+            })
+        }
+
+        if ('then' in res){
+            const func = window[props.then].bind({
+                bind: props.bind
+            })
+            func(res.result)
+        }
+
+        this.catchControll(res)
+    }
+
+    error(error){
+        this.catchControll(error)
+    }
+
+
+    setCatch(callback){
+        this.catch = callback
+        return this
+    }
+
+    catchControll(result){
+        if (typeof this.catch == 'function'){
+            this.catch(result)
+            this.catch = false
+        }
+    }
+
+}
+// widgetelement__tools.js
+
+
+
+class widgetelement__tools {
+    
+    static create(elementType, props){
+        try {
+            return widgetelement__tools[elementType](props)
+        } catch (err){
+            throw `Element "${elementType}" - не определен! `;
+        }
+    }
+
+
+
+
+    static group({list}){
+        return () => 
+            list.forEach(itm => 
+                widgetconvertor.toFunction(itm)()
+            )
+    }
+
+    static func({args, body}){
+        return new Function(args, body);
+    }
+
+    static requestmethod(props){
+        return function() {
+            return new widgetrequest(props, this).run()
+        }
+    }
+
 }
 // widgetwatcher__link.js
 
@@ -357,28 +591,29 @@ class widgetstate__static {
 
 class widgetstate__tools extends widgetstate__static {
     static tools = [
-        'to',
+        'to', 
 
-        'get',
-        'getdefault',
+        'get', 
+        'getdefault', 
         'set', 
-        'pushto',
-        'lpushto',
-        'pullfrom',
+        'pushto', 
+        'lpushto', 
+        'pullfrom', 
 
 
         'watch', 
         'watchif', 
         'watchin', 
-        'watchdefault',
+        'watchdefault', 
         'model', 
-        'modelin',
+        'modelin', 
 
 
-        'turn',
-        'map',
+        'turn', 
+        'map', 
 
-        'proxy',
+        'proxy', 
+        'getRequestData'
     ]
 
     
@@ -408,8 +643,11 @@ class widgetstate__tools extends widgetstate__static {
 
     run_request(key){
         if (this.props){
+            console.log(key, this.props)
+
+
             const url = this.props?.alias[key]
-            
+
             if (url) 
             if (this.isdefault(key))
                 widgetalias.remove(url)
@@ -419,11 +657,10 @@ class widgetstate__tools extends widgetstate__static {
             if (this.props?.request)
                 setTimeout(function(){
 
-                    const action = new widgetrequest(this.props.request)
+                    this.activerequest = new widgetrequest(this.props.request)
+                    this.activerequest.run()
 
                 }, this.props?.delay || 0)
-            
-            console.log(key, this.props)
         }
     }
 
@@ -436,7 +673,7 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     isdefault(key){
-        return this.getdefault(key) != $this._data[key]
+        return this.getdefault(key) != this._data[key]
     }
 
 
@@ -562,6 +799,22 @@ class widgetstate__tools extends widgetstate__static {
                 :false
         )
     }
+
+
+
+    getRequestData(){
+        const result = {}
+
+        Object.keys(this._data).forEach(key => {
+            if (!key.startsWith('__')){
+                result[key] = this._data[key]
+            }
+        });
+
+        // добавить source
+
+        return result
+    }
 }
 // widgetstate.js
 
@@ -577,6 +830,7 @@ class widgetstate extends widgetstate__tools {
         this._data = this.getdata()
 
         this.props = widgetstate__props.by(this._path)
+        this.activerequest = false
     }
 
     static name(){
@@ -715,6 +969,21 @@ class widgetconvertor__tools extends widgetconvertor__fromToFunc {
         const result = widgetconvertor.convert(newelement, newtype, 'Element', tag)
         return result
     }
+
+    static toFunction(element){
+        const type = widgetconvertor.getType(element)
+        if (type == 'Function')
+            return element
+
+        switch(type){
+            case 'Element':
+                if (element.element == 'func'){
+                    console.log('>', type)
+                    return widgetelement__tools.create(element.element, element.props)
+                }
+            break;
+        }
+    }
 }
 // widgetconvertor.js
 
@@ -780,7 +1049,7 @@ class widgetconvertor extends widgetconvertor__tools {
 				if (element.element == 'WidgetTools' || typeof widgettools[element.element] === 'function'){
 					type = 'WidgetTools'
 				}
-				 */
+*/
 		} else
 		if (typeof element=='string')
 			type = 'String'
@@ -825,7 +1094,6 @@ class widgetconvertor extends widgetconvertor__tools {
 			break;
 			default:
 				widgetdom.debug('widgetconvertor', 'copy')('Не знаю как копировать этот тип', type)
-				// return element;
 			break;
 		}
 	}
@@ -1176,6 +1444,9 @@ class widget extends widget__tools {
             break;
             case 'StateMethod':
                 value = widgetstate__methods.getFromElement(value) 
+            break;
+            case 'Element':
+                value = widgetelement__tools.create(value.element, value.props)
             break;
         }
         

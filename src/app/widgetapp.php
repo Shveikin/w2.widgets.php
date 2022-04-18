@@ -17,8 +17,8 @@ class widgetapp {
     public $cigaretteBurn = false;
 
     function __construct(){
-        if ($this->script!=false)
-            $this->script = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/w2.mini.js'));
+        if ($this->script===true)
+            $this->script_js_content = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/w2.mini.js'));
     }
 
     private static $appcount = 0; 
@@ -48,8 +48,8 @@ class widgetapp {
         $appcount = $this->getappcount();
         if ($appcount==1){
             if ($this->script){
-                if ($this->script==true){
-                    $script = "<script>$this->script</script>\n";
+                if ($this->script===true){
+                    $script = "<script>$this->script_js_content</script>\n";
                 } else {
                     $script = "<script src='$this->script'></script>\n";
                 }

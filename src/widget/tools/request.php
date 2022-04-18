@@ -23,12 +23,12 @@ class request {
 
     function apply(...$props) {
         $request = [
-            'element' => 'widget_request',
+            'element' => 'requestmethod',
             'props' => [
-                'function' => $this->get('function'),
+                'method' => $this->get('function'),
                 'props' => $props,
                 'url' => $this->get('url'),
-                'class' => $this->get('class'),
+                'source' => $this->get('class'),
                 'useState' => $this->get('useState'),
                 'extra' => $this->extra,
                 'view' => '',
@@ -36,7 +36,7 @@ class request {
             ]
         ];
 
-        return widgetstate::group($request);
+        return $request;
     }
 
     function toElement(){

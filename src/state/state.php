@@ -16,7 +16,8 @@ class state {
 
     private $childs = [];
 
-    function __construct($name = false){
+    function __construct($super, $name = false){
+        $super($this);
 
         widgetstate::reg($this, $name);
 
@@ -74,6 +75,10 @@ class state {
 
     protected function set($key, $value){
         $this->data[$key] = $value;
+    }
+
+    protected function setFromRequest(array $data){
+
     }
 
     protected function get($key){

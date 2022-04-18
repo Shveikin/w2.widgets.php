@@ -12,12 +12,11 @@ use Widgets\widget\c;
 
 // $start = microtime(true);
 
-
+TempState::name('Rashod')->set('unit', '*');
 
 
 echo main::app([
     iButton::c('Цельсий', 'C'),
-    iButton::c('Фарингейт', 'F'),
     TempState::name('Rashod')->watch('unit')
 ]);
 

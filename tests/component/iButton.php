@@ -7,21 +7,22 @@ use Widgets\widget\widget;
 
 
 class iButton extends widget {
-    public $element = 'div';
+    public $element = 'button';
+    public $useState = [
+        [TempState::class, 'Rashod']
+    ];
 
     function __construct($title, $do){
         $this->innerHTML = $title;
         $this->style = "
-            padding: 10px;
-            border: 1px solid #eee;
-            margin-top: -1px;
+            padding: 2px;
         ";
 
         $this->onclick = $this->ctemp;
     }
 
     function ctemp(){
-        TempState::name('Rashod')->_set('unit', 'R');
+        TempState::name('Rashod')->set('unit', 'R');
     }
 
 }
