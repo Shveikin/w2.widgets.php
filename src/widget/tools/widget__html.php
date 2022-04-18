@@ -41,9 +41,7 @@ trait widget__html {
         else if (isset($this->props['innerText']))
             $result = $this->props['innerText'];
         else
-            foreach($this->child as $child){
-                $result .= widgetconventor::toHTML($child);
-            }
+            $result .= widgetconventor::toHTML($this->child);
 
         return $result;
     }

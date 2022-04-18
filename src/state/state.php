@@ -73,7 +73,7 @@ class state {
         return $this->name;
     }
 
-    protected function set($key, $value){
+    protected function set(string|int $key, $value){
         $this->data[$key] = $value;
     }
 
@@ -81,7 +81,7 @@ class state {
 
     }
 
-    protected function get($key){
+    protected function get(string|int $key){
         if (isset($this->data[$key])){
             return $this->data[$key];
         } else {
@@ -89,7 +89,7 @@ class state {
         }
     }
 
-    protected function getdefault($key){
+    protected function getdefault(string|int $key){
         return $this->default[$key];
     }
 
@@ -135,5 +135,13 @@ class state {
     public function getalias(){
         return $this->alias;
     } 
+
+    protected function appendto($key, $childkey, $value){
+        if (!is_array($this->data[$key])){
+            $this->data[$key] = [];
+        }
+
+        $this->data[$key][$childkey] = $value;
+    }
 
 }

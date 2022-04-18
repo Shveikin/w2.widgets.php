@@ -1,3 +1,5 @@
+#### composer require pw2/widgets
+
 ### stateconfig
 
 При создании стейта проверки осуществяются вледующим образом:

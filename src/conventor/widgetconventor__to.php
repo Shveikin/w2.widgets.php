@@ -13,7 +13,33 @@ trait widgetconventor__to {
     }
 
     protected function toHTML($element){
-        return '<div>' . widgetconventor::toString($element) . '</div>';
+        $type = $this->getType($element);
+        $result = '';
+        switch ($type) {
+            case 'Bool':
+                return '';
+            break;
+            case 'String':
+            case 'Int':
+                return $element;
+            break;
+            case 'Array':
+                foreach ($element as $value) {
+                    $result .= '<div>'. widgetconventor::toHTML($value) .'</div>';
+                }
+            break;
+            case 'Widget':
+                return $element->toHTML();
+            break;
+            case 'StateMethod':
+                return '<!-- StateMethod /-->';
+            break;
+            default:
+                die("не знаю как перевести $type в HTML");
+            break;
+        }
+
+        return $result;
     }   
 
     protected function toArray($element){
@@ -28,7 +54,9 @@ trait widgetconventor__to {
         $type = $this->getType($element);
 
         switch ($type) {
+            case 'Int':
             case 'String':
+            case 'Bool':
                 return $element;
             break;
             default:
@@ -41,7 +69,9 @@ trait widgetconventor__to {
         $type = $this->getType($element);
 
         switch ($type) {
+            case 'Int':
             case 'String':
+            case 'Bool':
                 return $element;
             break;
             default:

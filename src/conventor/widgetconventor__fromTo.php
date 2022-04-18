@@ -31,6 +31,10 @@ trait widgetconventor__fromTo {
         return $widget->toElement();
     }
 
+    protected function ElementToString($element){
+        return widgetconventor::toWidget($element)->toHTML();
+    }
+
     protected function StateMethodToElement(state__method $statemethod){
         return $statemethod->toElement();
     }
@@ -46,5 +50,10 @@ trait widgetconventor__fromTo {
     protected function RequestToElement($request){
         return $request->apply();
     }
+
+    protected function BoolToString($bool){
+        return '';
+    }
+
 
 }

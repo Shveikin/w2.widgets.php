@@ -19,19 +19,28 @@ class state__method {
     function toHTML(){
         $state = widgetstate::name($this->stateName);
         $values = '';
+
+        $isWidget = false;
         foreach($this->props as $key){
+            if (str_starts_with($key, '__'))
+                $isWidget  = true;
+
             $values = $state->get($key);
         }
 
-        return $this->render($values);
+        return $this->render($values, $isWidget);
     }
 
 
 
-    function render($value){
+    function render($value, $isWidget){
         switch($this->method){
             case 'watch':
-                return $value;
+                if ($isWidget){
+                    return widgetconventor::toHTML($value);
+                } else {
+                    return $value;
+                }
             break;
             case 'watchdefault':
                 return $value;

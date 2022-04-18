@@ -16,7 +16,7 @@ trait widget__element {
 
             $value = widgetconventor::toElement($val);
             $trim = widgetconventor::getTrimFor($prop);
-            if ($trim)
+            if ($trim && is_string($value))
                 $value = trim($value, $trim);
             $result['props'][$prop] = $value;
         }
