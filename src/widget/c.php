@@ -14,4 +14,13 @@ abstract class c {
         return widgetapp::app($element);
     }
 
+    static function js_function($body, $args = false){
+        return [
+            'element' => 'func', 
+            'props' => [
+                'body' => $body,
+            ]
+        ];
+    }
+
 }

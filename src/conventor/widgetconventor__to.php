@@ -17,6 +17,7 @@ trait widgetconventor__to {
         $result = '';
         switch ($type) {
             case 'Bool':
+            case 'Request':
                 return '';
             break;
             case 'String':
@@ -59,6 +60,9 @@ trait widgetconventor__to {
             case 'Bool':
                 return $element;
             break;
+            // case 'Array':
+            //     return widgetconventor::ArrayToElement($element);
+            // break;
             default:
                 return widgetconventor::convert($type, 'Element', $element);
             break;
@@ -73,6 +77,9 @@ trait widgetconventor__to {
             case 'String':
             case 'Bool':
                 return $element;
+            break;
+            case 'Array':
+                return widgetconventor::ArrayToElement($element);
             break;
             default:
                 $element = widgetconventor::convert($type, 'Element', $element);

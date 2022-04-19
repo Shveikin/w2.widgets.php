@@ -16,14 +16,16 @@ trait widgetconventor__fromTo {
     }
 
     protected function ArrayToElement(array $array){
-        $result = [];
-        foreach ($array as $key => $value) {
-            $result[$key] = widgetconventor::toElement($value);
+        $list = [];
+        foreach ($array as $value) {
+            $list[] = widgetconventor::toElement($value);
         }
 
         return [
-            'element' => 'Array',
-            'props' => $result
+            'element' => 'list',
+            'props' => [
+                'list' => $list
+            ]
         ];
     } 
 

@@ -8,14 +8,14 @@ const c = new Proxy({}, {
             return widgetdom[_type]
         else
             return (source) => {
-                // if (_type in widgetdom.widgetStore)
-                //     return widgetdom.widgetStore[_type](source)
+                if (_type in widgetdom__api.widgetStore)
+                    return widgetdom__api.widgetStore[_type](source)
                 
                 const result = widgetconvertor.toWidget(source, _type)
                 return result
             }
     },
-    // set:(_, _type, element) => widgetdom.widgetRegister(_type, element)
+    set:(_, _type, element) => widgetdom__api.widgetRegister(_type, element)
 })
 // helpers.js
 
@@ -250,18 +250,24 @@ class widgetrequest {
 
 
 
-class widgetelement__tools {
-    
-    static create(elementType, props){
-        try {
-            return widgetelement__tools[elementType](props)
-        } catch (err){
-            throw `Element "${elementType}" - не определен! `;
+class widgetelement {
+    static tools = [
+        'group', 'func', 'requestmethod', 'list',
+    ]
+
+    static make(element){
+        let result = false;
+
+        if (widgetelement__tools.tools.includes(element.element)){
+            result = widgetelement__tools[element.element](element.props)
+        } else if (widgetdom__api.isReg(element.element)){
+            result = widgetdom__api.get(element.element, element.props)
+        } else {
+            result = widgetconvertor.toWidget(element)
         }
+
+        return result
     }
-
-
-
 
     static group({list}){
         return () => 
@@ -270,14 +276,18 @@ class widgetelement__tools {
             )
     }
 
-    static func({args, body}){
-        return new Function(args, body);
+    static func({body}){
+        return new Function(body);
     }
 
     static requestmethod(props){
         return function() {
             return new widgetrequest(props, this).run()
         }
+    }
+
+    static list({list}){
+        return list;
     }
 
 }
@@ -504,6 +514,7 @@ class widgetstate__methods {
             return state[stateName][method](...args)
         }
 
+        
         return functionWrap?result:result()
     }
 
@@ -926,18 +937,26 @@ class widgetconvertor__fromToFunc {
     }
 
     static ElementToWidget(element){
-        return new widget(
-            'element' in element
-                ?element.element
-                :widgetdom.defaulttag,
-            'props' in element
-                ?element.props
-                :{}
-        )
+        return widgetelement.make(element)
+/*         
+        const tag = widgetdom.getDefaultTag(element.element)
+        const props = 'props' in element
+                            ?element.props
+                            :{}
+
+        if (widgetdom__api.isReg(tag))
+            return widgetdom__api.get(tag, props)
+        else
+            return new widget(tag, props) 
+*/
     }
 
     static StateMethodToWidget(state_method){
         return widgetstate__methods.getFromElement(state_method);
+    }
+
+    static BoolToWidget(bool){
+        return c.div('')
     }
 
 }
@@ -1164,6 +1183,20 @@ class widgetdom__api {
         widgetdom.active[querySelector] = widget
     }
 
+
+    static widgetStore = {};
+    static widgetRegister(_type, element){
+        widgetdom__api.widgetStore[_type] = element
+    }
+
+    static isReg(element){
+        return element in widgetdom__api.widgetStore
+    }
+
+    static get(element, props){
+        return widgetdom__api.widgetStore[element](props)
+    }
+
 }
 // widgetdom__tools.js
 
@@ -1284,6 +1317,7 @@ class widget__tools {
         const type = widgetconvertor.getType(this.domElement)
         if (type!='HTML'){
             this.domElement = window.document.createElement(this.element)
+            this.domElement.setAttribute('key_id', this.id);
         }
         return this
     }
@@ -1446,8 +1480,14 @@ class widget extends widget__tools {
                 value = widgetstate__methods.getFromElement(value) 
             break;
             case 'Element':
-                value = widgetelement__tools.create(value.element, value.props)
+                value = widgetelement.make(value)
             break;
+        }
+
+        if (widgetconvertor.getType(value)!=type){
+            // this.props[prop] = value;
+            this.assignProp(prop, value);
+            return result;
         }
         
         if (prop!='child'){
@@ -1473,12 +1513,14 @@ class widget extends widget__tools {
                     this.childs = []
                     prop = 'child'
                     result = 'child'
+
+                    this.props['child'] = value
+                    delete this.props['innerText']
                 break;
             }
         }
 
         if (prop=='child'){
-            // if (value!=false)
             this.updateChilds(value)
             return result
         }

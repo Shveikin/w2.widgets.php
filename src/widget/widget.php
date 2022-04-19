@@ -11,6 +11,8 @@ class widget {
     use widget__html;
     use widget__element;
 
+    const vars = [];
+
     public $url = '/';
     public $element = 'div';
     private $props = [];
@@ -58,6 +60,9 @@ class widget {
     function __set($key, $value){
         if ($key=='child') {
             array_push($this->child, $value);
+        } else 
+        if (in_array($key, static::vars)) {
+            $this->{$key} = $value;
         } else {
             $this->props[$key] = $value;
         }

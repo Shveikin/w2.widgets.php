@@ -73,8 +73,20 @@ class state {
         return $this->name;
     }
 
+    private $__revice_block__ = [];
     protected function set(string|int $key, $value){
         $this->data[$key] = $value;
+
+        $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
+        if (!$revice_block){
+            $this->__revice_block__[$key] = true;
+            $this->revice($key, $value);
+            $this->__revice_block__[$key] = false;
+        }
+    }
+
+    public function revice($key, $value){
+
     }
 
     protected function setFromRequest(array $data){
@@ -143,5 +155,19 @@ class state {
 
         $this->data[$key][$childkey] = $value;
     }
+
+/*     
+    protected function state(){
+        $exception = ["Widgets\state\state", "DI2\MP", 'ReflectionMethod'];
+        $ex = new \ErrorException('test', 0, 56, __FILE__, __LINE__);
+        foreach ($ex->gettrace() as $line) {
+            if (isset($line['class']))
+            if (!in_array($line['class'], $exception)){
+                var_dump($line);
+            }
+        }
+        die();
+    } 
+*/
 
 }

@@ -16,8 +16,12 @@ class widgetapp {
     public $lang = 'en';
     public $cigaretteBurn = false;
 
+    
+    const SCRIPT_CONNECTED_MANUALLY = 32;
+    const SCRIPT_CONNECTED_AUTOMATICALLY = 33;
+
     function __construct(){
-        if ($this->script===true)
+        if ($this->script==self::SCRIPT_CONNECTED_AUTOMATICALLY)
             $this->script_js_content = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/w2.mini.js'));
     }
 
@@ -47,10 +51,11 @@ class widgetapp {
 
         $appcount = $this->getappcount();
         if ($appcount==1){
-            if ($this->script){
-                if ($this->script===true){
+            if ($this->script!=false){
+                if ($this->script==self::SCRIPT_CONNECTED_AUTOMATICALLY){
                     $script = "<script>$this->script_js_content</script>\n";
-                } else {
+                } else 
+                if ($this->script!=self::SCRIPT_CONNECTED_MANUALLY) {
                     $script = "<script src='$this->script'></script>\n";
                 }
             }
