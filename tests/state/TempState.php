@@ -2,11 +2,12 @@
 
 namespace Tests\states;
 
+use Widgets\request\staterequest;
 use Widgets\state\state;
 
 class TempState extends state {
 
-    function default($preload): array {
+    function default(array $preload): array {
         $result = ['unit' => 'F'];
 
         return $result;
@@ -24,8 +25,20 @@ class TempState extends state {
         return $result;
     }
 
-    function alias() {
+    function alias(): array|bool
+    {
         return ['unit' => 'unit'];
     }
+
+
+    function revice($key, $value){
+        
+    }
+
+    function staterequest(staterequest $request)
+    {
+        $request->filter = [];
+    } 
+/*     */
 
 }

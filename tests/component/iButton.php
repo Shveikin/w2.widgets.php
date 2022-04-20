@@ -3,6 +3,8 @@
 namespace Tests\component;
 
 use Tests\states\TempState;
+use Widgets\dialog\widgetdialog;
+use Widgets\state\state;
 use Widgets\widget\widget;
 
 
@@ -18,11 +20,15 @@ class iButton extends widget {
             padding: 2px;
         ";
 
-        $this->onclick = $this->ctemp;
+        $this->onclick = [
+                            state::_set('phrase', 'eeee'),
+                            $this->ctemp
+                        ];
     }
 
     function ctemp(){
-        TempState::name('Rashod')->set('unit', 'R');
+        // state::set('phrase', 'HEEELLOOYY');
+        widgetdialog::show('Hello');
     }
 
 }

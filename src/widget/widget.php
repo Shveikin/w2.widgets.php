@@ -3,6 +3,7 @@
 namespace Widgets\widget;
 
 use Widgets\conventor\widgetconventor;
+use Widgets\request\widgetrequest;
 use Widgets\widget\tools\request;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
@@ -71,7 +72,7 @@ class widget {
     function __get($function_name){
         // $useStates = $this->useState; //$this->getUseStateList();
 
-        return new request(
+        return new widgetrequest(
             function: $function_name,
             url: $this->url,
             class: get_class($this),

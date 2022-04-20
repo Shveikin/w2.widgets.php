@@ -23,11 +23,19 @@ class widgetstate {
     private function render(){
         $result = '';
         foreach ($this->global as $key => $value) {
-            $data = json_encode($value->getdata());
+
+            $data = $value->getdata();
+/*            
             $default = json_encode($value->getdefaults());
             $alias = json_encode($value->getalias());
+*/
 
-            $result .= "widgetstate.use(\"$key\", $data, $default, $alias) \n\t\t\t";
+            $extra = [
+                'default' => $value->getdefaults(),
+                'alias' => $value->getalias(),
+            ];
+
+            $result .= "widgetstate.use(\"$key\", ". json_encode($data) .", ". json_encode($extra) .") \n\t\t\t";
         } 
         return $result;
     }
@@ -59,6 +67,7 @@ class widgetstate {
         $stateName = '___';
         if ($customName==false){
             $stateName = (new \ReflectionClass($state))->getShortName();
+            if ($stateName=='state') $stateName = '';
 
             if (isset($this->global[$stateName])){
                 if (!isset($this->hash[$stateName])){
@@ -103,22 +112,43 @@ class widgetstate {
         return $this->global;
     }
 
-    static function group(...$args){
-        $list = [];
-        foreach ($args as $itm) {
-            if (widgetconventor::canConvertToElement($itm)){
-                $list[] = widgetconventor::toElement($itm);
+
+    static function source($source): state {
+        $stateClass = is_array($source)?$source[0]:$source;
+        return is_array($source)?$stateClass::name($source[1]):$source::main();
+    }
+
+
+    /** 
+     * Список изменнех стейтов
+     * возвращается на фронт
+    */
+    private $changedStateList = [];
+    private function changedState($source, $change = true){
+        $result = [
+            'changed' => $change,
+            'source' => $source,
+        ];
+        $this->changedStateList[implode('|', (array)$source)] = $result;
+    }
+
+    private function getChangedStateDataWithSource(): array {
+        $result = [];
+
+        foreach ($this->changedStateList as $changed) {
+            if ($changed['changed']){
+                $source = $changed['source'];
+
+                $state = widgetstate::source($source);
+                $shortName = $state->getName();
+
+                if (!isset($result[$shortName])) $result[$shortName] = [];
+                $result[$shortName]['data'] = $state->getdata();
+                $result[$shortName]['source'] = $source;
             }
         }
 
-        $result = [
-            'element' => 'group',
-            'props' => [
-                'list' => $list
-            ],
-        ];
         return $result;
-
     }
 
 }

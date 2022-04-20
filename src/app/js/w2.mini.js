@@ -246,7 +246,7 @@ class widgetrequest {
     }
 
 }
-// widgetelement__tools.js
+// widgetelement.js
 
 
 
@@ -258,16 +258,20 @@ class widgetelement {
     static make(element){
         let result = false;
 
-        if (widgetelement__tools.tools.includes(element.element)){
-            result = widgetelement__tools[element.element](element.props)
+        if (widgetelement.tools.includes(element.element)){
+            result = widgetelement[element.element](element.props)
         } else if (widgetdom__api.isReg(element.element)){
             result = widgetdom__api.get(element.element, element.props)
         } else {
-            result = widgetconvertor.toWidget(element)
+            result = new widget(element.element, element.props) 
         }
 
         return result
     }
+
+
+
+
 
     static group({list}){
         return () => 
@@ -294,11 +298,18 @@ class widgetelement {
 // widgetwatcher__link.js
 
 class widgetwatcher__link {
-    constructor(widget, props, watcher){
-        this._widget = widget
-        this._props = props
+    /**
+     * 
+     * @param {*} watcher 
+     * @param {*} to == widget || callback 
+     * @param {*} props - widget.props
+     */
+    constructor(watcher, to, props = false){
         this._watcher = watcher
-        this._key = [widget.id, props].join('_')
+        this._to = to
+        this._props = props
+
+        this._key = this.generate_key();
 
         if (watcher.onlink){
             watcher.onlink(widget, props)
@@ -307,16 +318,32 @@ class widgetwatcher__link {
         this.view = false
     }
 
+    generate_key(){
+        if (this.is_func()){
+            return Math.random()
+        } else {
+            return [this._to, this._props].join('_')
+        }
+    }
+
+    is_func(){
+        return typeof this._to == 'function';
+    }
+
     key(){
         return this._key
     }
 
     update(){
-        const value = this._watcher.get_value(this._widget)
+        const value = this._watcher.get_value(this.is_func()?false:this._to)
 
-        const changeProps = this._widget.assignProp(this._props, value)
-        if (changeProps)
-            this._props = changeProps
+        if (this.is_func()){
+            this._to(value)
+        } else {
+            const changeProps = this._to.assignProp(this._props, value)
+            if (changeProps)
+                this._props = changeProps
+        }
 
 
         // this._watcher.updateAlias()
@@ -421,15 +448,12 @@ class widgetwatcher extends widgetwatcher__static {
         }
     }
 
-    link(widget, props){
-        const link = new widgetwatcher__link(widget, props, this)
-
+    link(to, props = false){
+        const link = new widgetwatcher__link(this, to, props)
 
         const watcherKey = link.key()
-        // const watcherKey = this._key = [widget.id, props].join('_')
         this._link[watcherKey] = link
 
-        
         widgetwatcher.addToGlobal(this._path, watcherKey, this)
 
         this.update()
@@ -440,7 +464,8 @@ class widgetwatcher extends widgetwatcher__static {
         return this
     }
 
-    get_value(widget){
+
+    get_value(widget = false){
         const state = widgetstate.by(this._path)
         const args = []
         
@@ -466,11 +491,11 @@ class widgetstate__props {
 
     static props = {}
 
-    static setDefault(path, defaults){
+    static setdefault(path, defaults){
         widgetstate__props.setStateProp(path, 'defaults', defaults);
     }
 
-    static setAlias(path, alias){
+    static setalias(path, alias){
         widgetstate__props.setStateProp(path, 'alias', alias);
     }
 
@@ -488,7 +513,7 @@ class widgetstate__props {
             return false
     }
 
-    static getDefault(path, key){
+    static getdefault(path, key){
         return widgetstate__props.props[path]?.defaults[key]
     }
 
@@ -511,7 +536,11 @@ class widgetstate__methods {
             method = method.substr(1)
 
         const result = function(){
-            return state[stateName][method](...args)
+            try {
+                return state[stateName][method](...args)
+            } catch (error) {
+                console.error('widgetstate__tools - ', method, 'неопределен! или не занесен в widgetstate__tools.tools');
+            }
         }
 
         
@@ -622,6 +651,8 @@ class widgetstate__tools extends widgetstate__static {
 
         'turn', 
         'map', 
+        'inc',
+        'dec',
 
         'proxy', 
         'getRequestData'
@@ -848,11 +879,23 @@ class widgetstate extends widgetstate__tools {
         return new widgetstate(Array.from(arguments))
     }
 
-    static use(name, data, defaults = false, alias = false){
+    static use(name, data, extra = false){
         state[name] = data
         const path = widgetstate.path_from_args(name)
-        widgetstate__props.setDefault(path, defaults);
-        widgetstate__props.setAlias(path, alias);
+
+        if (extra)
+        for (const [key, value] of Object.entries(extra)) {
+            try {
+                widgetstate__props['set' + key](path, value);
+            } catch (error) {
+                console.error('Неизвестный метод widgetstate__props.set' + key)
+            }
+        } 
+        
+        /* 
+            widgetstate__props.setDefault(path, defaults);
+            widgetstate__props.setAlias(path, alias); 
+        */
     }
 
 }
@@ -869,14 +912,23 @@ const state = new Proxy({path: [widgetstate.start]}, {
         if (typeof widgetstate[to] == 'function') {
             return widgetstate[to]
         }
-        
+
         const path = [...sm.path]
-        path.push(to)
+        if (to!='') path.push(to)
+
         return new Proxy({path}, this)
     },
     set:(sm, to, data) => {
         const stt = new widgetstate(sm.path)
-        stt.set(to, data)
+
+        if (to=='' && typeof data == 'object'){
+            for (const [keyTo, val] of Object.entries(data)) {
+                // const element = array[index];
+                stt.set(keyTo, val)
+            }
+        } else {
+            stt.set(to, data)
+        }
 
         return true;
     }
@@ -955,9 +1007,23 @@ class widgetconvertor__fromToFunc {
         return widgetstate__methods.getFromElement(state_method);
     }
 
+    static StateMethodToFunction(state_method){
+        const result = widgetstate__methods.getFromElement(state_method);
+        return widgetconvertor.getType(result)=='Function'?result:() => result;
+    }
+
     static BoolToWidget(bool){
         return c.div('')
     }
+
+    static ArrayToFunction(array){
+        return () => 
+            array.forEach(itm => {
+                widgetconvertor.toFunction(itm)()
+            })
+        
+    }
+
 
 }
 // widgetconvertor__tools.js
@@ -996,10 +1062,11 @@ class widgetconvertor__tools extends widgetconvertor__fromToFunc {
 
         switch(type){
             case 'Element':
-                if (element.element == 'func'){
-                    console.log('>', type)
-                    return widgetelement__tools.create(element.element, element.props)
-                }
+                return widgetelement.make(element)
+            break;
+            default:
+                const result = widgetconvertor.convert(element, type, 'Function')
+                return result
             break;
         }
     }
@@ -1112,7 +1179,8 @@ class widgetconvertor extends widgetconvertor__tools {
 				return element
 			break;
 			default:
-				widgetdom.debug('widgetconvertor', 'copy')('Не знаю как копировать этот тип', type)
+				// widgetdom.debug('widgetconvertor', 'copy')('Не знаю как копировать этот тип', type)
+				console.log('Не знаю как копировать этот тип', type, element)
 			break;
 		}
 	}
@@ -1342,7 +1410,8 @@ class widget__tools {
     }
 
     clear_watchlist(){
-        widgetdom.debug('widget__tools', 'clear_watchlist')('clear watch')
+        console.log('Не помню зачем очищать watchlist', this)
+        // widgetdom.debug('widget__tools', 'clear_watchlist')('clear watch')
     }
 
     // replace on next
@@ -1465,6 +1534,8 @@ class widget extends widget__tools {
 
     
     assignProp(prop, value) {
+
+
         let type = widgetconvertor.getType(value)
         let result = false;
         switch(type){
@@ -1482,10 +1553,15 @@ class widget extends widget__tools {
             case 'Element':
                 value = widgetelement.make(value)
             break;
+            case 'Array':
+                if (prop.substr(0, 2)=='on'){
+                    value = widgetconvertor.toFunction(value);
+                }
+            break;
         }
 
         if (widgetconvertor.getType(value)!=type){
-            // this.props[prop] = value;
+            this.props[prop] = value;
             this.assignProp(prop, value);
             return result;
         }
@@ -1499,9 +1575,12 @@ class widget extends widget__tools {
                 } else {
                     return result
                 }
-            } else {
-                this.props[prop] = value
             }
+            /* 
+            else {
+                this.props[prop] = value
+            } 
+            */
         }
 
         if (prop=='innerText'){
@@ -1587,10 +1666,12 @@ class widget extends widget__tools {
             //     value.link(this, prop)
             // break;
             case 'Array':
-                widgetdom.debug('widget', 'sequreAssign')('Обновляю dom root', prop)
+                // widgetdom.debug('widget', 'sequreAssign')('Обновляю dom root', prop)
+                console.info('ARRAY', `${prop} (${type})`, value)
             break;
             default:
-                widgetdom.debug('widget', 'sequreAssign')('Не применено', prop, value, type)
+                console.info('Не применено - ', 'prop: ', prop, 'value: ', value, 'type: ', type)
+                // widgetdom.debug('widget', 'sequreAssign')('Не применено', prop, value, type)
             break;
         }
     }
@@ -1603,4 +1684,242 @@ class widget extends widget__tools {
         this.templateData = data
         return this
     }
+}
+// widgetdialog.js
+class widgetdialog {
+
+    static props = {
+        template: 'template',
+        __message: 'message',
+        title: 'title',
+        __buttons: 'buttons', 
+
+        hidetitle: 'hidetitle',
+        width: 'width',
+        height: 'height',
+        
+        _active: 'active',
+        active_arrow: 'active_arrow',
+
+        // form
+        enctype: 'enctype',
+        action: 'action',
+        method: 'method',
+        onsubmit: 'onsubmit',
+    }
+    static templates = []
+
+    static __init__(){
+
+        return false
+
+        const $state = state.dialogstate
+        const window = c.div({
+            child: c.div({
+                child: [
+                    $state.watchif('hidetitle', false,
+                        c.div({
+                            child: [
+                                '',
+                                c.div({
+                                    child: $state.watch('title'),
+                                    className: 'dialogTitle_h12nbsx9dk23m32ui4948382'
+                                }),
+                                c.button({
+                                    child: '✖',
+                                    onclick(){
+                                        $state.__message = false
+                                    }
+                                })
+                            ],
+                            className: 'close_panel_h12nbsx9dk23m32ui4948382'
+                        }),
+                        false
+                    ),
+                    c.div({
+                        child: c.form({
+                            child: c.fieldset({
+                                child: $state.watch('__message')
+                            }),
+                            className: '_form_h12nbsx9dk23m32ui4948382',
+                            style: $state.watch(height => `min-height: ${height?height:120}px;`),
+                            enctype: $state.watch('enctype'),
+                            action: $state.watch('action'),
+                            method: $state.watch('method'),
+                            onsubmit(){
+                                return false;
+                            },
+                        }),
+                        className: 'form_panel_h12nbsx9dk23m32ui4948382',
+                    }),
+                    c.div({
+                        child: ['', $state.watch('__buttons')],
+                        className: 'buttons_panel_h12nbsx9dk23m32ui4948382'
+                    })
+                ],
+                className: $state.watch(active_arrow => active_arrow
+                    ?`window_h12nbsx9dk23m32ui4948382 window_active_arrow_${active_arrow}`
+                    :'window_h12nbsx9dk23m32ui4948382'
+                ),
+                style: $state.watch('__position')
+            }),
+            className: $state.watch(active_arrow => active_arrow
+                ?`black_h12nbsx9dk23m32ui4948382 black_habsolute`
+                :'black_h12nbsx9dk23m32ui4948382'
+            ),
+            
+            style: $state.watch('__style'),
+            _onclick(){
+                $state.__message = false
+            }
+        })
+
+        $state.watch('__message').link(message => { 
+            const style = message==false?'opacity: 0; visibility: hidden;':''
+            widgetdom.querySelector('body').then(body => {
+                if ($state.get('__style'))
+                    body.style.overflow = 'auto'
+                else
+                    body.style.overflow = 'hidden'
+            })
+
+            $state.__style = style
+        }
+
+            /* 
+            .is(false, 'opacity: 0; visibility: hidden;', '')
+            .link(style => { 
+                widgetdom.querySelector('body').then(body => {
+                    if ($state.__style)
+                        body.style.overflow = 'auto'
+                    else
+                        body.style.overflow = 'hidden'
+                })
+
+                $state.__style = style
+            } 
+            */
+        )
+
+        $state.watch(['width', 'height', '_active', 'hidetitle'])
+        .link((width, height, active, hidetitle) => {
+            let window_style = ''
+
+            if (width) window_style += `width: ${width}px; `
+            if (height) window_style += `min-height: ${hidetitle?height:height+39}px; `
+
+            if (active){
+                if ('element' in active){
+                    widgetdom.querySelector(active.element).then(element => {
+                        const rect = element.getBoundingClientRect()
+                        window_style += `position: absolute; margin: 0;`
+
+
+                        window_style += `bottom: calc(100% - ${rect.y-10}px); `
+                        window_style += `left: ${rect.x}px; `
+
+                        $state.active_arrow = 'bottom'
+
+                        $state.__position = window_style
+                    })
+                }
+            } else {
+                $state.active_arrow = false
+            }
+
+
+            $state.__position = window_style
+        })
+
+
+        c.render('body', window, 'append')
+    }
+
+
+    static setup(template_name, props){
+        widgetdialog.templates[template_name] = props
+    }
+
+    static template(template_name){
+        if (template_name)
+        if (template_name in widgetdialog.templates){
+
+            const template = widgetdialog.templates[template_name];
+
+            for (const [statekey, objectkey] of Object.entries(widgetdialog.props)){
+                if (objectkey in template){
+                    widgetdialog.setPorp(statekey, template[objectkey])
+                } else {
+                    widgetdialog.setPorp(statekey, false)
+                }
+            }
+        } else {
+            if (widgetdom.debug)
+                console.info(template_name, ' отсутствует')
+        }
+
+        return widgetdialog
+    }
+
+    static show(props = true, title = false){
+        const proptype = widgetconvertor.getType(props)
+        const state = widgetstate.name('dialogstate')
+
+        switch (proptype) {
+            case 'String':
+                state.__message = props
+                if (title)
+                    state.title = title
+            break;
+            case 'Object':
+
+                for (const [statekey, propkey] of Object.entries(widgetdialog.props)) {
+                    if (propkey in props){
+                        widgetdialog.setPorp(statekey, props[propkey])
+                    }
+                }
+
+            break;
+            case 'Bool':
+                if (!props)
+                    state.__message = false
+            break;
+        }
+    }
+
+    static setPorp(prop, value){
+        const state = widgetstate.name('dialogstate')
+        switch (prop){
+            case '__buttons':
+                if (typeof value == 'object'){
+                    const buttons = [];
+                    for (const [buttontitle, func] of Object.entries(value)){
+                        buttons.push(
+                            c.button({
+                                child: buttontitle,
+                                className: 'btn btnx',
+                                onclick: () => {
+                                    widgetconvertor.toFunction(func).apply(this)
+                                } 
+                            })
+                        )
+                    }
+
+                    state[prop] = buttons
+                }
+            break;
+            case 'template':
+                widgetdialog.template(value)
+            break;
+            default:
+                state[prop] = value
+            break;
+        }
+    }
+}
+
+widgetdialog.__init__();
+
+function showDialog(props, title = false){
+    widgetdialog.show(props, title)
 }

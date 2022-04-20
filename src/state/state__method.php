@@ -4,6 +4,9 @@ namespace Widgets\state;
 
 use Widgets\conventor\widgetconventor;
 
+/** 
+ * Обертка для передачи данных на фронтенд
+*/
 class state__method {
 
     function __construct($stateName, $method, $props){
@@ -36,14 +39,12 @@ class state__method {
     function render($value, $isWidget){
         switch($this->method){
             case 'watch':
+            case 'watchdefault':
                 if ($isWidget){
                     return widgetconventor::toHTML($value);
                 } else {
                     return $value;
                 }
-            break;
-            case 'watchdefault':
-                return $value;
             break;
             default:
                 return "<!-- not visual method ($this->method) -->";
@@ -62,4 +63,5 @@ class state__method {
             ]
         ];
     }
+
 }

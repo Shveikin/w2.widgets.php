@@ -3,9 +3,15 @@
 namespace Widgets\state;
 
 use DI2\Container;
-use Widgets\widget\tools\widgetrequest;
+use Widgets\request\RequestController;
+use Widgets\request\staterequest;
+use Widgets\request\widgetrequest;
 
-class state {
+/** 
+ * 
+*/
+
+class state implements stateinterface {
     use Container;
 
     private $data = false;
@@ -25,7 +31,7 @@ class state {
             $this->alias = $this->alias();
         }
 
-        $preload = widgetrequest::fillState($this);
+        $preload = RequestController::fillState($this);
 
         $dafault = [];
         if (method_exists($this, $this->name)){
@@ -43,29 +49,23 @@ class state {
             $this->alias = $this->alias();
         }
 
-        $postload = widgetrequest::fillState($this);
+        $postload = RequestController::fillState($this);
         foreach ($postload as $statekey => $value) {
             $this->set($statekey, $value);
         }
+
+        $this->staterequest(new staterequest($this->name));
+
+
+        widgetstate::changedState($this->getSource(), false);
     }
 
-
-    private function name($name){
-        return widgetstate::name($name, get_class($this));
-    }
-
-/* 
-    function __parent(){
-        
-    } 
-*/
-
-    private function init(){
-
+    static function name($name){
+        return widgetstate::name($name, static::class);
     }
 
     function setName($name){
-        if ($this->name==false)
+        if ($this->name===false)
             $this->name = $name;
     }
 
@@ -77,6 +77,8 @@ class state {
     protected function set(string|int $key, $value){
         $this->data[$key] = $value;
 
+        widgetstate::changedState($this->getSource());
+
         $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
         if (!$revice_block){
             $this->__revice_block__[$key] = true;
@@ -85,13 +87,7 @@ class state {
         }
     }
 
-    public function revice($key, $value){
 
-    }
-
-    protected function setFromRequest(array $data){
-
-    }
 
     protected function get(string|int $key){
         if (isset($this->data[$key])){
@@ -105,13 +101,19 @@ class state {
         return $this->default[$key];
     }
 
-    public function default($preload): array {
-        return [];
+    protected function setdefault(string|int $key) {
+        $this->set($key, $this->getdefault($key));
     }
 
-    public function alias() {
-        return false;
-    }
+
+
+
+
+
+
+
+
+
 
     public function getAliasList(): array {
         $result = [];
@@ -156,18 +158,33 @@ class state {
         $this->data[$key][$childkey] = $value;
     }
 
-/*     
-    protected function state(){
-        $exception = ["Widgets\state\state", "DI2\MP", 'ReflectionMethod'];
-        $ex = new \ErrorException('test', 0, 56, __FILE__, __LINE__);
-        foreach ($ex->gettrace() as $line) {
-            if (isset($line['class']))
-            if (!in_array($line['class'], $exception)){
-                var_dump($line);
-            }
-        }
-        die();
-    } 
-*/
 
+    protected function getSource(){
+        return [static::class, $this->name];
+    }
+
+
+
+
+
+    // interface default
+    function default(array $preload): array {
+        return [];
+    }
+
+    function alias(): array|bool {
+        return false;
+    }
+
+    function revice($key, $value){
+        
+    }
+
+    function staterequest(staterequest $request){
+        
+    }
+
+    function onchange(): staterequest|bool {
+        return false;
+    }
 }

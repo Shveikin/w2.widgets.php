@@ -10,11 +10,11 @@ class widgetapp {
     use Container;
     
     public $htmlRender = true;
-    public $script = false;
+    public $script = true;
     public $title = 'widget app';
     public $structure = false;
     public $lang = 'en';
-    public $cigaretteBurn = false;
+    public $cigaretteBurn = true;
 
     
     const SCRIPT_CONNECTED_MANUALLY = 32;

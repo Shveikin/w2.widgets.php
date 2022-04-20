@@ -1,11 +1,9 @@
 <?php
 
-namespace Widgets\widget\tools;
+namespace Widgets\request;
 
-use Widgets\state\state;
-use Widgets\state\widgetstate;
 
-class request {
+class widgetrequest {
     private $props;
     private $extra = [];
     function __construct(...$props) {

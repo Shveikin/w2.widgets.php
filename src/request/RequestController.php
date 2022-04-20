@@ -1,47 +1,35 @@
 <?php
 
-namespace Widgets\widget\tools;
+namespace Widgets\request;
+
 
 use DI2\Container;
 use DI2\MP;
-use Widgets\state\state;
 use Widgets\state\widgetstate;
 
-class widgetrequest {
+class RequestController {
     use Container;
 
     private $post = []; 
     private $get = []; 
+    private $stateRequestList = [];
 
     function __construct($super){
         $super($this);
+
         $data = file_get_contents('php://input');
         if ($data){
             $data = json_decode($data);
             if ($data){
-
                 if ($data->state)
                     $this->applyPostDataToStates($data->state);
 
-                
                 if ($data->executor)
                     $this->execute($data->executor);
-
             }
         }
 
         $this->get = $_GET;
-    }
-
-    private function applyPostDataToStates($states){
-        foreach ($states as $state) {
-            if (is_array($state->source)){
-                $className = $state->source[0];
-                $stateName = $state->source[1];
-
-                $className::name($stateName)->setFromRequest((array) $state->data);
-            }
-        }
     }
 
     private function execute($executor){
@@ -57,8 +45,10 @@ class widgetrequest {
             $instance->bind = (array) $executor->bind;
         $functionResult = $instance->{$method}(...$function_props);
 
+        // state::getChangedDataWith
+        // $state = $instance->getUseStateDataWithSource();
+        $state = widgetstate::getChangedStateDataWithSource();
 
-        $state = $instance->getUseStateDataWithSource();
         
         $result = [
             'result' => $functionResult,
@@ -68,6 +58,23 @@ class widgetrequest {
 
         die(json_encode($result));
     }
+
+    private function reg(staterequest $request){
+        $this->stateRequestList[$request->stateName] = $request;
+    }
+
+
+    private function applyPostDataToStates($states){
+        foreach ($states as $state) {
+            if (is_array($state->source)){
+                $className = $state->source[0];
+                $stateName = $state->source[1];
+
+                $className::name($stateName)->setFromRequest((array) $state->data);
+            }
+        }
+    }
+
 
     private function fillState($state){
         $result = [];
@@ -79,5 +86,15 @@ class widgetrequest {
         }
 
         return $result;
-    } 
+    }
+
+    private function toElement(){
+        $result = [];
+
+        foreach ($this->stateRequestList as $stateName => $request) {
+            $result[$stateName] = $request->toElement();
+        }
+
+        return $result;
+    }
 }

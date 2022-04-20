@@ -1,11 +1,16 @@
 <?php
 
+use Tests\component\iButton;
+use Tests\states\TempState;
+use Widgets\state\state;
+use Widgets\widget\c;
+
 require  "./vendor/autoload.php";
 
-use Tests\app\main;
 
+state::set('phrase', 'test');
 
-echo main::app([
-    ['Hello', 'world']
+echo c::app([
+    state::watch('phrase'),
+    iButton::c('Say hello', 'Hello world!')
 ]);
-
