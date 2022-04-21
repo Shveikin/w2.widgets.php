@@ -27,8 +27,9 @@ class iButton extends widget {
     }
 
     function ctemp(){
-        // state::set('phrase', 'HEEELLOOYY');
-        widgetdialog::show('Hello');
+        state::set('phrase', 'HEEELLOOYY');
+        widgetdialog::show(message:'Hello', title: 'NEXT');
+        sleep(10);
     }
 
 }

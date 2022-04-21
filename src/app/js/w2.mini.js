@@ -286,6 +286,7 @@ class widgetelement {
 
     static requestmethod(props){
         return function() {
+            console.log(' >> request from ', this)
             return new widgetrequest(props, this).run()
         }
     }
@@ -335,18 +336,25 @@ class widgetwatcher__link {
     }
 
     update(){
-        const value = this._watcher.get_value(this.is_func()?false:this._to)
-
-        if (this.is_func()){
-            this._to(value)
+        const is_func = this.is_func()
+        const value = this._watcher.get_value(is_func?false:this._to)
+        
+        if (is_func){
+            this.update_callback(value)
         } else {
-            const changeProps = this._to.assignProp(this._props, value)
-            if (changeProps)
-                this._props = changeProps
+            this.update_widget(value)
         }
-
-
         // this._watcher.updateAlias()
+    }
+
+    update_callback(value){
+        this._to(value)
+    }
+
+    update_widget(value){
+        const changeProps = this._to.assignProp(this._props, value)
+        if (changeProps)
+            this._props = changeProps
     }
 }
 // widgetwatcher__static.js
@@ -537,7 +545,7 @@ class widgetstate__methods {
 
         const result = function(){
             try {
-                return state[stateName][method](...args)
+                return state[stateName][method].apply(this, args)
             } catch (error) {
                 console.error('widgetstate__tools - ', method, 'неопределен! или не занесен в widgetstate__tools.tools');
             }
@@ -1017,11 +1025,11 @@ class widgetconvertor__fromToFunc {
     }
 
     static ArrayToFunction(array){
-        return () => 
+        return function(){
             array.forEach(itm => {
-                widgetconvertor.toFunction(itm)()
+                widgetconvertor.toFunction(itm).apply(this)
             })
-        
+        }
     }
 
 
@@ -1690,15 +1698,15 @@ class widgetdialog {
 
     static props = {
         template: 'template',
-        __message: 'message',
+        message: '__message',
         title: 'title',
-        __buttons: 'buttons', 
+        buttons: '__buttons', 
 
         hidetitle: 'hidetitle',
         width: 'width',
         height: 'height',
         
-        _active: 'active',
+        active: '_active',
         active_arrow: 'active_arrow',
 
         // form
@@ -1707,11 +1715,23 @@ class widgetdialog {
         method: 'method',
         onsubmit: 'onsubmit',
     }
+
+    static styles = {
+        black_h12nbsx9dk23m32ui4948382: "position:fixed;left:0;top:0;bottom:0;right:0;background:#0004;z-index:9999999999999999;overflow:auto;padding:10px;transition:all.1s;font-family:'Segoe UI', Roboto, Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue','sans-serif';",
+        black_habsolute: "position:absolute;background:#0000;",
+        window_h12nbsx9dk23m32ui4948382: "max-width:650px;background:#fff;box-shadow: 5px 8px 20px 1px #00000057;border-radius:5px;color:#000;margin:12% auto;transition:all .3s;",
+        dialogTitle_h12nbsx9dk23m32ui4948382: "padding:10px !important;font-weight:bold !important;font-family:Verdana, Geneva, Tahoma, sans-serif !important;color:inherit;font-size:11pt !important;",
+        form_panel_h12nbsx9dk23m32ui4948382: "	display:flex !important; color:inherit;",
+        _form_h12nbsx9dk23m32ui4948382: "width: 650px !important;padding: 10px !important;border-radius: 0;",
+        close_panel_h12nbsx9dk23m32ui4948382: "border-bottom: 1px solid #0002;position: sticky !important;top: 0px !important;display: flex !important;background: #ffffff30;align-items: center !important;justify-content: space-between !important;color: inherit;",
+        buttons_panel_h12nbsx9dk23m32ui4948382: "background: #ffffff30;position: sticky !important;bottom: 0px !important;display: flex !important;justify-content: flex-start !important;color: inherit;flex-direction: row-reverse;border-top: 1px solid #0002;",
+        black_h12nbsx9dk23m32ui4948382__fieldset: "padding: 0 !important;margin: 0 !important;border: none !important;color: inherit;",
+        btnh12n: "display: inline-block !important;padding: 2px 10px !important;background: #fff2;margin: 5px 0 !important;border: 1px solid #0003;border-radius: 3px !important;cursor: pointer !important;margin-right: 5px !important;margin-left: 5px !important;font-size: 14px !important;box-shadow: none;color: inherit;",
+    }   
+
     static templates = []
 
     static __init__(){
-
-        return false
 
         const $state = state.dialogstate
         const window = c.div({
@@ -1722,27 +1742,28 @@ class widgetdialog {
                             child: [
                                 '',
                                 c.div({
-                                    child: $state.watch('title'),
-                                    className: 'dialogTitle_h12nbsx9dk23m32ui4948382'
+                                    innerText: $state.watch('title'),
+                                    style: widgetdialog.styles.dialogTitle_h12nbsx9dk23m32ui4948382,
                                 }),
                                 c.button({
                                     child: '✖',
                                     onclick(){
                                         $state.__message = false
-                                    }
+                                    },
+                                    style: widgetdialog.styles.btnh12n,
                                 })
                             ],
-                            className: 'close_panel_h12nbsx9dk23m32ui4948382'
+                            style: widgetdialog.styles.close_panel_h12nbsx9dk23m32ui4948382,
                         }),
                         false
                     ),
                     c.div({
                         child: c.form({
                             child: c.fieldset({
-                                child: $state.watch('__message')
+                                child: $state.watch('__message'),
+                                style: widgetdialog.styles.black_h12nbsx9dk23m32ui4948382__fieldset,
                             }),
-                            className: '_form_h12nbsx9dk23m32ui4948382',
-                            style: $state.watch(height => `min-height: ${height?height:120}px;`),
+                            style: $state.watch(height => `${widgetdialog.styles._form_h12nbsx9dk23m32ui4948382}; min-height: ${height?height:120}px;`),
                             enctype: $state.watch('enctype'),
                             action: $state.watch('action'),
                             method: $state.watch('method'),
@@ -1750,26 +1771,17 @@ class widgetdialog {
                                 return false;
                             },
                         }),
-                        className: 'form_panel_h12nbsx9dk23m32ui4948382',
+                        style: widgetdialog.styles.form_panel_h12nbsx9dk23m32ui4948382,
                     }),
                     c.div({
                         child: ['', $state.watch('__buttons')],
-                        className: 'buttons_panel_h12nbsx9dk23m32ui4948382'
+                        style: widgetdialog.styles.buttons_panel_h12nbsx9dk23m32ui4948382,
                     })
                 ],
-                className: $state.watch(active_arrow => active_arrow
-                    ?`window_h12nbsx9dk23m32ui4948382 window_active_arrow_${active_arrow}`
-                    :'window_h12nbsx9dk23m32ui4948382'
-                ),
-                style: $state.watch('__position')
+                style: widgetdialog.styles.window_h12nbsx9dk23m32ui4948382
             }),
-            className: $state.watch(active_arrow => active_arrow
-                ?`black_h12nbsx9dk23m32ui4948382 black_habsolute`
-                :'black_h12nbsx9dk23m32ui4948382'
-            ),
-            
-            style: $state.watch('__style'),
-            _onclick(){
+            style: $state.watch(__style => `${widgetdialog.styles.black_h12nbsx9dk23m32ui4948382}; ${__style}`),
+            _onmousedown(){
                 $state.__message = false
             }
         })
@@ -1784,22 +1796,7 @@ class widgetdialog {
             })
 
             $state.__style = style
-        }
-
-            /* 
-            .is(false, 'opacity: 0; visibility: hidden;', '')
-            .link(style => { 
-                widgetdom.querySelector('body').then(body => {
-                    if ($state.__style)
-                        body.style.overflow = 'auto'
-                    else
-                        body.style.overflow = 'hidden'
-                })
-
-                $state.__style = style
-            } 
-            */
-        )
+        })
 
         $state.watch(['width', 'height', '_active', 'hidetitle'])
         .link((width, height, active, hidetitle) => {
@@ -1817,9 +1814,7 @@ class widgetdialog {
 
                         window_style += `bottom: calc(100% - ${rect.y-10}px); `
                         window_style += `left: ${rect.x}px; `
-
                         $state.active_arrow = 'bottom'
-
                         $state.__position = window_style
                     })
                 }
@@ -1863,32 +1858,35 @@ class widgetdialog {
 
     static show(props = true, title = false){
         const proptype = widgetconvertor.getType(props)
-        const state = widgetstate.name('dialogstate')
 
         switch (proptype) {
             case 'String':
-                state.__message = props
+            case 'Array':
+
+                state.dialogstate.__message = props
                 if (title)
-                    state.title = title
+                state.dialogstate.title = title
             break;
             case 'Object':
 
-                for (const [statekey, propkey] of Object.entries(widgetdialog.props)) {
-                    if (propkey in props){
-                        widgetdialog.setPorp(statekey, props[propkey])
+
+                for (const [key, value] of Object.entries(props)){
+                    if (key in widgetdialog.props){
+                        const statekey = widgetdialog.props[key]
+                        widgetdialog.setPorp(statekey, value)
                     }
                 }
+
 
             break;
             case 'Bool':
                 if (!props)
-                    state.__message = false
+                state.dialogstate.__message = false
             break;
         }
     }
 
     static setPorp(prop, value){
-        const state = widgetstate.name('dialogstate')
         switch (prop){
             case '__buttons':
                 if (typeof value == 'object'){
@@ -1896,8 +1894,8 @@ class widgetdialog {
                     for (const [buttontitle, func] of Object.entries(value)){
                         buttons.push(
                             c.button({
-                                child: buttontitle,
-                                className: 'btn btnx',
+                                innerText: buttontitle,
+                                style: widgetdialog.styles.btnh12n,
                                 onclick: () => {
                                     widgetconvertor.toFunction(func).apply(this)
                                 } 
@@ -1905,14 +1903,14 @@ class widgetdialog {
                         )
                     }
 
-                    state[prop] = buttons
+                    state.dialogstate[prop] = buttons
                 }
             break;
             case 'template':
                 widgetdialog.template(value)
             break;
             default:
-                state[prop] = value
+                state.dialogstate[prop] = value
             break;
         }
     }
