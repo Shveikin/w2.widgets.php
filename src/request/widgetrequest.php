@@ -4,41 +4,31 @@ namespace Widgets\request;
 
 
 class widgetrequest {
-    private $props;
-    private $extra = [];
-    function __construct(...$props) {
-        $this->props = $props;
+    private $hash = false;
+    private $then = false;
+
+    function __construct($hash) {
+        $this->hash = $hash;
     }
 
     function then($jsFunction){
-        $this->extra['then'] = $jsFunction;
+        $this->then = $jsFunction;
         return $this;
     }
 
-    function get($prop) {
-        return isset($this->props[$prop]) ? $this->props[$prop] : '';
-    }
-
-    function apply(...$props) {
-        $request = [
-            'element' => 'requestmethod',
+    function apply(...$bind) {
+        
+        return [
+            'element' => 'requeststore_element',
             'props' => [
-                'method' => $this->get('function'),
-                'props' => $props,
-                'url' => $this->get('url'),
-                'source' => $this->get('class'),
-                'useState' => $this->get('useState'),
-                'extra' => $this->extra,
-                'view' => '',
-                'returnType' => $this->get('returnType'),
+                'hash' => $this->hash,
+                'then' => $this->then,
+                'bind' => $bind,
             ]
         ];
-
-        return $request;
     }
 
     function toElement(){
         return $this->apply();
     }
-
 }

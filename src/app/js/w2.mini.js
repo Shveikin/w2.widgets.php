@@ -49,6 +49,47 @@ class widgetcallback {
         }
     }
 }
+// requeststorage.js
+
+class requeststorage {
+    static storage = {};
+    static active = {};
+
+    static create(data){
+        this.storage = data
+    }
+
+    static run(hash, bind = false, then = false, bindToHtmlElement = false){
+        let result = false;
+
+        if (hash in requeststorage.storage){
+            const request = requeststorage.storage[hash]
+
+            if (hash in requeststorage.active){
+                requeststorage.active[hash].stop()
+            }
+
+            requeststorage.active[hash] = new widgetrequest(
+                hash, 
+                request.url, 
+                request.source, 
+                request.method, 
+                request.useState, 
+                bind, 
+                bindToHtmlElement
+            )
+
+            result = requeststorage.active[hash].run()
+        } else {
+            showDialog({
+                title: 'Ошибка 842',
+                message: `Request "${hash}" отсутствует!`
+            })
+        }
+
+        return result;
+    }
+}
 // widgetalias.js
 
 class widgetalias {
@@ -95,34 +136,17 @@ class widgetalias {
 class widgetrequest {
     static active = {};
 
-    constructor(props, bindToHtmlElement, callback = false){
-        this.props = props
+    constructor(hash, url, source, method, useState = [], bind = false, bindToHtmlElement = false){
+        this.hash = hash
+        this.url = url
+        this.source = source
+        this.method = method
+        this.useState = useState
+        this.bind = bind
         this.bindToHtmlElement = bindToHtmlElement
-        this.callback = callback
-
-        this.method = props.method
-        this.props = props.props
-        this.url = props.url
-        this.source = props.source
-        this.useState = props.useState
-        this.extra = props.extra
-        this.view = props.view
-        this.returnType = props.returnType
-        this.bind = props.bind | []
-
-        this.catch = function(result){
-            console.log('widgetrequest', 'result', result)
-        }
+        this.signal = false
     }
 
-    run(callback = false){
-        if (callback)
-            this.catch = callback
-
-        this.fetch()
-
-        return this
-    }
 
     wait(check){
         if (this.bindToHtmlElement && this.bindToHtmlElement.tagName=='BUTTON')
@@ -132,7 +156,7 @@ class widgetrequest {
                 this.bindToHtmlElement.classList.remove('waiting')
     }
 
-    fetch(){
+    run(){
         const state = this.getStateData()
         const body = JSON.stringify({
             state,
@@ -145,7 +169,7 @@ class widgetrequest {
             },
             // request_id: widgetstate.current_request,
         })
-        const signal = this.get_abort_signal(this.url)
+        const signal = this.get_abort_signal()
 
         this.wait(true)
         fetch(this.url, {
@@ -159,24 +183,16 @@ class widgetrequest {
         .finally(() => this.wait(false));
     }
 
+    stop(){
+        this.signal.abort();
+        this.signal = null
+        delete requeststorage.active[this.hash]
+    }
 
-    get_abort_signal(url, method = ''){
-        const active = widgetrequest.active
 
-        const current = url + '|' + method
-		if (current in active){
-			active[current].forEach(ac => {
-				ac.abort();
-				ac = null
-			})
-		}
-
-		active[current] = [];
-		const controller = new AbortController();
-		active[current].push(
-			controller
-		)
-		return controller.signal
+    get_abort_signal(){
+		this.signal = new AbortController();
+		return this.signal.signal
     }
 
 
@@ -252,7 +268,7 @@ class widgetrequest {
 
 class widgetelement {
     static tools = [
-        'group', 'func', 'requestmethod', 'list',
+        'group', 'func', 'requestmethod', 'list', 'requeststore_element', 
     ]
 
     static make(element){
@@ -284,15 +300,22 @@ class widgetelement {
         return new Function(body);
     }
 
+/* 
     static requestmethod(props){
         return function() {
-            console.log(' >> request from ', this)
             return new widgetrequest(props, this).run()
         }
     }
+*/
 
     static list({list}){
         return list;
+    }
+
+    static requeststore_element({hash, bind, then}){
+        return function(){
+            return requeststorage.run(hash, bind, then, this)
+        }
     }
 
 }
@@ -551,7 +574,7 @@ class widgetstate__methods {
             }
         }
 
-        
+
         return functionWrap?result:result()
     }
 
@@ -685,34 +708,25 @@ class widgetstate__tools extends widgetstate__static {
             if (this._data[key] != value){
                 this._data[key] = value
                 widgetwatcher.update_path(this._path, key)
-                
-                this.run_request(key)
+                if (this.props){
+                    this.updateAlias(key)
+                }
+                // this.request(key)
             }
         }
     }
 
-    run_request(key){
-        if (this.props){
-            console.log(key, this.props)
+    updateAlias(key){
+        const url = this.props?.alias[key]
 
+        if (url) 
+        if (this.isdefault(key))
+            widgetalias.remove(url)
+        else
+            widgetalias.set(url, this._data[key]) // обновил url без задержек!
 
-            const url = this.props?.alias[key]
-
-            if (url) 
-            if (this.isdefault(key))
-                widgetalias.remove(url)
-            else
-                widgetalias.set(url, this._data[key]) // обновил url без задержек!
-
-            if (this.props?.request)
-                setTimeout(function(){
-
-                    this.activerequest = new widgetrequest(this.props.request)
-                    this.activerequest.run()
-
-                }, this.props?.delay || 0)
-        }
     }
+
 
     get(key){
         return this._data[key]
@@ -1027,7 +1041,11 @@ class widgetconvertor__fromToFunc {
     static ArrayToFunction(array){
         return function(){
             array.forEach(itm => {
-                widgetconvertor.toFunction(itm).apply(this)
+                try {
+                    widgetconvertor.toFunction(itm).apply(this)
+                } catch (error) {
+                    console.error('Не удалось выполнить функцию ', itm)
+                }
             })
         }
     }

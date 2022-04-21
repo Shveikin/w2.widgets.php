@@ -3,6 +3,7 @@
 namespace Widgets\widget;
 
 use Widgets\conventor\widgetconventor;
+use Widgets\request\requeststorage;
 use Widgets\request\widgetrequest;
 use Widgets\widget\tools\request;
 use Widgets\widget\tools\widget__element;
@@ -70,15 +71,15 @@ class widget {
     }
 
     function __get($function_name){
-        // $useStates = $this->useState; //$this->getUseStateList();
-
-        return new widgetrequest(
-            function: $function_name,
+        return requeststorage::get(
+            source: get_class($this),
+            method: $function_name,
             url: $this->url,
-            class: get_class($this),
             useState: $this->useState
         );
 
+        return new widgetrequest(
+        );
     }
 
     function __toString(){

@@ -2,22 +2,24 @@
 
 namespace Widgets\request;
 
-
 use DI2\Container;
 use DI2\MP;
 use Widgets\state\widgetstate;
 
-class RequestController {
+class requeststorage {
     use Container;
 
     private $post = []; 
     private $get = []; 
-    private $stateRequestList = [];
+    private $storage = [];
+
 
     function __construct($super){
         $super($this);
 
+        $this->get = $_GET;
         $data = file_get_contents('php://input');
+
         if ($data){
             $data = json_decode($data);
             if ($data){
@@ -28,17 +30,37 @@ class RequestController {
                     $this->execute($data->executor);
             }
         }
-
-        $this->get = $_GET;
     }
 
-    private function execute($executor){
+
+    protected function get($source, $method, $url, $useState){
+        $requestHash = md5($source . $method . $url);
+
+        if (!isset($this->storage[$requestHash])){
+            $this->storage[$requestHash] = [
+                'source' => $source,
+                'method' => $method,
+                'url' => $url,
+                'useState' => $useState,
+            ];
+        }
+
+        return new widgetrequest($requestHash);
+    }
+
+
+    protected function toElement(){
+        return $this->storage;
+    }
+
+
+    protected function execute($executor){
         $ob_length = ob_get_length();
         ob_get_clean();
 
         $class = $executor->source;
         $method = $executor->method;
-        $function_props = (array) $executor->props;
+        $function_props = isset($executor->props)?(array)$executor->props:[];
 
         $instance = MP::GET($class);
         if ($executor->bind)
@@ -59,24 +81,9 @@ class RequestController {
         die(json_encode($result));
     }
 
-    private function reg(staterequest $request){
-        $this->stateRequestList[$request->stateName] = $request;
-    }
 
 
-    private function applyPostDataToStates($states){
-        foreach ($states as $state) {
-            if (is_array($state->source)){
-                $className = $state->source[0];
-                $stateName = $state->source[1];
-
-                $className::name($stateName)->setFromRequest((array) $state->data);
-            }
-        }
-    }
-
-
-    private function fillState($state){
+    protected function fill($state){
         $result = [];
 
         foreach ($state->getAliasList() as $url => $statekey) {
@@ -88,13 +95,15 @@ class RequestController {
         return $result;
     }
 
-    private function toElement(){
-        $result = [];
 
-        foreach ($this->stateRequestList as $stateName => $request) {
-            $result[$stateName] = $request->toElement();
+    protected function applyPostDataToStates($states){
+        foreach ($states as $state) {
+            if (is_array($state->source)){
+                $className = $state->source[0];
+                $stateName = $state->source[1];
+
+                $className::name($stateName)->setFromRequest((array) $state->data);
+            }
         }
-
-        return $result;
     }
 }

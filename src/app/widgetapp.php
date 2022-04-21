@@ -4,6 +4,7 @@ namespace Widgets\app;
 
 use DI2\Container;
 use Widgets\conventor\widgetconventor;
+use Widgets\request\requeststorage;
 use Widgets\state\widgetstate;
 
 class widgetapp {
@@ -48,6 +49,7 @@ class widgetapp {
         $state = '';
 
         $script = '';
+        $requeststoragescript = '';
 
         $appcount = $this->getappcount();
         if ($appcount==1){
@@ -61,6 +63,11 @@ class widgetapp {
             }
 
             $state = widgetstate::render();
+
+            $requeststorage = requeststorage::toElement();
+            if (!empty($requeststorage)){
+                $requeststoragescript =   'requeststorage.create(' . json_encode($requeststorage) . ')';
+            }
         }
 
 
@@ -70,6 +77,7 @@ class widgetapp {
                     <div id='$selector'>$html</div>
                     <script>
                         $state
+                        $requeststoragescript
                         c.render('#$selector',
                             $el
                         );

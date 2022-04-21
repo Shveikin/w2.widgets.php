@@ -14,22 +14,21 @@ class iButton extends widget {
         [TempState::class, 'Rashod']
     ];
 
-    function __construct($title, $do){
+    function __construct($title, $setTitle){
         $this->innerHTML = $title;
         $this->style = "
             padding: 2px;
         ";
 
-        $this->onclick = [
-                            state::_set('phrase', 'eeee'),
-                            $this->ctemp
-                        ];
+        $this->onclick = $this->ctemp->apply(setTitle: $setTitle);
     }
 
     function ctemp(){
-        state::set('phrase', 'HEEELLOOYY');
-        widgetdialog::show(message:'Hello', title: 'NEXT');
-        sleep(10);
+        
+        $log = $this->bind;
+
+        showDialog('Ну хелло');
+
     }
 
 }

@@ -2,6 +2,9 @@
     "name": "pw2/widgets",
     "description": "php widgets",
     "autoload": {
+        "files": [
+            "src/helpers/helpers.php"
+        ],
         "psr-4": {
             "Widgets\\": "src/",
             "Widgets\\app\\": "src/app/",

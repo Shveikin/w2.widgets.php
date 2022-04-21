@@ -3,7 +3,7 @@
 namespace Widgets\state;
 
 use DI2\Container;
-use Widgets\request\RequestController;
+use Widgets\request\requeststorage;
 use Widgets\request\staterequest;
 use Widgets\request\widgetrequest;
 
@@ -21,6 +21,7 @@ class state implements stateinterface {
     private $name = false;
 
     private $childs = [];
+    private $onchange = false;
 
     function __construct($super, $name = false){
         $super($this);
@@ -31,7 +32,7 @@ class state implements stateinterface {
             $this->alias = $this->alias();
         }
 
-        $preload = RequestController::fillState($this);
+        $preload = requeststorage::fill($this);
 
         $dafault = [];
         if (method_exists($this, $this->name)){
@@ -49,15 +50,12 @@ class state implements stateinterface {
             $this->alias = $this->alias();
         }
 
-        $postload = RequestController::fillState($this);
+        $postload = requeststorage::fill($this);
         foreach ($postload as $statekey => $value) {
             $this->set($statekey, $value);
         }
 
-        $this->staterequest(new staterequest($this->name));
-
-
-        widgetstate::changedState($this->getSource(), false);
+        // $this->onchange = $this->onchange();
     }
 
     static function name($name){
@@ -180,11 +178,7 @@ class state implements stateinterface {
         
     }
 
-    function staterequest(staterequest $request){
-        
-    }
-
-    function onchange(): staterequest|bool {
+    function onchange(){
         return false;
     }
 }

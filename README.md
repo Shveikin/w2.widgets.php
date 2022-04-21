@@ -150,3 +150,42 @@ state__method (class)
    ];
 
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+# <a name="stateinterface"> STATE INTERFACE</a>
+> стейт на php может реальзовать следующие методы
+
+```php
+
+   function default(array $preload): array;
+   function alias(): array|bool;
+   function revice($key, $value);
+   function updates(storage $storage)
+
+```
+
+> updates - список обновлений которые 
+```php
+   class MyState ex...
+   // реализация
+   function updates(storage $storage){
+      $storage->updateMyColor = [
+         state::_set('color', '#ff0000')
+      ];
+   }
+
+   ...
+
+   MyState::update('updateMyColor', [])
+
+```
