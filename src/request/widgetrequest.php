@@ -16,7 +16,7 @@ class widgetrequest {
         return $this;
     }
 
-    function apply(...$bind) {
+    function bind(...$bind) {
         
         return [
             'element' => 'requeststore_element',
@@ -29,6 +29,6 @@ class widgetrequest {
     }
 
     function toElement(){
-        return $this->apply();
+        return $this->bind();
     }
 }

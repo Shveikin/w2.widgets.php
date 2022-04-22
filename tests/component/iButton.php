@@ -14,21 +14,25 @@ class iButton extends widget {
         [TempState::class, 'Rashod']
     ];
 
-    function __construct($title, $setTitle){
+    function __construct($title, $setTitle, $vr = 0){
         $this->innerHTML = $title;
         $this->style = "
             padding: 2px;
         ";
 
-        $this->onclick = $this->ctemp->apply(setTitle: $setTitle);
+        if ($vr==0)
+            $this->onclick = $this->ctemp->bind($setTitle . ' *** ');
+        else
+            $this->onclick = $this->ccemp->bind($setTitle);
     }
 
-    function ctemp(){
-        
-        $log = $this->bind;
+    function ctemp($setTitle){
+        showDialog($setTitle);
+        sleep(2);
+    }
 
-        showDialog('Ну хелло');
-
+    function ccemp($setTitle){
+        showDialog($setTitle, title: 'no delay');
     }
 
 }

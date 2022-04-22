@@ -4,8 +4,6 @@ namespace Widgets\widget;
 
 use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
-use Widgets\request\widgetrequest;
-use Widgets\widget\tools\request;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
 
@@ -19,6 +17,7 @@ class widget {
     public $element = 'div';
     private $props = [];
     private $child = [];
+    private $bind = false;
 
     public $useState = [];
 
@@ -55,7 +54,6 @@ class widget {
             $child = [];
         }
 
-        
         $this->props = $attrs;
     }
 
@@ -70,16 +68,17 @@ class widget {
         }
     }
 
-    function __get($function_name){
-        return requeststorage::get(
-            source: get_class($this),
-            method: $function_name,
-            url: $this->url,
-            useState: $this->useState
-        );
-
-        return new widgetrequest(
-        );
+    function __get($key){
+        if (in_array($key, static::vars)) {
+            return $this->{$key};
+        } else {
+            return requeststorage::get(
+                source: get_class($this),
+                method: $key,
+                url: $this->url,
+                useState: $this->useState
+            );
+        }
     }
 
     function __toString(){

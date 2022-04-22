@@ -60,12 +60,10 @@ class requeststorage {
 
         $class = $executor->source;
         $method = $executor->method;
-        $function_props = isset($executor->props)?(array)$executor->props:[];
+        $bind = isset($executor->bind)?(array)$executor->bind:[];
 
         $instance = MP::GET($class);
-        if ($executor->bind)
-            $instance->bind = (array) $executor->bind;
-        $functionResult = $instance->{$method}(...$function_props);
+        $functionResult = $instance->{$method}(...$bind);
 
         // state::getChangedDataWith
         // $state = $instance->getUseStateDataWithSource();

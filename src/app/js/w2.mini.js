@@ -150,10 +150,13 @@ class widgetrequest {
 
     wait(check){
         if (this.bindToHtmlElement && this.bindToHtmlElement.tagName=='BUTTON')
-            if (check) 
+            if (check){
                 this.bindToHtmlElement.classList.add('waiting')
-            else
+                this.bindToHtmlElement.disabled = true;
+            } else {
                 this.bindToHtmlElement.classList.remove('waiting')
+                this.bindToHtmlElement.disabled = false;
+            }
     }
 
     run(){
