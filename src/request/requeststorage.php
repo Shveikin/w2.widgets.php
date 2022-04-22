@@ -21,15 +21,17 @@ class requeststorage {
         $data = file_get_contents('php://input');
 
         if ($data){
-            $data = json_decode($data);
+            $data = json_decode($data, true);
             if ($data){
-                if ($data->state)
-                    $this->applyPostDataToStates($data->state);
+                if ($data['state']){
+                    $this->applyPostDataToStates($data['state']);
+                }
 
-                if ($data->executor)
-                    $this->execute($data->executor);
+                if ($data['executor'])
+                    $this->execute($data['executor']);
             }
         }
+
     }
 
 
@@ -37,11 +39,21 @@ class requeststorage {
         $requestHash = md5($source . $method . $url);
 
         if (!isset($this->storage[$requestHash])){
+
+            $useStatesWithSource = [];
+            foreach ($useState as $stateSource) {
+                if (is_array($stateSource)){
+                    $useStatesWithSource[] = $stateSource;
+                } else {
+                    $useStatesWithSource[] = [$stateSource, $stateSource::getName()];
+                }
+            }
+
             $this->storage[$requestHash] = [
                 'source' => $source,
                 'method' => $method,
                 'url' => $url,
-                'useState' => $useState,
+                'useState' => $useStatesWithSource,
             ];
         }
 
@@ -58,9 +70,9 @@ class requeststorage {
         $ob_length = ob_get_length();
         ob_get_clean();
 
-        $class = $executor->source;
-        $method = $executor->method;
-        $bind = isset($executor->bind)?(array)$executor->bind:[];
+        $class = $executor['source'];
+        $method = $executor['method'];
+        $bind = isset($executor['bind'])?$executor['bind']:[];
 
         $instance = MP::GET($class);
         $functionResult = $instance->{$method}(...$bind);
@@ -86,7 +98,7 @@ class requeststorage {
 
         foreach ($state->getAliasList() as $url => $statekey) {
             if (isset($this->get[$url])){
-                $result[$statekey] =$this->get[$url];
+                $result[$statekey] = $this->get[$url];
             }
         }
 
@@ -95,12 +107,10 @@ class requeststorage {
 
 
     protected function applyPostDataToStates($states){
-        foreach ($states as $state) {
-            if (is_array($state->source)){
-                $className = $state->source[0];
-                $stateName = $state->source[1];
-
-                $className::name($stateName)->setFromRequest((array) $state->data);
+        foreach ($states as $option) {
+            if (isset($option['source'])){
+                $state = widgetstate::source($option['source']);
+                $state->setdata($option['data'], 'from request');
             }
         }
     }

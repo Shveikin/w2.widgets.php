@@ -26,6 +26,8 @@ class state implements stateinterface {
     function __construct($super, $name = false){
         $super($this);
 
+        
+
         widgetstate::reg($this, $name);
 
         if (method_exists($this, 'alias')){
@@ -42,20 +44,17 @@ class state implements stateinterface {
             $dafault = $this->default($preload);
         }
         $this->default = $dafault;
-        $this->data = $dafault;
-
-
+        $this->setdata($dafault, 'create');
+        $this->setdata($preload, 'pre load');
 
         if (method_exists($this, 'alias')){
             $this->alias = $this->alias();
         }
 
         $postload = requeststorage::fill($this);
-        foreach ($postload as $statekey => $value) {
-            $this->set($statekey, $value);
-        }
+        $this->setdata($postload, 'post load');
 
-        // $this->onchange = $this->onchange();
+        $this->onchange = $this->onchange();
     }
 
     static function name($name){
@@ -67,7 +66,7 @@ class state implements stateinterface {
             $this->name = $name;
     }
 
-    function getName(){
+    protected function getName(){
         return $this->name;
     }
 
@@ -103,6 +102,11 @@ class state implements stateinterface {
         $this->set($key, $this->getdefault($key));
     }
 
+    protected function setdata(array $data, $form  = 'none'){
+        foreach ($data as $key => $value) {
+            $this->set($key, $value);
+        }
+    }
 
 
 
@@ -166,7 +170,7 @@ class state implements stateinterface {
 
 
     // interface default
-    function default(array $preload): array {
+    function default(): array {
         return [];
     }
 

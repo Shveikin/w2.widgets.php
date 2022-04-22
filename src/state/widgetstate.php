@@ -114,8 +114,19 @@ class widgetstate {
 
 
     static function source($source): state {
-        $stateClass = is_array($source)?$source[0]:$source;
-        return is_array($source)?$stateClass::name($source[1]):$source::main();
+        $stateClass = false;
+        $stateName = false;
+        if (is_array($source)){
+            if (str_starts_with(strrev($source[0]), strrev($source[1]))){
+                $stateClass = $source[0];
+            } else {
+                $stateClass = $source[0];
+                $stateName = $source[1];
+            }
+        }
+
+        
+        return $stateName?$stateClass::name($stateName):$stateClass::main();
     }
 
 

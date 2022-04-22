@@ -59,6 +59,15 @@ class requeststorage {
         this.storage = data
     }
 
+    static fetch(hash, bind){
+        let then = false
+        if ('then' in bind){
+            then = bind.then
+            delete bind.then
+        }
+        requeststorage.run(hash, bind, then, this)
+    }
+
     static run(hash, bind = false, then = false, bindToHtmlElement = false){
         let result = false;
 
@@ -76,7 +85,8 @@ class requeststorage {
                 request.method, 
                 request.useState, 
                 bind, 
-                bindToHtmlElement
+                bindToHtmlElement,
+                then
             )
 
             result = requeststorage.active[hash].run()
@@ -136,7 +146,7 @@ class widgetalias {
 class widgetrequest {
     static active = {};
 
-    constructor(hash, url, source, method, useState = [], bind = false, bindToHtmlElement = false){
+    constructor(hash, url, source, method, useState = [], bind = false, bindToHtmlElement = false, then = false){
         this.hash = hash
         this.url = url
         this.source = source
@@ -145,6 +155,7 @@ class widgetrequest {
         this.bind = bind
         this.bindToHtmlElement = bindToHtmlElement
         this.signal = false
+        this.then = then
     }
 
 
@@ -182,13 +193,14 @@ class widgetrequest {
         })
         .then(res => res.json())
         .then(res => this.apply(res))
-        .catch(error => this.error(error))
+        // .catch(error => this.error(error))
         .finally(() => this.wait(false));
     }
 
     stop(){
         this.signal.abort();
         this.signal = null
+        this.wait(false)
         delete requeststorage.active[this.hash]
     }
 
@@ -237,10 +249,8 @@ class widgetrequest {
             })
         }
 
-        if ('then' in res){
-            const func = window[props.then].bind({
-                bind: props.bind
-            })
+        if (this.then){
+            const func = window[this.then].bind(this)
             func(res.result)
         }
 
@@ -339,7 +349,7 @@ class widgetwatcher__link {
         this._key = this.generate_key();
 
         if (watcher.onlink){
-            watcher.onlink(widget, props)
+            watcher.onlink(this._to, props)
         }
 
         this.view = false
@@ -349,7 +359,7 @@ class widgetwatcher__link {
         if (this.is_func()){
             return Math.random()
         } else {
-            return [this._to, this._props].join('_')
+            return [this._to.id, this._props].join('_')
         }
     }
 
@@ -736,7 +746,7 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     getdefault(key){
-        return widgetstate__props.getDefault(this._path, key)
+        return widgetstate__props.getdefault(this._path, key)
     }
 
     isdefault(key){
@@ -825,15 +835,16 @@ class widgetstate__tools extends widgetstate__static {
 
 
 
-    model(key){
-        return this.watch(key).setonlink(
-            (widget) => {
-                const stt = this
-                widget.assignProp('oninput', function(){
-                    stt.set(key, this.value)
-                })
-            }
-        )
+    model(key, method = 'oninput'){
+
+        const linkCallback = (widget, prop) => {
+            const stt = this
+            widget.assignProp(method, function(){
+                stt.set(key, this[prop])
+            })
+        }
+
+        return this.watch(key).setonlink(linkCallback)
     }
 
     modelin(key, equality){
@@ -1015,17 +1026,6 @@ class widgetconvertor__fromToFunc {
 
     static ElementToWidget(element){
         return widgetelement.make(element)
-/*         
-        const tag = widgetdom.getDefaultTag(element.element)
-        const props = 'props' in element
-                            ?element.props
-                            :{}
-
-        if (widgetdom__api.isReg(tag))
-            return widgetdom__api.get(tag, props)
-        else
-            return new widget(tag, props) 
-*/
     }
 
     static StateMethodToWidget(state_method){
@@ -1051,6 +1051,14 @@ class widgetconvertor__fromToFunc {
                 }
             })
         }
+    }
+
+    static UnknownToWidget(unc){
+        return c.div('')
+    }
+
+    static HTMLToWidget(HTML){
+        return c.div({innerHTML: HTML})
     }
 
 
@@ -1591,8 +1599,7 @@ class widget extends widget__tools {
 
         if (widgetconvertor.getType(value)!=type){
             this.props[prop] = value;
-            this.assignProp(prop, value);
-            return result;
+            return this.assignProp(prop, value);
         }
         
         if (prop!='child'){
@@ -1651,8 +1658,8 @@ class widget extends widget__tools {
 
         switch(type){
             case 'Bool':
-                const attrListBool = ['innerHTML'];
-                if (!attrListBool.includes(prop)){
+                const attrListBool = ['innerHTML', 'innerText'];
+                if (attrListBool.includes(prop)){
                     this.domElement[prop] = ''
                 } else {
                     this.domElement[prop] = value
@@ -1666,6 +1673,13 @@ class widget extends widget__tools {
                     this.domElement.setAttribute(prop, value)
                 } else {
                     this.domElement[prop] = value
+                }
+            break;
+            case 'HTML':
+                if (prop=='innerHTML'){
+                    this.domElement.appendChild(value)
+                } else {
+                    console.info('не знаю как применить в', prop, ' ->', value)
                 }
             break;
             case 'Function':

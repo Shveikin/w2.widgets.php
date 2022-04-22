@@ -16,6 +16,10 @@ class widgetrequest {
         return $this;
     }
 
+    function fetch(...$bind){
+        return "requeststorage.fetch(`$this->hash`, ".json_encode($bind).")";
+    }
+
     function bind(...$bind) {
         
         return [

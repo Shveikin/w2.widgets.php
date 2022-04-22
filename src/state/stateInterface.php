@@ -5,7 +5,7 @@ namespace Widgets\state;
 
 interface stateinterface {
 
-    function default(array $preload): array;
+    function default(): array;
     function alias(): array|bool;
     function revice($key, $value);
     function onchange();

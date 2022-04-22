@@ -1,0 +1,8 @@
+{
+    "from": "src",
+    "to": "build/pw2.phar",
+    "list": [
+        "c.php"
+    ],
+    "conf": "C:/watcher_configs/w2-php.json"
+}

@@ -50,7 +50,7 @@ trait widgetconventor__fromTo {
     }
 
     protected function RequestToElement($request){
-        return $request->apply();
+        return $request->bind();
     }
 
     protected function BoolToString($bool){
