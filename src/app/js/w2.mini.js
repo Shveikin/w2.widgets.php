@@ -27,6 +27,13 @@ function tval(key){
         return ''
     }
 }
+
+
+
+function hashc(map, hash){
+    const result = widgetconvertor.parseHashElement(hash, map)
+    return result
+}
 // widgetcallback.js
 
 class widgetcallback {
@@ -1142,6 +1149,65 @@ class widgetconvertor__tools extends widgetconvertor__fromToFunc {
         }
 
         return true;
+    }
+
+
+    static staticHashList = {
+        q: 'div',
+        w: 'element',
+        e: 'props',
+        r: 'child',
+        t: 'method',
+        u: 'stateName',
+        i: 'modelin',
+        o: 'value',
+        p: 'label',
+        a: 'args',
+        s: 'style',
+        d: 'input',
+        f: 'checked',
+        g: 'h1',
+        h: 'h2',
+        j: 'h3',
+        k: 'h4',
+        l: 'h5',
+        z: 'h6',
+        x: 'textarea',
+        c: 'span',
+        y: 'watch',
+        v: 'watchif',
+        b: 'watchin',
+        n: 'watchdefault',
+        m: 'StateMethod',
+        qq: 'type',
+    };
+
+
+
+    static hashItm(itm, map){
+        if (typeof itm == 'object'){
+            return widgetconvertor.parseHashElement(itm, map)
+        } else
+        if (itm in widgetconvertor__tools.staticHashList){
+            return widgetconvertor__tools.staticHashList[itm]
+        } else {
+            return map[itm]
+        }
+    }
+
+    static parseHashElement(hash, map){
+        if (Array.isArray(hash)){
+            return hash.map(value => widgetconvertor.hashItm(value, map))
+        } else {
+            const result = {}
+            for (const [hashkey, hashvalue] of Object.entries(hash)){
+                const key = widgetconvertor.hashItm(hashkey, map)
+                const value = widgetconvertor.hashItm(hashvalue, map)
+            
+                result[key] = value
+            }
+            return result;
+        }
     }
 }
 // widgetconvertor.js
