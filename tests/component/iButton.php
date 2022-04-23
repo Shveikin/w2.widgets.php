@@ -3,8 +3,6 @@
 namespace Tests\component;
 
 use Tests\states\TempState;
-use Widgets\dialog\widgetdialog;
-use Widgets\state\state;
 use Widgets\widget\widget;
 
 

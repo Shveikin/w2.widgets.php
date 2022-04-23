@@ -24,7 +24,6 @@ class widgetapp {
         if ($this->script == self::SCRIPT_CONNECTED_AUTOMATICALLY) {
             $this->script_js_content = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/w2.mini.js'));
         }
-
     }
 
     private static $appcount = 0;
@@ -46,7 +45,9 @@ class widgetapp {
 
         }
 
-        $el = json_encode(widgetconventor::toElement($widget));
+        $el = json_encode(widgetconventor::hashElement($widget));
+        $hashList = json_encode(widgetconventor::getHashList());
+        
         $state = '';
 
         $script = '';
@@ -79,7 +80,10 @@ class widgetapp {
                         $state
                         $requeststoragescript
                         c.render('#$selector',
-                            $el
+                            hashc(
+                                $hashList, 
+                                $el
+                            )
                         );
                     </script>
             HTML;

@@ -6,7 +6,7 @@ use Widgets\state\state;
 
 class dialogstate extends state {
 
-    function default(array $preload): array {
+    function default(): array {
         return [
             '__message' => false,
             'title' => '',

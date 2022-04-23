@@ -558,7 +558,8 @@ class widgetstate__props {
     }
 
     static getdefault(path, key){
-        return widgetstate__props.props[path]?.defaults[key]
+        const result = widgetstate__props.props[path]?.defaults[key] || key.startsWith('_')?[]:false;
+        return result
     }
 
 /*
@@ -750,7 +751,12 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     isdefault(key){
-        return this.getdefault(key) != this._data[key]
+        const def = this.getdefault(key)
+        const current = this._data[key]
+
+        const result = widgetconvertor__tools.arraysEqual(def, current)
+
+        return result
     }
 
 
@@ -771,7 +777,7 @@ class widgetstate__tools extends widgetstate__static {
 
     pushto(to, value){
         if (Array.isArray(this._data[to])) {
-            const temp = this._data[to]
+            const temp = [...this._data[to]]
             temp.push(value)
             this.set(to, temp)
         } else {
@@ -848,12 +854,19 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     modelin(key, equality){
+        if (!key.startsWith('_')){
+            console.error(key, ' (modelin) должен иметь тип array (_)')
+            return false
+        }
+
         return this.watch(key, function(value){
             return Array.isArray(value) && value.includes(equality)
         }).setonlink(
             (widget) => {
                 const stt = this
                 widget.assignProp('onchange', function(){
+                    if (!Array.isArray(stt.get(key))) stt.set(key, [])
+
                     if (this.checked)
                         stt.pushto(key, equality)
                     else
@@ -1106,6 +1119,29 @@ class widgetconvertor__tools extends widgetconvertor__fromToFunc {
                 return result
             break;
         }
+    }
+
+    static arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+        
+        for (var i = 0; i < a.length; ++i) {
+            if (Array.isArray(a[i])){
+                if (Array.isArray(b[i])){
+                    if (!widgetconvertor__tools.arraysEqual(a[i], b[i])){
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else
+            if (a[i] !== b[i]) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 // widgetconvertor.js

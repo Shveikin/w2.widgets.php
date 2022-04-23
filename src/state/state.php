@@ -4,15 +4,11 @@ namespace Widgets\state;
 
 use DI2\Container;
 use Widgets\request\requeststorage;
-use Widgets\request\staterequest;
-use Widgets\request\widgetrequest;
-
-/** 
- * 
-*/
 
 class state implements stateinterface {
     use Container;
+
+    const type = false;
 
     private $data = false;
     private $default = [];
@@ -21,12 +17,9 @@ class state implements stateinterface {
     private $name = false;
 
     private $childs = [];
-    private $onchange = false;
 
     function __construct($super, $name = false){
         $super($this);
-
-        
 
         widgetstate::reg($this, $name);
 

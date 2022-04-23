@@ -8,13 +8,13 @@ use Widgets\widget\widget;
 
 use DI2\Container;
 use Widgets\request\widgetrequest;
-use Widgets\widget\tools\request;
 
-class widgetconventor {
+class widgetconventor extends widgetconventor__hash {
     use Container;
     use widgetconventor__methods;
     use widgetconventor__to;
     use widgetconventor__fromTo;
+
 
     private $singletags = [
 		'area' => false,

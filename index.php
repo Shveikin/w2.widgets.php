@@ -1,16 +1,15 @@
 <?php
 
-use Tests\component\iButton;
-use Widgets\state\state;
+use Tests\component\Label;
+use Tests\states\TempState;
 use Widgets\widget\c;
 require  "./vendor/autoload.php";
 
 
 
 echo c::app([
-    state::watch('title'),
-    new iButton('test', '__test'), 
-    iButton::c('app', '__app'), 
-    iButton::c('ccc', '__ccc'),
-    new iButton('2222', '__test22222', 4), 
+    c::h2(["Купить:", TempState::watch('_buy')]),
+    new Label("молоко", 'moloko'),
+    new Label("хлеб", 'hleb'),
+    new Label("масло", 'maslo'),
 ]);
