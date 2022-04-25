@@ -59,13 +59,23 @@ class widgetconventor__hash {
     private function hash($element){
         $result = [];
 
-        foreach($element as $key => $value) {
-            $ketid = $this->hashItm($key);
-            $valueid = is_array($value)
+        if (!widgetconventor::isAssoc($element)){
+            foreach ($element as $value) {
+                $valueid = is_array($value)
+                    ?$this->hash($value)
+                    :$this->hashItm($value);
+
+                $result[] = $valueid;
+            }
+        } else {
+            foreach($element as $key => $value) {
+                $ketid = $this->hashItm($key);
+                $valueid = is_array($value)
                 ?$this->hash($value)
                 :$this->hashItm($value);
-
-            $result[$ketid] = $valueid;
+                
+                $result[$ketid] = $valueid;
+            }
         }
 
         return $result;
