@@ -15,11 +15,17 @@ trait widgetconventor__fromTo {
         return $statemethod->toHTML();
     }
 
-    protected function ArrayToElement(array $array){
+    protected function ArrayToArrayElements(array $array):array {
         $list = [];
         foreach ($array as $value) {
             $list[] = widgetconventor::toElement($value);
         }
+
+        return $list;
+    }
+
+    protected function ArrayToElement(array $array){
+        $list = widgetconventor::ArrayToArrayElements($array);
 
         return [
             'element' => 'list',

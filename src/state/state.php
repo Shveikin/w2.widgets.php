@@ -3,9 +3,9 @@
 namespace Widgets\state;
 
 use DI2\Container;
-use Widgets\request\requeststorage;
+use Widgets\conventor\widgetconventor;
 
-class state implements stateinterface {
+class state extends widgetstate__tools {
     use Container;
 
     const type = false;
@@ -23,29 +23,28 @@ class state implements stateinterface {
 
         widgetstate::reg($this, $name);
 
-        if (method_exists($this, 'alias')){
-            $this->alias = $this->alias();
+        if (static::upload_type==state::UPLOAD_ALIAS_FIRST){
+            if (method_exists($this, 'alias')){
+                $this->alias = $this->alias();
+            }
         }
 
-        $preload = requeststorage::fill($this);
 
         $dafault = [];
         if (method_exists($this, $this->name)){
-            $dafault = $this->{$this->name}($preload);
+            $dafault = $this->{$this->name}();
         } else
         if (method_exists($this, 'default')){
-            $dafault = $this->default($preload);
+            $dafault = $this->default();
         }
         $this->default = $dafault;
         $this->setdata($dafault, 'create');
-        $this->setdata($preload, 'pre load');
 
         if (method_exists($this, 'alias')){
             $this->alias = $this->alias();
         }
 
-        $postload = requeststorage::fill($this);
-        $this->setdata($postload, 'post load');
+        $this->readget();
 
         $this->onchange = $this->onchange();
     }
@@ -101,32 +100,38 @@ class state implements stateinterface {
         }
     }
 
-
-
-
-
-
-
-
-
-
-    public function getAliasList(): array {
+    protected function export($val){
         $result = [];
-        if (is_array($this->alias)){
-            $result = $this->alias;
-        } else {
-            if ($this->alias==true && is_array($this->data)) {
-                $defaultkeys = array_keys($this->data);
-                foreach ($defaultkeys as $statekey) {
-                    $result[trim($statekey, '_')] = $statekey;
+        if (isset($this->{$val}) && is_array($this->{$val})){
+            foreach ($this->{$val} as $key => $value) {
+                $type = widgetconventor::getType($value);
+                switch ($type) {
+                    case 'String':
+                    case 'Int':
+                    case 'Bool':
+                        $result[$key] = $value;
+                    break;
+                    case 'Array':
+                        $result[$key] = widgetconventor::ArrayToArrayElements($value);
+                    break;
+                    case 'Widget':
+                        $result[$key] = widgetconventor::toElement($value);
+                    break;
+                    default:
+                        die("Не знаю как экспортировать ($type) ");
+                    break;
                 }
-            } else {
-                $result = [];
+                
             }
+        } else {
+            $result = $this->{$val};
         }
 
         return $result;
     }
+
+
+
 
 
     public function __any($method, $props){
@@ -161,21 +166,22 @@ class state implements stateinterface {
 
 
 
+    public function getAliasList(): array {
+        $result = [];
+        if (is_array($this->alias)){
+            $result = $this->alias;
+        } else {
+            if ($this->alias==true && is_array($this->data)) {
+                $defaultkeys = array_keys($this->data);
+                foreach ($defaultkeys as $statekey) {
+                    $result[trim($statekey, '_')] = $statekey;
+                }
+            } else {
+                $result = [];
+            }
+        }
 
-    // interface default
-    function default(): array {
-        return [];
+        return $result;
     }
 
-    function alias(): array|bool {
-        return false;
-    }
-
-    function revice($key, $value){
-        
-    }
-
-    function onchange(){
-        return false;
-    }
 }

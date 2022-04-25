@@ -9,7 +9,7 @@ require  "./vendor/autoload.php";
 
 echo c::app([
     c::h2(["Купить:", TempState::watch('_buy')]),
-    new Label("молоко", 'moloko'),
-    new Label("хлеб", 'hleb'),
-    new Label("масло", 'maslo'),
+    new Label("молоко", 52),
+    new Label("хлеб", 53),
+    new Label("масло", 54),
 ]);

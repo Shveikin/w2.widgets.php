@@ -9,8 +9,8 @@ use Widgets\state\widgetstate;
 class requeststorage {
     use Container;
 
-    private $post = []; 
-    private $get = []; 
+    public $post = []; 
+    public $get = []; 
     private $storage = [];
 
 
@@ -91,19 +91,6 @@ class requeststorage {
         die(json_encode($result));
     }
 
-
-
-    protected function fill($state){
-        $result = [];
-
-        foreach ($state->getAliasList() as $url => $statekey) {
-            if (isset($this->get[$url])){
-                $result[$statekey] = $this->get[$url];
-            }
-        }
-
-        return $result;
-    }
 
 
     protected function applyPostDataToStates($states){

@@ -565,7 +565,7 @@ class widgetstate__props {
     }
 
     static getdefault(path, key){
-        const result = widgetstate__props.props[path]?.defaults[key] || key.startsWith('_')?[]:false;
+        const result = (widgetstate__props.props[path]?.defaults[key]) || (key.startsWith('_')?[]:false);
         return result
     }
 
@@ -589,9 +589,9 @@ class widgetstate__methods {
 
         const result = function(){
             try {
-                return state[stateName][method].apply(this, args)
+                return state[stateName][method].apply(this, widgetconvertor.toArray(args))
             } catch (error) {
-                console.error('widgetstate__tools - ', method, 'неопределен! или не занесен в widgetstate__tools.tools');
+                console.error('widgetstate__tools - ', method, error);
             }
         }
 
@@ -686,8 +686,9 @@ class widgetstate__tools extends widgetstate__static {
         'to', 
 
         'get', 
-        'getdefault', 
+        'getdefault',
         'set', 
+        'setdefault', 
         'pushto', 
         'lpushto', 
         'pullfrom', 
@@ -701,7 +702,7 @@ class widgetstate__tools extends widgetstate__static {
         'modelin', 
 
 
-        'turn', 
+        'toggle', 
         'map', 
         'inc',
         'dec',
@@ -750,11 +751,19 @@ class widgetstate__tools extends widgetstate__static {
 
 
     get(key){
-        return this._data[key]
+        if (key in this._data)
+            return this._data[key]
+        else
+            return false
     }
 
     getdefault(key){
         return widgetstate__props.getdefault(this._path, key)
+    }
+
+    setdefault(key){
+        const def = this.getdefault(key)
+        widgetalias.set(key, def)
     }
 
     isdefault(key){
@@ -767,8 +776,8 @@ class widgetstate__tools extends widgetstate__static {
     }
 
 
-    turn(key){
-        this.set(key, !this._data[key])
+    toggle(key){
+        this.set(key, !this.get(key))
     }
 
 
@@ -1088,6 +1097,11 @@ class widgetconvertor__fromToFunc {
 class widgetconvertor__tools extends widgetconvertor__fromToFunc {
 
     static toArray(element){
+        const type = widgetconvertor.getType(element);
+        if (type=='Element' && element.element == 'list'){
+            return element.props.list;
+        }
+
         if (Array.isArray(element))
             return element
         else 
@@ -1182,9 +1196,10 @@ class widgetconvertor__tools extends widgetconvertor__fromToFunc {
         qq: 'type',
     };
 
-
-
     static hashItm(itm, map){
+        if (typeof itm == 'boolean'){
+            return itm
+        } else
         if (typeof itm == 'object'){
             return widgetconvertor.parseHashElement(itm, map)
         } else
@@ -1697,6 +1712,11 @@ class widget extends widget__tools {
                     value = widgetconvertor.toFunction(value);
                 }
             break;
+            case 'Function':
+                if (['innerText', 'innerHTML', 'child'].includes(prop)){
+                    return this.assignProp(prop, value());
+                }
+            break;
         }
 
         if (widgetconvertor.getType(value)!=type){
@@ -1760,7 +1780,7 @@ class widget extends widget__tools {
 
         switch(type){
             case 'Bool':
-                const attrListBool = ['innerHTML', 'innerText'];
+                const attrListBool = ['innerHTML', 'innerText', 'value'];
                 if (attrListBool.includes(prop)){
                     this.domElement[prop] = ''
                 } else {

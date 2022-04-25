@@ -12,7 +12,13 @@ class state__method {
     function __construct($stateName, $method, $props){
         $this->stateName = $stateName;
         $this->method = $method;
-        $this->props = $props;
+
+        $this->props = array_map(
+            function($itm){
+                return widgetconventor::toElement($itm);
+            }, 
+            (array)$props
+        );
     }
 
     function __toString(){
@@ -54,7 +60,7 @@ class state__method {
 
 
     function toElement(){
-        return [
+        $result = [
             'element' => 'StateMethod',
             'props' => [
                 'method' => $this->method,
@@ -62,6 +68,7 @@ class state__method {
                 'stateName' => $this->stateName,
             ]
         ];
+        return $result;
     }
 
 }

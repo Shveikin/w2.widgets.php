@@ -7,21 +7,11 @@ use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
 use Widgets\state\widgetstate;
 
-class widgetapp {
+class widgetapp extends widgetapp__settings {
     use Container;
 
-    public $htmlRender = true;
-    public $script = true;
-    public $title = 'widget app';
-    public $structure = false;
-    public $lang = 'en';
-    public $cigaretteBurn = true;
-
-    const SCRIPT_CONNECTED_MANUALLY = 32;
-    const SCRIPT_CONNECTED_AUTOMATICALLY = 33;
-
     function __construct() {
-        if ($this->script == self::SCRIPT_CONNECTED_AUTOMATICALLY) {
+        if (static::script == self::SCRIPT_CONNECTED_AUTOMATICALLY) {
             $this->script_js_content = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/w2.mini.js'));
         }
     }
@@ -36,35 +26,47 @@ class widgetapp {
         $widget = widgetconventor::toWidget($element);
 
         $html = '';
-        if ($this->htmlRender) {
+        if (static::htmlRender) {
             $html = $widget->toHTML();
 
-            if ($this->cigaretteBurn) {
+            if (static::cigaretteBurn) {
                 $html = ".$html.";
             }
-
         }
 
-        $el = json_encode(widgetconventor::hashElement($widget));
-        $hashList = json_encode(widgetconventor::getHashList());
+
+        $app = '';
+
+        if (static::hashApp){
+            $el = json_encode(widgetconventor::hashElement($widget));
+            $hashList = json_encode(widgetconventor::getHashList());
+
+            $app = "hashc(
+                $hashList, 
+                $el
+            )";
+        } else {
+            $app = json_encode(widgetconventor::toElement($widget));
+        }
+
         
-        $state = '';
+        
 
         $script = '';
         $requeststoragescript = '';
 
         $appcount = $this->getappcount();
         if ($appcount == 1) {
-            if ($this->script != false) {
-                if ($this->script == self::SCRIPT_CONNECTED_AUTOMATICALLY) {
+            if (static::script != false) {
+                if (static::script == self::SCRIPT_CONNECTED_AUTOMATICALLY) {
                     $script = "<script>$this->script_js_content</script>\n";
                 } else
-                if ($this->script != self::SCRIPT_CONNECTED_MANUALLY) {
+                if (static::script != self::SCRIPT_CONNECTED_MANUALLY) {
                     $script = "<script src='$this->script'></script>\n";
                 }
             }
 
-            $state = widgetstate::render();
+            
 
             $requeststorage = requeststorage::toElement();
             if (!empty($requeststorage)) {
@@ -72,7 +74,12 @@ class widgetapp {
             }
         }
 
+
+
+
         $selector = "app" . md5(rand()) . "{$appcount}";
+
+        $state = widgetstate::render();
         $result = <<<HTML
 
                     <div id='$selector'>$html</div>
@@ -80,15 +87,12 @@ class widgetapp {
                         $state
                         $requeststoragescript
                         c.render('#$selector',
-                            hashc(
-                                $hashList, 
-                                $el
-                            )
+                            $app
                         );
                     </script>
             HTML;
 
-        if ($this->structure) {
+        if (static::structure) {
             $result = <<<HTML
                             <!DOCTYPE html>
                             <html lang="{$this->lang}">
