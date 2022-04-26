@@ -454,6 +454,12 @@ class widgetwatcher__static {
         widgetwatcher.global[path][watcherKey] = link
     }
 
+    static removeFromGlobal(path, watcherKey){
+        if (path in widgetwatcher.global)
+        if (watcherKey in widgetwatcher.global[path])
+            delete widgetwatcher.global[path][watcherKey]
+    }
+
     key_inside(key){
         return this._keys.includes(key)
     }
@@ -508,6 +514,9 @@ class widgetwatcher extends widgetwatcher__static {
         widgetwatcher.addToGlobal(this._path, watcherKey, this)
 
         this.update()
+
+
+        return [this._path, watcherKey]
     }
 
     setonlink(callback){
@@ -792,13 +801,18 @@ class widgetstate__tools extends widgetstate__static {
 
 
     pushto(to, value){
-        if (Array.isArray(this._data[to])) {
-            const temp = [...this._data[to]]
-            temp.push(value)
-            this.set(to, temp)
-        } else {
-            console.error('#pushto', to, 'is not Array')
+        const current = this.get(to)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#pushto', to, 'is not Array')
         }
+
+        const temp = [...current]
+        temp.push(value)
+        this.set(to, temp)
     }
 
     lpushto(to, value){
@@ -1560,12 +1574,19 @@ class widget__tools {
             this.domElement.parentElement.removeChild(this.domElement)
         this.domElement = null
 
-        this.clear_watchlist()
+        this.watchlist_clear()
     }
 
-    clear_watchlist(){
-        console.log('Не помню зачем очищать watchlist', this)
-        // widgetdom.debug('widget__tools', 'clear_watchlist')('clear watch')
+    watchlist_push(watcher_props){
+        this.watchlist.push(watcher_props)
+        if (this.parent)
+            this.parent.watchlist_push(watcher_props)
+    }
+
+    watchlist_clear(){
+        this.watchlist.forEach(watcher_props => {
+            widgetwatcher.removeFromGlobal(watcher_props[0], watcher_props[1])
+        })
     }
 
     // replace on next
@@ -1613,13 +1634,18 @@ class widget extends widget__tools {
         this.props = props
         this.id = widget__tools.next_id()
         this.templateData = false
+
+        this.parent = false
     }
 
-    setRootElement(rootElement){
+    setRootElement(rootElement, parent = false){
         this.rootElement = rootElement
         this.checkDomElement()
         this.rootElement.appendChild(this.domElement)
+        this.parent = parent
+
         this.render()
+
         return this
     }
 
@@ -1660,7 +1686,7 @@ class widget extends widget__tools {
 
             } else {
                 const child = widgetconvertor.toWidget(next[i])
-                child.setRootElement(this.domElement)
+                child.setRootElement(this.domElement, this)
                 this.childs[i] = child
             }
         }
@@ -1686,15 +1712,18 @@ class widget extends widget__tools {
         return val
     }
 
-    
-    assignProp(prop, value) {
 
+
+
+
+    assignProp(prop, value) {
 
         let type = widgetconvertor.getType(value)
         let result = false;
         switch(type){
             case 'Watcher':
-                value.link(this, prop)
+                const active = value.link(this, prop)
+                this.watchlist_push(active)
             return result
             case 'String':
                 if (this.templateData){
@@ -1725,6 +1754,7 @@ class widget extends widget__tools {
         }
         
         if (prop!='child'){
+            /* 
             const currentPropType = widgetconvertor.getType(this.props[prop])
             if (currentPropType=='Watcher'){
                 const watcher = this.props[prop]
@@ -1733,7 +1763,8 @@ class widget extends widget__tools {
                 } else {
                     return result
                 }
-            }
+            } 
+            */
             /* 
             else {
                 this.props[prop] = value
@@ -2073,8 +2104,11 @@ class widgetdialog {
     }
 }
 
-widgetdialog.__init__();
 
 function showDialog(props, title = false){
     widgetdialog.show(props, title)
 }
+
+
+
+// widgetdialog.__init__();

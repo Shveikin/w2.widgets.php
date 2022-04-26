@@ -3,118 +3,23 @@
 namespace Widgets\app;
 
 use DI2\Container;
-use Widgets\conventor\widgetconventor;
-use Widgets\request\requeststorage;
-use Widgets\state\widgetstate;
 
 class widgetapp extends widgetapp__settings {
     use Container;
 
-    function __construct() {
-        if (static::script == self::SCRIPT_CONNECTED_AUTOMATICALLY) {
-            $this->script_js_content = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/w2.mini.js'));
-        }
-    }
-
-    private static $appcount = 0;
-
-    protected function getappcount() {
-        return ++self::$appcount;
-    }
-
-    protected function app($element) {
-        $widget = widgetconventor::toWidget($element);
-
-        $html = '';
-        if (static::htmlRender) {
-            $html = $widget->toHTML();
-
-            if (static::cigaretteBurn) {
-                $html = ".$html.";
-            }
-        }
+    public $title = 'widget app';
+    public $lang = 'en';
 
 
-        $app = '';
-
-        if (static::hashApp){
-            $el = json_encode(widgetconventor::hashElement($widget));
-            $hashList = json_encode(widgetconventor::getHashList());
-
-            $app = "hashc(
-                $hashList, 
-                $el
-            )";
-        } else {
-            $app = json_encode(widgetconventor::toElement($widget));
-        }
-
-        
-        
-
-        $script = '';
-        $requeststoragescript = '';
-
-        $appcount = $this->getappcount();
-        if ($appcount == 1) {
-            if (static::script != false) {
-                if (static::script == self::SCRIPT_CONNECTED_AUTOMATICALLY) {
-                    $script = "<script>$this->script_js_content</script>\n";
-                } else
-                if (static::script != self::SCRIPT_CONNECTED_MANUALLY) {
-                    $script = "<script src='$this->script'></script>\n";
-                }
-            }
-
-            
-
-            $requeststorage = requeststorage::toElement();
-            if (!empty($requeststorage)) {
-                $requeststoragescript = 'requeststorage.create(' . json_encode($requeststorage) . ')';
-            }
-        }
+    const htmlRender = true;
+    const structure = false;
+    const cigaretteBurn = true;
+    const hashApp = false;
 
 
+    const script = true;
+        const SCRIPT_CONNECTED_MANUALLY = 32;
+        const SCRIPT_CONNECTED_AUTOMATICALLY = 33;
 
 
-        $selector = "app" . md5(rand()) . "{$appcount}";
-
-        $state = widgetstate::render();
-        $result = <<<HTML
-
-                    <div id='$selector'>$html</div>
-                    <script>
-                        $state
-                        $requeststoragescript
-                        c.render('#$selector',
-                            $app
-                        );
-                    </script>
-            HTML;
-
-        if (static::structure) {
-            $result = <<<HTML
-                            <!DOCTYPE html>
-                            <html lang="{$this->lang}">
-                            <head>
-                                <meta charset="UTF-8">
-                                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                                <title>{$this->title}</title>
-                                {$script}
-                            </head>
-                                <body>{$result}
-                                </body>
-                            </html>
-                            HTML;
-        } else {
-            $result = $script . $result;
-        }
-
-        return $result;
-    }
-
-    static function route() {
-        requeststorage::main();
-    }
 }
