@@ -44,7 +44,7 @@ abstract class widgetapp__settings {
                 $el
             )";
         } else {
-            $app = json_encode(widgetconventor::toElement($widget));
+            $app = json_encode($widget);
         }
 
         

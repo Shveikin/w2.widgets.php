@@ -3,11 +3,14 @@
 
 namespace Widgets\state;
 
+use JsonSerializable;
 use Widgets\request\requeststorage;
 
-class widgetstate__tools implements stateinterface {
+class widgetstate__tools implements stateinterface, JsonSerializable {
 
-
+    public function jsonSerialize(){
+        return [];
+    }
 
     protected function readget(){
         $requeststorage = requeststorage::main();

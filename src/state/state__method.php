@@ -2,12 +2,13 @@
 
 namespace Widgets\state;
 
+use JsonSerializable;
 use Widgets\conventor\widgetconventor;
 
 /** 
  * Обертка для передачи данных на фронтенд
 */
-class state__method {
+class state__method implements JsonSerializable {
 
     function __construct($stateName, $method, $props){
         $this->stateName = $stateName;
@@ -59,16 +60,21 @@ class state__method {
     }
 
 
-    function toElement(){
+    function toElement($json = false){
         $result = [
             'element' => 'StateMethod',
             'props' => [
                 'method' => $this->method,
                 'args'  => $this->props,
                 'stateName' => $this->stateName,
+                'json' => $json,
             ]
         ];
         return $result;
+    }
+
+    function jsonSerialize(){
+        return $this->toElement(true);
     }
 
 }

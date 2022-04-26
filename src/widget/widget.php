@@ -2,12 +2,13 @@
 
 namespace Widgets\widget;
 
+use JsonSerializable;
 use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
 
-class widget {
+class widget implements JsonSerializable {
     use widget__html;
     use widget__element;
 
@@ -87,5 +88,9 @@ class widget {
 
     static function c(...$props){
         return new (static::class)(...$props);
+    }
+
+    public function jsonSerialize(){
+        return $this->toElement(true);
     }
 }

@@ -87,11 +87,19 @@ class state extends widgetstate__tools {
     }
 
     protected function getdefault(string|int $key){
-        return $this->default[$key];
+        if (isset($this->default[$key])){
+            return $this->default[$key];
+        } else {
+            return str_starts_with($key, '_')?[]:false;
+        }
     }
 
     protected function setdefault(string|int $key) {
         $this->set($key, $this->getdefault($key));
+    }
+
+    protected function isdefault(string|int $key) {
+        return $this->getdefault($key) == $this->get($key);
     }
 
     protected function setdata(array $data, $form  = 'none'){
@@ -102,30 +110,30 @@ class state extends widgetstate__tools {
 
     protected function export($val){
         $result = [];
-        if (isset($this->{$val}) && is_array($this->{$val})){
-            foreach ($this->{$val} as $key => $value) {
-                $type = widgetconventor::getType($value);
-                switch ($type) {
-                    case 'String':
-                    case 'Int':
-                    case 'Bool':
-                        $result[$key] = $value;
-                    break;
-                    case 'Array':
-                        $result[$key] = widgetconventor::ArrayToArrayElements($value);
-                    break;
-                    case 'Widget':
-                        $result[$key] = widgetconventor::toElement($value);
-                    break;
-                    default:
-                        die("Не знаю как экспортировать ($type) ");
-                    break;
-                }
+        // if (isset($this->{$val}) && is_array($this->{$val})){
+        //     foreach ($this->{$val} as $key => $value) {
+        //         $type = widgetconventor::getType($value);
+        //         switch ($type) {
+        //             case 'String':
+        //             case 'Int':
+        //             case 'Bool':
+        //                 $result[$key] = $value;
+        //             break;
+        //             case 'Array':
+        //                 $result[$key] = widgetconventor::ArrayToArrayElements($value);
+        //             break;
+        //             case 'Widget':
+        //                 $result[$key] = widgetconventor::toElement($value);
+        //             break;
+        //             default:
+        //                 die("Не знаю как экспортировать ($type) ");
+        //             break;
+        //         }
                 
-            }
-        } else {
+        //     }
+        // } else {
             $result = $this->{$val};
-        }
+        // }
 
         return $result;
     }

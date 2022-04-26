@@ -597,11 +597,11 @@ class widgetstate__methods {
             method = method.substr(1)
 
         const result = function(){
-            try {
+            // try {
                 return state[stateName][method].apply(this, widgetconvertor.toArray(args))
-            } catch (error) {
-                console.error('widgetstate__tools - ', method, error);
-            }
+            // } catch (error) {
+            //     console.error('widgetstate__tools - ', method, error);
+            // }
         }
 
 
@@ -698,9 +698,10 @@ class widgetstate__tools extends widgetstate__static {
         'getdefault',
         'set', 
         'setdefault', 
-        'pushto', 
-        'lpushto', 
-        'pullfrom', 
+        'onepushto',
+        'pushto',
+        'lpushto',
+        'pullfrom',
 
 
         'watch', 
@@ -799,6 +800,24 @@ class widgetstate__tools extends widgetstate__static {
         this.set(key, this._data[key] - stap)
     }
 
+    onepushto(to, value){
+        const current = this.get(to)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#pushto', to, 'is not Array')
+        }
+
+        
+
+        if (!current.includes(value)){
+            const temp = [...current]
+            temp.push(value)
+            this.set(to, temp)
+        }
+    }
 
     pushto(to, value){
         const current = this.get(to)
@@ -816,21 +835,31 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     lpushto(to, value){
-        if (Array.isArray(this._data[to])) {
-            const temp = [value ,...this._data[to]]
-            this.set(to, temp)
-        } else {
-            console.error('#lpushto', to, 'is not Array')
+        const current = this.get(to)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#lpushto', to, 'is not Array')
         }
+
+        const temp = [value ,...current]
+        this.set(to, temp)
     }
 
     pullfrom(from, value){
-        if (Array.isArray(this._data[from])) {
-            const temp = this._data[from].filter(val => value!=val)
-            this.set(from, temp)
-        } else {
-            console.error('#pullfrom', from, 'is not Array')
+        const current = this.get(from)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#pullfrom', to, 'is not Array')
         }
+
+        const temp = current.filter(val => value!=val)
+        this.set(from, temp)
     }
 
 
@@ -1243,8 +1272,13 @@ class widgetconvertor__tools extends widgetconvertor__fromToFunc {
 
 class widgetconvertor extends widgetconvertor__tools {
 
-	static map(value, [from, to], [from2, to2]) {
-		return (((to2 - from2) / 100) * ((value - from) / ((to - from) / 100))) + from2
+	static map(value, first, last) {
+		try {
+			const [from, to] = first; const [from2, to2] = last;
+			return (((to2 - from2) / 100) * ((value - from) / ((to - from) / 100))) + from2
+		} catch (error) {
+			console.error(value, first, last, error)
+		}
 	}
 
 	static roundValue(value, type){
@@ -1536,6 +1570,196 @@ class widgetdom extends widgetdom__tools {
 
 }
 
+// widget_smartprops.js
+
+
+class widget_smartprops {
+
+    static dragboard(dragboard, props) {
+        let mouseDown = false
+        let mouseDownPosition = []
+        const elements = []
+        const boxsizing = {
+            x: props.boxsizing?(props.boxsizing.x?props.boxsizing.x:props.boxsizing):0,
+            y: props.boxsizing?(props.boxsizing.y?props.boxsizing.y:props.boxsizing):0,
+        }
+
+        const width = props.width
+        const height = props.height
+
+
+        dragboard.domElement.style.position = 'relative'
+        dragboard.domElement.style.userSelect = 'none'
+        dragboard.domElement.style.width = width + boxsizing.x + 'px'
+        dragboard.domElement.style.height = props.height + 'px'
+
+        if ('childs' in props) {
+            widgetconvertor.toArray(props.childs).forEach(child => {
+                widgetconvertor.toWidget(child).setRootElement(dragboard.domElement, dragboard)
+            })
+            // const widgets = widgetconvertor.toArrayOfWidgets(props.childs);
+            // widgets.forEach(widget => {
+            //     dragboard.domElement.appendChild(
+            //         widgetdom.createElement(widget)
+            //     )
+            // })
+        }
+
+        function rangeArray(){
+            return [props.state.get('range_min'), props.state.get('range_max')]
+        }
+
+        let shift = false;
+
+        let sliderMoveRange = {
+            x: {min: 0, max: props.width },
+            y: {min: 0, max: props.height},
+        }
+
+        if (props.useSlide){
+            props.state.watch(['slide_min_start', 'slide_min_finish', 'slide_max_start', 'slide_max_finish']).link(
+                function(slide_min_start, slide_min_finish, slide_max_start, slide_max_finish){
+
+                    if (slide_min_start=="rangeMin")
+                        slide_min_start = props.state.get('range_min')
+
+                    if (slide_max_finish=="rangeMax")
+                        slide_max_finish = props.state.get('range_max')
+
+
+                    sliderMoveRange = [
+                        {
+                            x: {
+                                min: widgetconvertor.map(slide_min_start, rangeArray(), [0, props.width]),
+                                max: widgetconvertor.map(slide_min_finish, rangeArray(), [0, props.width]),
+                            }
+                        },
+                        {
+                            x: {
+                                min: widgetconvertor.map(slide_max_start, rangeArray(), [0, props.width]),
+                                max: widgetconvertor.map(slide_max_finish, rangeArray(), [0, props.width]),
+                            }
+                        }
+                    ]
+                    
+                })
+        }
+
+
+        function mousemove(x, y){
+            let posx, posy = 0
+
+            const range = Array.isArray(sliderMoveRange)?sliderMoveRange[mouseDown]:sliderMoveRange
+
+            if (props?.axis != 'y'){
+                posx = (parseInt(elements[mouseDown].domElement.style.left) + x)
+                if (posx>range.x.max)
+                    posx = range.x.max
+                if (posx < range.x.min)
+                    posx = range.x.min
+                    
+                elements[mouseDown].style('left', posx + 'px')
+            }
+            if (props?.axis != 'x'){
+                posy = (parseInt(elements[mouseDown].domElement.style.top) + y)
+                if (posy>range.y.max)
+                    posy = range.y.max
+                if (posy < range.y.min)
+                    posy = range.y.min
+
+                elements[mouseDown].style('top', posy + 'px')
+            }
+
+            if (typeof props.ondrag == 'function'){
+                let valposx = posx
+                let valposy = posy
+
+                valposx = widgetconvertor.map(posx, [0, width],  [0, 100])
+                valposy = widgetconvertor.map(posy, [0, height], [0, 100])
+                props.ondrag(mouseDown, valposx, valposy, posx, posy)
+            }
+        }
+
+        const dragType = widgetconvertor.getType(props.drag)
+        let widgets = []
+        switch (dragType){
+            case 'Object': 
+                widgets = Object.values(props.drag)
+                shift = Object.keys(props.drag)
+            break;
+            default: 
+                widgets = props.drag
+            break;  
+        }
+
+        function shiftXY(shiftVal){
+            let left = 0
+            let top = 0
+            if (props?.axis != 'y')
+                left = shiftVal
+
+            if (props?.axis != 'x')
+                top = shiftVal
+
+            left = widgetconvertor.map(left, rangeArray(), [0, width])
+            top =  widgetconvertor.map(top, rangeArray(), [0, height])
+
+            return [left, top]
+        }
+
+        widgets = widgetconvertor.toArray(widgets)
+        widgets.forEach((point, key) => {
+            point = widgetconvertor.toWidget(point)
+            point.setRootElement(dragboard.domElement, dragboard)
+
+            point.style('position', 'absolute')
+            
+            if (shift){
+                if ('state' in props) {
+                    props.state.watch([shift[key], 'range_' + shift[key]]).link(function(newValue){
+                        if (mouseDown===false){
+                            // #left
+                            const left = widgetconvertor.map(newValue[key], rangeArray(), [0, props.width])
+                            point.style('left', left + 'px')
+                        }
+                    })
+                } else {
+                    const [left, top] = shiftXY(shift[key])
+                    point.assignProp('style', `position: absolute; left: ${left}px; top: ${top}px`)
+                }
+            } else {
+                point.assignProp('style', 'position: absolute; left: 0px; top: 0px')
+            }
+
+            point.assignProp('onmousedown', (event) => {
+                mouseDownPosition = [event.screenX, event.screenY]; 
+                mouseDown = key
+            })
+
+            elements.push(point)
+        })
+
+
+
+
+        dragboard.domElement.onmousemove = (event) => {
+            if (mouseDown!==false){
+                let x = event.screenX - mouseDownPosition[0]
+                let y = event.screenY - mouseDownPosition[1]
+
+                mousemove(x, y);
+                mouseDownPosition = [event.screenX, event.screenY];
+            }
+        }
+
+        dragboard.domElement.onmouseup = () => { mouseDown = false }
+        dragboard.domElement.onmouseleave = () => { mouseDown = false }
+
+            // dragboard.domElement.appendChild(dragElement)
+        
+        
+    }
+}
 // widget__tools.js
 
 
@@ -1717,6 +1941,8 @@ class widget extends widget__tools {
 
 
     assignProp(prop, value) {
+        if (prop in widget_smartprops)
+            return widget_smartprops[prop](this, value)
 
         let type = widgetconvertor.getType(value)
         let result = false;
@@ -1842,7 +2068,7 @@ class widget extends widget__tools {
                             if (event.target!=this) 
                                 return false
 
-                        value.apply(this)
+                        value.apply(this, [event])
 /* 
                         if (this.element in widgetconvertor.singleElement){
                             const defaultProp = widgetconvertor.singleElement[this.element]
@@ -1874,6 +2100,17 @@ class widget extends widget__tools {
 
     on(prop, callback){
         this.domElement.addEventListener(prop, callback)
+    }
+
+    style(prop, value){
+        if (this.domElement)
+            this.domElement.style[prop] = value
+    }
+
+    styles(styles){
+        for (const [prop, val] of Object.entries(styles)) {
+            this.style(prop, val)
+        }
     }
 
     setTemplateData(data){

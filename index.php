@@ -6,11 +6,8 @@ use Widgets\state\state;
 use Widgets\widget\c;
 require  "./vendor/autoload.php";
 
-
+state::set('__element', new Label('Hello', 'dd'));
 
 echo c::app([
-    new Label("Показать", 'show', 'open'),
-    state::name('open')->watchin('_values', 'show', [
-        new Label("молоко", 'milk'),
-    ]),
+    state::watch('__element')
 ]);
