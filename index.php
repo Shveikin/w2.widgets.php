@@ -6,8 +6,9 @@ use Widgets\state\state;
 use Widgets\widget\c;
 require  "./vendor/autoload.php";
 
-state::set('__element', new Label('Hello', 'dd'));
 
 echo c::app([
-    state::watch('__element')
+    TempState::watch('_buy'),
+    TempState::watch('update'),
+    c::button('click', onclick: TempState::_set('update', '***'))
 ]);

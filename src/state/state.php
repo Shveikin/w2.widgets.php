@@ -3,7 +3,6 @@
 namespace Widgets\state;
 
 use DI2\Container;
-use Widgets\conventor\widgetconventor;
 
 class state extends widgetstate__tools {
     use Container;
@@ -13,6 +12,8 @@ class state extends widgetstate__tools {
     private $data = false;
     private $default = [];
     private $alias = false;
+    public $delay = false;
+
 
     private $name = false;
 
@@ -109,32 +110,7 @@ class state extends widgetstate__tools {
     }
 
     protected function export($val){
-        $result = [];
-        // if (isset($this->{$val}) && is_array($this->{$val})){
-        //     foreach ($this->{$val} as $key => $value) {
-        //         $type = widgetconventor::getType($value);
-        //         switch ($type) {
-        //             case 'String':
-        //             case 'Int':
-        //             case 'Bool':
-        //                 $result[$key] = $value;
-        //             break;
-        //             case 'Array':
-        //                 $result[$key] = widgetconventor::ArrayToArrayElements($value);
-        //             break;
-        //             case 'Widget':
-        //                 $result[$key] = widgetconventor::toElement($value);
-        //             break;
-        //             default:
-        //                 die("Не знаю как экспортировать ($type) ");
-        //             break;
-        //         }
-                
-        //     }
-        // } else {
-            $result = $this->{$val};
-        // }
-
+        $result = $this->{$val};
         return $result;
     }
 

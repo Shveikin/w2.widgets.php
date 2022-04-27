@@ -2,11 +2,14 @@
 
 namespace Tests\component;
 
+use DI2\Container;
 use Tests\states\TempState;
 use Widgets\widget\widget;
 
 
 class iButton extends widget {
+    use Container;
+
     public $element = 'button';
     public $useState = [
         [TempState::class, 'Rashod']

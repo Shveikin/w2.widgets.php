@@ -4,7 +4,7 @@ namespace Widgets\app;
 
 use DI2\Container;
 
-class widgetapp extends widgetapp__settings {
+class widgetapp extends widgetapp__tools {
     use Container;
 
     public $title = 'widget app';

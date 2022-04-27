@@ -25,13 +25,12 @@ class widgetstate {
         $result = '';
         foreach ($this->global as $key => $value) {
             if (!isset($this->rendered[$key]) || !$this->rendered[$key]) {
-                $data = $value->export('data'); // getdata();
+                $data = $value->export('data');
                 $extra = [
-                    // 'default' => $value->getdefaults(),
-                    // 'alias' => $value->getalias(),
                     'default' => $value->export('default'),
                     'alias' => $value->export('alias'),
-
+                    'onchange' => $value->export('onchange'),
+                    'delay' => $value->export('delay'),
                 ];
 
                 $result .= "widgetstate.use(\"$key\", ". json_encode($data) .", ". json_encode($extra) .") \n\t\t\t";

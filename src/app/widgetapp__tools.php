@@ -6,7 +6,15 @@ use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
 use Widgets\state\widgetstate;
 
-abstract class widgetapp__settings {
+abstract class widgetapp__tools {
+
+    const htmlRender = true;
+    const structure = false;
+    const cigaretteBurn = true;
+    const hashApp = true;
+    const script = true;
+
+
 
     function __construct() {
         if (static::script == widgetapp::SCRIPT_CONNECTED_AUTOMATICALLY) {

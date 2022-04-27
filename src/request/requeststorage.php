@@ -40,20 +40,11 @@ class requeststorage {
 
         if (!isset($this->storage[$requestHash])){
 
-            $useStatesWithSource = [];
-            foreach ($useState as $stateSource) {
-                if (is_array($stateSource)){
-                    $useStatesWithSource[] = $stateSource;
-                } else {
-                    $useStatesWithSource[] = [$stateSource, $stateSource::getName()];
-                }
-            }
-
             $this->storage[$requestHash] = [
                 'source' => $source,
                 'method' => $method,
                 'url' => $url,
-                'useState' => $useStatesWithSource,
+                'useState' => $useState,
             ];
         }
 
@@ -62,6 +53,22 @@ class requeststorage {
 
 
     protected function toElement(){
+        foreach ($this->storage as $requestHash => $request) {
+            $useStatesWithSource = [];
+            $useState = $request['useState'];
+
+            foreach ($useState as $stateSource) {
+                if (is_array($stateSource)){
+                    $useStatesWithSource[] = $stateSource;
+                } else {
+                    $stateNamespace = explode('\\', $stateSource);
+                    $useStatesWithSource[] = [$stateSource, end($stateNamespace)];
+                }
+            }
+
+            $this->storage[$requestHash]['useState'] = $useStatesWithSource;
+        }
+
         return $this->storage;
     }
 

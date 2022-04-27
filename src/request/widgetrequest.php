@@ -2,8 +2,9 @@
 
 namespace Widgets\request;
 
+use JsonSerializable;
 
-class widgetrequest {
+class widgetrequest implements JsonSerializable {
     private $hash = false;
     private $then = false;
 
@@ -34,5 +35,9 @@ class widgetrequest {
 
     function toElement(){
         return $this->bind();
+    }
+
+    function jsonSerialize(){
+        return $this->toElement(true);
     }
 }

@@ -32,6 +32,7 @@ class state__method implements JsonSerializable {
 
         $isWidget = false;
         foreach($this->props as $key){
+            if (is_string($key))
             if (str_starts_with($key, '__'))
                 $isWidget  = true;
 
