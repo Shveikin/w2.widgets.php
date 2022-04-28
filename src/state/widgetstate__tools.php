@@ -6,7 +6,20 @@ namespace Widgets\state;
 use JsonSerializable;
 use Widgets\request\requeststorage;
 
-class widgetstate__tools implements stateinterface, JsonSerializable {
+class widgetstate__tools implements /*stateinterface,*/ JsonSerializable {
+    const target = '/';
+
+
+    const upload_type = 1;
+        const UPLOAD_DEFAULT_FIRST = 1;
+        const UPLOAD_ALIAS_FIRST = 2;
+
+
+    const data_type = false;
+        const DATA_INT = 3;
+        const DATA_FLOAT = 4;
+
+
 
     public function jsonSerialize(){
         return [];

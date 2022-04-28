@@ -7,7 +7,7 @@ use DI2\Container;
 class state extends widgetstate__tools {
     use Container;
 
-    const type = false;
+    const upload_type = false;
 
     private $data = false;
     private $default = [];
@@ -83,7 +83,11 @@ class state extends widgetstate__tools {
         if (isset($this->data[$key])){
             return $this->data[$key];
         } else {
-            return false;
+            if (str_starts_with($key, '_')){
+                return [];
+            } else {
+                return false;
+            }
         }
     }
 
@@ -109,6 +113,7 @@ class state extends widgetstate__tools {
         }
     }
 
+
     protected function export($val){
         $result = $this->{$val};
         return $result;
@@ -122,8 +127,8 @@ class state extends widgetstate__tools {
         return new state__method($this->name, $method, $props);
     }
 
-    public function getdata(){
-        return $this->data;
+    public function getdata(): array {
+        return is_array($this->data)?$this->data:[];
     } 
 
     public function getdefaults(){

@@ -14,12 +14,14 @@ class state__method implements JsonSerializable {
         $this->stateName = $stateName;
         $this->method = $method;
 
-        $this->props = array_map(
-            function($itm){
-                return widgetconventor::toElement($itm);
-            }, 
-            (array)$props
-        );
+        // $this->props = array_map(
+        //     function($itm){
+        //         return widgetconventor::toElement($itm);
+        //     }, 
+        //     (array)$props
+        // );
+
+        $this->props = (array)$props;
     }
 
     function __toString(){

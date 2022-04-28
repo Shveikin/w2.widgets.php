@@ -28,7 +28,7 @@ class requeststorage {
                 }
 
                 if ($data['executor'])
-                    $this->execute($data['executor']);
+                    $this->execute($data['executor'], $data['request_id']);
             }
         }
 
@@ -73,7 +73,7 @@ class requeststorage {
     }
 
 
-    protected function execute($executor){
+    protected function execute($executor, $resuest_id){
         $ob_length = ob_get_length();
         ob_get_clean();
 
@@ -93,6 +93,7 @@ class requeststorage {
             'result' => $functionResult,
             'state' => $state,
             'rem' => $ob_length,
+            'current_request' => $resuest_id
         ];
 
         die(json_encode($result));

@@ -25,12 +25,12 @@ trait widgetconventor__fromTo {
     }
 
     protected function ArrayToElement(array $array){
-        $list = widgetconventor::ArrayToArrayElements($array);
+        // $list = widgetconventor::ArrayToArrayElements($array);
 
         return [
             'element' => 'list',
             'props' => [
-                'list' => $list
+                'list' => $array//$list
             ]
         ];
     } 
