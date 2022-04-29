@@ -27,13 +27,6 @@ function tval(key){
         return ''
     }
 }
-
-
-
-function hashc(map, hash){
-    const result = widgetconvertor.parseHashElement(hash, map)
-    return result
-}
 // widgetcallback.js
 
 class widgetcallback {
@@ -54,6 +47,81 @@ class widgetcallback {
             widgetcallback.group[group].push(callback)
             return 0
         }
+    }
+}
+// __h32.js
+class __h32 {
+
+    static map = {
+        '+': true,
+        '-': false,
+        q: 'div',
+        w: 'element',
+        e: 'props',
+        r: 'child',
+        t: 'method',
+        u: 'stateName',
+        i: 'modelin',
+        o: 'value',
+        p: 'label',
+        a: 'args',
+        s: 'style',
+        d: 'input',
+        f: 'checked',
+        g: 'h1',
+        h: 'h2',
+        j: 'h3',
+        k: 'h4',
+        l: 'h5',
+        z: 'h6',
+        x: 'textarea',
+        c: 'span',
+        y: 'watch',
+        v: 'watchif',
+        b: 'watchin',
+        n: 'watchdefault',
+        m: 'StateMethod',
+        qq: 'type',
+        qw: 'json',
+        qe: 'button',
+        qr: 'onclick',
+        qt: 'innerText',
+    };
+
+    hashItm(itm){
+        if (typeof itm == 'object'){
+            return this.toElement(itm)
+        } else
+        if (itm in __h32.map){
+            return __h32.map[itm]
+        } else {
+            return this.list[itm]
+        }
+    }
+
+    constructor(list){
+        this.list = widgetconvertor.toArray(list)
+    }
+
+    toElement(hash){
+        if (Array.isArray(hash)){
+            return hash.map(value => this.hashItm(value))
+        } else {
+            const result = {}
+            for (const [hashkey, hashvalue] of Object.entries(hash)){
+                const key = this.hashItm(hashkey)
+                const value = this.hashItm(hashvalue)
+            
+                result[key] = value
+            }
+            return result;
+        }
+    }
+
+    static unpack(pack64){
+        const regex = /(\w+|[+|-])/g;
+        const hash = pack64.replace(regex, '"$1"')
+        return JSON.parse(hash)
     }
 }
 // requeststorage.js
@@ -347,7 +415,7 @@ class widgetrequest {
 
 class widgetelement {
     static tools = [
-        'group', 'func', 'requestmethod', 'list', 'requeststore_element', 
+        'group', 'func', 'requestmethod', 'list', 'requeststore_element', '__h32', 
     ]
 
     static make(element){
@@ -379,14 +447,6 @@ class widgetelement {
         return new Function(body);
     }
 
-/* 
-    static requestmethod(props){
-        return function() {
-            return new widgetrequest(props, this).run()
-        }
-    }
-*/
-
     static list({list}){
         return list;
     }
@@ -395,6 +455,11 @@ class widgetelement {
         return function(){
             return requeststorage.run(hash, bind, then, this)
         }
+    }
+
+    static __h32({base, list, method = 32}){
+        const result = (new __h32(list)).toElement(method==64?__h32.unpack(base):base);
+        return result
     }
 
 }
@@ -1310,65 +1375,6 @@ class widgetconvertor__tools extends widgetconvertor__fromToFunc {
         return true;
     }
 
-
-    static staticHashList = {
-        q: 'div',
-        w: 'element',
-        e: 'props',
-        r: 'child',
-        t: 'method',
-        u: 'stateName',
-        i: 'modelin',
-        o: 'value',
-        p: 'label',
-        a: 'args',
-        s: 'style',
-        d: 'input',
-        f: 'checked',
-        g: 'h1',
-        h: 'h2',
-        j: 'h3',
-        k: 'h4',
-        l: 'h5',
-        z: 'h6',
-        x: 'textarea',
-        c: 'span',
-        y: 'watch',
-        v: 'watchif',
-        b: 'watchin',
-        n: 'watchdefault',
-        m: 'StateMethod',
-        qq: 'type',
-    };
-
-    static hashItm(itm, map){
-        if (typeof itm == 'boolean'){
-            return itm
-        } else
-        if (typeof itm == 'object'){
-            return widgetconvertor.parseHashElement(itm, map)
-        } else
-        if (itm in widgetconvertor__tools.staticHashList){
-            return widgetconvertor__tools.staticHashList[itm]
-        } else {
-            return map[itm]
-        }
-    }
-
-    static parseHashElement(hash, map){
-        if (Array.isArray(hash)){
-            return hash.map(value => widgetconvertor.hashItm(value, map))
-        } else {
-            const result = {}
-            for (const [hashkey, hashvalue] of Object.entries(hash)){
-                const key = widgetconvertor.hashItm(hashkey, map)
-                const value = widgetconvertor.hashItm(hashvalue, map)
-            
-                result[key] = value
-            }
-            return result;
-        }
-    }
 }
 // widgetconvertor.js
 

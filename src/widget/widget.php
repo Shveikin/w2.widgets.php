@@ -70,16 +70,27 @@ class widget implements JsonSerializable {
     }
 
     function __get($key){
-        if (in_array($key, static::vars)) {
-            return $this->{$key};
-        } else {
+        if (method_exists($this, $key)){
             return requeststorage::get(
                 source: get_class($this),
                 method: $key,
                 url: $this->url,
                 useState: $this->useState
             );
+        } else 
+        if ($this->__is_var($key)) {
+            return $this->{$key};
+        } else {
+            return $this->props[$key];
         }
+    }
+
+    static private $__vars__ = false;
+    function __is_var($key){
+        if (static::$__vars__===false){
+            static::$__vars__ = array_count_values(static::vars);
+        }
+        return isset(static::$__vars__[$key]);
     }
 
     function __toString(){

@@ -54,7 +54,7 @@ abstract class widgetapp__tools {
                 $el
             )"; 
             */
-            $app = json_encode(new __h32($widget));
+            $app = json_encode((new __h32($widget))->hash64());
         } else {
             $app = json_encode($widget);
         }

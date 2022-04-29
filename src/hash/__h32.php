@@ -37,23 +37,34 @@ class __h32 extends widget {
         'watchdefault' => 'n',
         'StateMethod' => 'm',
         'type' => 'qq',
+        'json' => 'qw',
+        'button' => 'qe',
+        'onclick' => 'qr',
+        'innerText' => 'qt',
     ];
 
     private $stack = []; 
 
 
-    function __construct($widget){
-        $hash = $this->hash(widgetconventor::toElement($widget));
+    function __construct($widget, $toLang = false){
+        $this->method = 32;
+        $this->base = $this->hash(is_array($widget)?$widget:widgetconventor::toElement($widget));
+        $this->list = $this->translate($toLang);
+    }
 
-        $this->list = array_keys($this->stack);
-        $this->hash = $hash;
+    function translate($translate){
+        if ($translate){
+
+        } else {
+            return array_keys($this->stack);
+        }
     }
 
     function hashItm($value){
         $type = widgetconventor::getType($value);
         switch($type){
             case 'Bool':
-                return $value;
+                return $value?'+':'-';
             break;
             case 'String':
             case 'Int':
@@ -102,5 +113,11 @@ class __h32 extends widget {
         }
 
         return $result;
+    }
+
+    function hash64(){
+        $this->method = 64;
+        $this->base = str_replace('"', '', json_encode($this->base));
+        return $this;
     }
 }
