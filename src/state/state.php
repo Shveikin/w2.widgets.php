@@ -16,6 +16,7 @@ class state extends widgetstate__tools {
 
 
     private $name = false;
+    private $initialization = false;
 
     private $childs = [];
 
@@ -48,6 +49,7 @@ class state extends widgetstate__tools {
         $this->readget();
 
         $this->onchange = $this->onchange();
+        $this->initialization = true;
     }
 
     static function name($name){
@@ -67,7 +69,8 @@ class state extends widgetstate__tools {
     protected function set(string|int $key, $value){
         $this->data[$key] = $value;
 
-        widgetstate::changedState($this->getSource());
+        if ($this->initialization) widgetstate::changedState($this->getSource());
+        
 
         $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
         if (!$revice_block){
@@ -75,6 +78,7 @@ class state extends widgetstate__tools {
             $this->revice($key, $value);
             $this->__revice_block__[$key] = false;
         }
+        
     }
 
 
@@ -109,6 +113,8 @@ class state extends widgetstate__tools {
 
     protected function setdata(array $data, $form  = 'none'){
         foreach ($data as $key => $value) {
+            // $updates = $form=='request' && !str_starts_with($key, '__');
+            
             $this->set($key, $value);
         }
     }

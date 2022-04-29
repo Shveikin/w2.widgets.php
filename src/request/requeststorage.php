@@ -105,7 +105,7 @@ class requeststorage {
         foreach ($states as $option) {
             if (isset($option['source'])){
                 $state = widgetstate::source($option['source']);
-                $state->setdata($option['data'], 'from request');
+                $state->setdata($option['data'], 'request');
             }
         }
     }

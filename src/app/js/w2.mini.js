@@ -145,35 +145,19 @@ class requeststorage {
     }
 
     static run(hash, bind = false, then = false, bindToHtmlElement = false){
-        let result = false;
-
         if (hash in requeststorage.storage){
-            
-            if (!(hash in requeststorage.active)){
-                const request = requeststorage.storage[hash]
-                
-                console.log('create NEW request')
-                requeststorage.active[hash] = new widgetrequest(
-                    hash, 
-                    request.url, 
-                    request.source, 
-                    request.method, 
-                    request.useState, 
-                    bind, 
-                    bindToHtmlElement,
-                    then
-                )
-            }
 
-            result = requeststorage.active[hash].run(requeststorage.delay)
+            const request = hash in requeststorage.active
+                ?requeststorage.active[hash]
+                :new widgetrequest(hash, requeststorage.storage[hash], bind, bindToHtmlElement, then)
+
+            request.run(requeststorage.delay)
         } else {
             showDialog({
                 title: 'Ошибка 842',
                 message: `Request "${hash}" отсутствует!`
             })
         }
-
-        return result;
     }
 
     static setDelay(delay){
@@ -226,122 +210,128 @@ class widgetalias {
 class widgetrequest {
     static active = {};
 
-    constructor(hash, url, source, method, useState = [], bind = false, bindToHtmlElement = false, then = false){
+    constructor(hash, request, bind = false, bindToHtmlElement = false, then = false){
         this.hash = hash
-        this.url = url
-        this.source = source
-        this.method = method
-        this.useState = useState
+        requeststorage.active[this.hash] = this
+
+        this.url = request.url
+        this.source = request.source
+        this.method = request.method
+        this.useState = request.useState
         this.bind = bind
         this.bindToHtmlElement = bindToHtmlElement
         this.then = then
 
         this.status = false
-        this.fetchController = new AbortController()
         this.current_request = false
+
+        this.waiting = false
+        this.waiting2 = false
+        this.loading = false;
+        this.block = false;
+
+        this.elementWaiting = false
+        this.penaltytime = 0
     }
 
-    setStatus(status){
-        if (widgetdom._debug)
-            console.log('SET STATUS ', status)
-        this.status = status
+    stopLoading(){
+        if (this.loading){
+            this.loading.abort();
+            this.loading = false;
+            this.addpenalty(500)
+        }
     }
 
-    wait(check){
-        if (this.bindToHtmlElement && this.bindToHtmlElement.tagName=='BUTTON')
-            if (check){
-                this.bindToHtmlElement.classList.add('waiting')
-                this.bindToHtmlElement.disabled = true;
-            } else {
-                this.bindToHtmlElement.classList.remove('waiting')
-                this.bindToHtmlElement.disabled = false;
-            }
+    addpenalty(penalty){
+        if (this.penaltytime<1000){
+            this.penaltytime += penalty
+        } else {
+            this.penaltytime += penalty / 10
+        }
     }
 
     run(delay = false){
-        switch (this.status){
-            // case 'waiting':
-            // case 'processing':
-            //     return false;
-            // break;
-            // case 'run':
-            //     this.stop();
-            //     this.setStatus('stop')
-            // break;
-            // default:
-            //     this.wait(true)
-            // break;
-        }
+        if (this.block) return false
 
+        if (!this.elementWaiting) this.wait(true)
+        this.stopLoading()
 
-        this.setStatus('waiting')
-        setTimeout(
-            () => {
-                if (this.status=='waiting'){
-                    this.setStatus('run')
-                    const stateData = this.getStateData()
-
-                    this.current_request = Math.random()
-
-                    const body = JSON.stringify({
-                        state: stateData,
-                        // this: widget.props
-                        executor: {
-                            source: this.source,
-                            method: this.method,
-                            props: this.props,
-                            bind: this.bind,
-                        },
-                        request_id: this.current_request,
-                    })
-
-                    fetch(this.url, {
-                        method: 'POST',
-                        body,
-                        signal: this.get_abort_signal()
-                    })
-                    .then(res => res.json())
-                    .then(res => {
-                        if (this.current_request==res.current_request){
-                            this.setStatus('processing')
-                            return this.apply(res)
-                        }
-                    })
-                    .catch(error => {
-                        this.setStatus('error')
-                        this.stop()
-                    })
-                    .finally(() => {
-                        // setTimeout(
-                            // () => {
-                                this.setStatus('finish')
-                                this.stop()
-                            // },
-                            // 2000
-                        // )
-                    });
-                }
-            },
-            delay?delay:0
-        );
-    }
-
-    stop(){
-        if (this.status=='finish'){
-            this.wait(false)
-            delete requeststorage.active[this.hash]
-        } else {
-            if (this.fetchController.signal.aborted == false){
-                this.fetchController.abort();
-                this.fetchController = null;
-                this.fetchController = new AbortController();
+        if (delay && this.penaltytime!=0) {
+            if (this.waiting2) {
+                clearTimeout(this.waiting2)
+                this.addpenalty(200)
             }
+            if (this.waiting) {
+                clearTimeout(this.waiting)
+                this.addpenalty(100)
+
+            }
+            this.waiting = setTimeout(() => this.run(), delay + this.penaltytime);
+        } else {
+            this.waiting = false
+            console.log('penaltytime', this.penaltytime)
+            this.createRequest(200)
+            // this.fetch()
+        }
+    }
+
+    createRequest(delay = false){
+        this.stopLoading()
+
+        if (delay) {
+            if (this.waiting2) {
+                clearTimeout(this.waiting2)
+                this.addpenalty(200)
+            }
+            this.waiting2 = setTimeout(() => this.createRequest(), delay + this.penaltytime);
+        } else {
+            this.waiting2 = false
+            this.fetch()
         }
     }
 
 
-    get_abort_signal(){
-		return this.fetchController.signal
+
+
+    fetch(){
+        const stateData = this.getStateData()
+
+        this.current_request = Math.random()
+
+        const body = JSON.stringify({
+            state: stateData,
+            executor: {
+                source: this.source,
+                method: this.method,
+                props: this.props,
+                bind: this.bind,
+            },
+            request_id: this.current_request,
+        })
+
+        fetch(this.url, {
+            method: 'POST',
+            body,
+            signal: this.getSignal()
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (this.current_request==res.current_request){
+                this.loading = false
+                this.apply(res)
+
+                this.wait(false)
+                delete requeststorage.active[this.hash]
+            }
+        })
+        // .finally(() => {
+        //     this.loading = false
+        // });
+    }
+
+    getSignal(){
+        this.loading = new AbortController()
+		return this.loading.signal
     }
 
 
@@ -361,10 +351,8 @@ class widgetrequest {
 
 
 
-
-
-
     apply(res){
+        this.block = true
         if ('state' in res){
             Object.keys(res.state).forEach(stateName => {
                 if ('data' in res.state[stateName])
@@ -389,6 +377,7 @@ class widgetrequest {
         }
 
         this.catchControll(res)
+        this.block = false
     }
 
     error(error){
@@ -406,6 +395,18 @@ class widgetrequest {
             this.catch(result)
             this.catch = false
         }
+    }
+
+    wait(check){
+        this.elementWaiting = check
+        if (this.bindToHtmlElement && this.bindToHtmlElement.tagName=='BUTTON')
+            if (check){
+                this.bindToHtmlElement.classList.add('waiting')
+                this.bindToHtmlElement.disabled = true;
+            } else {
+                this.bindToHtmlElement.classList.remove('waiting')
+                this.bindToHtmlElement.disabled = false;
+            }
     }
 
 }
@@ -890,9 +891,18 @@ class widgetstate__tools extends widgetstate__static {
                 tempState.set(nkey, nvalue)
             }
         } else {
-            if (this._data[key] != value){
+            let changed = false
+            if (Array.isArray(value)){
+                changed = !widgetconvertor.arraysEqual(this._data[key], value)
+            } else {
+                changed = this._data[key] != value
+            }
+
+            if (changed){
                 this._data[key] = value
                 widgetwatcher.update_path(this._path, key)
+
+                // if (!key.startsWith('__'))
                 if (this.props){
                     this.updateAlias(key)
                     this.change(key)
@@ -1089,8 +1099,6 @@ class widgetstate__tools extends widgetstate__static {
             (widget) => {
                 const stt = this
                 widget.assignProp('onchange', function(){
-                    if (!Array.isArray(stt.get(key))) stt.set(key, [])
-
                     if (this.checked)
                         stt.pushto(key, equality)
                     else
@@ -2169,7 +2177,7 @@ class widget extends widget__tools {
                 }
             break;
             case 'HTML':
-                if (prop=='innerHTML'){
+                if (prop=='innerHTML' || prop=='innerText'){
                     this.domElement.appendChild(value)
                 } else {
                     console.info('не знаю как применить в', prop, ' ->', value)
