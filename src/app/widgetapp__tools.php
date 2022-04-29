@@ -3,6 +3,7 @@
 namespace Widgets\app;
 
 use Widgets\conventor\widgetconventor;
+use Widgets\hash\__h32;
 use Widgets\request\requeststorage;
 use Widgets\state\widgetstate;
 
@@ -44,13 +45,16 @@ abstract class widgetapp__tools {
         $app = '';
 
         if (static::hashApp){
+            /* 
             $el = json_encode(widgetconventor::hashElement($widget));
             $hashList = json_encode(widgetconventor::getHashList());
 
             $app = "hashc(
                 $hashList, 
                 $el
-            )";
+            )"; 
+            */
+            $app = json_encode(new __h32($widget));
         } else {
             $app = json_encode($widget);
         }
