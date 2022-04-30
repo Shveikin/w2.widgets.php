@@ -3,6 +3,7 @@
 namespace Widgets\state;
 
 use DI2\Container;
+use Widgets\request\requeststorage;
 
 class state extends widgetstate__tools {
     use Container;
@@ -49,6 +50,10 @@ class state extends widgetstate__tools {
         $this->readget();
 
         $this->onchange = $this->onchange();
+        $post = requeststorage::getBySource($this->getSource());
+        if ($post){
+            $this->setdata($post, 'request');
+        }
         $this->initialization = true;
     }
 
@@ -67,18 +72,20 @@ class state extends widgetstate__tools {
 
     private $__revice_block__ = [];
     protected function set(string|int $key, $value){
-        $this->data[$key] = $value;
+        $lvalue = $this->get($key);
+        if ($lvalue!==$value) {
+            $this->data[$key] = $value;
 
-        if ($this->initialization) widgetstate::changedState($this->getSource());
-        
+            if ($this->initialization) widgetstate::changedState($this->getSource());
+            
 
-        $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
-        if (!$revice_block){
-            $this->__revice_block__[$key] = true;
-            $this->revice($key, $value);
-            $this->__revice_block__[$key] = false;
+            $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
+            if (!$revice_block){
+                $this->__revice_block__[$key] = true;
+                $this->revice($key, $value);
+                $this->__revice_block__[$key] = false;
+            }
         }
-        
     }
 
 
@@ -146,7 +153,7 @@ class state extends widgetstate__tools {
     } 
 
     protected function appendto($key, $childkey, $value){
-        if (!is_array($this->data[$key])){
+        if (!isset($this->data[$key]) || !is_array($this->data[$key])){
             $this->data[$key] = [];
         }
 

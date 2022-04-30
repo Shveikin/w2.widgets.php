@@ -243,10 +243,8 @@ class widgetrequest {
     }
 
     addpenalty(penalty){
-        if (this.penaltytime<1000){
+        if (this.penaltytime<1500){
             this.penaltytime += penalty
-        } else {
-            this.penaltytime += penalty / 10
         }
     }
 
@@ -340,10 +338,12 @@ class widgetrequest {
     
         this.useState.forEach(useState => {
             const stateName = Array.isArray(useState)?useState[1]:useState
-            result[stateName] = {
-                data: state[stateName].getRequestData(),
-                source: useState
-            }
+            const data = state[stateName].getRequestData()
+            if (Object.keys(data).length!=0)
+                result[stateName] = {
+                    data,
+                    source: useState
+                }
         })
 
         return result
@@ -2097,24 +2097,7 @@ class widget extends widget__tools {
             return this.assignProp(prop, value);
         }
         
-        if (prop!='child'){
-            /* 
-            const currentPropType = widgetconvertor.getType(this.props[prop])
-            if (currentPropType=='Watcher'){
-                const watcher = this.props[prop]
-                if (watcher.view != value){
-                    watcher.view = value
-                } else {
-                    return result
-                }
-            } 
-            */
-            /* 
-            else {
-                this.props[prop] = value
-            } 
-            */
-        }
+
 
         if (prop=='innerText' || prop=='innerHTML'){
             switch (type) {
@@ -2123,11 +2106,12 @@ class widget extends widget__tools {
                 case 'Element':
                     this.sequreAssign('innerText', '')
                     this.childs = []
+                    const lastprop = prop
                     prop = 'child'
                     result = 'child'
 
                     this.props['child'] = value
-                    delete this.props['innerText']
+                    delete this.props[lastprop]
                 break;
                 default: 
                     this.props[prop] = value;
@@ -2137,8 +2121,21 @@ class widget extends widget__tools {
         }
 
         if (prop=='child'){
-            this.updateChilds(value)
-            return result
+            switch (type) {
+                case 'String':
+                case 'Int':
+                case 'Bool':
+                    prop = 'innerText'
+                    this.props['innerText'] = value
+                    this.childs = []
+                    result = 'innerText'
+                    delete this.props['child']
+                break;
+                default:
+                    this.updateChilds(value)
+                    return result
+                break;
+            }
         }
 
         this.sequreAssign(prop, value)

@@ -104,9 +104,22 @@ class requeststorage {
     protected function applyPostDataToStates($states){
         foreach ($states as $option) {
             if (isset($option['source'])){
-                $state = widgetstate::source($option['source']);
-                $state->setdata($option['data'], 'request');
+                $src = implode('::', $option['source']); 
+                $this->post[$src] = $option['data'];
+
+
+                // $state = widgetstate::source($option['source']);
+                // $state->setdata($option['data'], 'request');
             }
+        }
+    }
+
+    protected function getBySource($source){
+        $src = implode('::', $source);
+        if (isset($this->post[$src])){
+            return $this->post[$src];
+        } else {
+            return false;
         }
     }
 }
