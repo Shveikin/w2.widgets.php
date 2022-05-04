@@ -18,6 +18,7 @@ class state extends widgetstate__tools {
 
     private $name = false;
     private $initialization = false;
+    private $changed = false;
 
     private $childs = [];
 
@@ -70,21 +71,24 @@ class state extends widgetstate__tools {
         return $this->name;
     }
 
-    private $__revice_block__ = [];
+    // private $__revice_block__ = [];
     protected function set(string|int $key, $value){
         $lvalue = $this->get($key);
         if ($lvalue!==$value) {
             $this->data[$key] = $value;
 
-            if ($this->initialization) widgetstate::changedState($this->getSource());
-            
-
-            $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
-            if (!$revice_block){
-                $this->__revice_block__[$key] = true;
-                $this->revice($key, $value);
-                $this->__revice_block__[$key] = false;
+            if ($this->initialization && !$this->changed) {
+                widgetstate::changedState($this->getSource());
+                $this->changed = true;
             }
+            // $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
+            // if (!$revice_block){
+            //     $this->__revice_block__[$key] = true;
+            
+            $this->revice($key, $value);
+            
+            //     $this->__revice_block__[$key] = false;
+            // }
         }
     }
 

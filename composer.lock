@@ -12,19 +12,20 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Shveikin/DI2.Container.git",
-                "reference": "28028c9de3de2190cda697b3b21c3fbd528e1231"
+                "reference": "91b76e9e0ff19c62cb138bea87170d20c2fd134a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/28028c9de3de2190cda697b3b21c3fbd528e1231",
-                "reference": "28028c9de3de2190cda697b3b21c3fbd528e1231",
+                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/91b76e9e0ff19c62cb138bea87170d20c2fd134a",
+                "reference": "91b76e9e0ff19c62cb138bea87170d20c2fd134a",
                 "shasum": ""
             },
             "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "DI2\\": "src/"
+                    "DI2\\": "src/",
+                    "clases\\": "example/clases"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -42,7 +43,7 @@
                 "issues": "https://github.com/Shveikin/DI2.Container/issues",
                 "source": "https://github.com/Shveikin/DI2.Container/tree/main"
             },
-            "time": "2022-04-14T09:46:47+00:00"
+            "time": "2022-05-04T03:36:40+00:00"
         }
     ],
     "packages-dev": [],

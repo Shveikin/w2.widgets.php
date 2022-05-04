@@ -1978,6 +1978,8 @@ class widget extends widget__tools {
         this.templateData = false
 
         this.parent = false
+
+        this.eventControllList = {}
     }
 
     setRootElement(rootElement, parent = false){
@@ -2203,22 +2205,21 @@ class widget extends widget__tools {
                     this.domElement[prop] = value()
                 }
             break;
-            // case 'Watcher':
-            //     value.link(this, prop)
-            // break;
             case 'Array':
-                // widgetdom.debug('widget', 'sequreAssign')('Обновляю dom root', prop)
                 console.info('ARRAY', `${prop} (${type})`, value)
             break;
             default:
                 console.info('Не применено - ', 'prop: ', prop, 'value: ', value, 'type: ', type)
-                // widgetdom.debug('widget', 'sequreAssign')('Не применено', prop, value, type)
             break;
         }
     }
 
-    on(prop, callback){
-        this.domElement.addEventListener(prop, callback)
+    on(prop, callback, type = ''){
+        const event = prop + type
+        if (!(event in this.eventControllList)){
+            this.eventControllList[event] = callback
+            this.domElement.addEventListener(prop, callback)
+        }
     }
 
     style(prop, value){
