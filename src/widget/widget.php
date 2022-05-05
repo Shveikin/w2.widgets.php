@@ -71,7 +71,16 @@ class widget implements JsonSerializable {
         }
     }
 
+    function __anyKey($key){
+        return $this->__to($key);
+    }
+
     function __get($key){
+        return $this->__to($key);
+    }
+
+
+    function __to($key){
         if ($key=='state'){
             return state::name('localstate_' . spl_object_id($this));
         } else
@@ -89,6 +98,8 @@ class widget implements JsonSerializable {
             return $this->props[$key];
         }
     }
+
+
 
     static private $__vars__ = false;
     function __is_var($key){
