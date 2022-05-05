@@ -34,6 +34,9 @@ trait widgetconventor__methods {
         if (is_string($element)){
             return 'String';
         } else 
+        if (is_callable($element)){
+            return 'Func';
+        } else
         if (is_numeric($element)){
             return 'Int';
         } else 

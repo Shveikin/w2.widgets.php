@@ -1,15 +1,12 @@
 <?php
 
 use Tests\app\main;
-use Tests\component\Label;
-use Tests\states\TempState;
-use Widgets\state\state;
-use Widgets\widget\c;
+use Tests\component\HideBox;
+
 require  "./vendor/autoload.php";
 
-
 echo main::app([
-    TempState::watch('_buy'),
-    TempState::watch('update'),
-    c::button('click', onclick: TempState::_set('update', '***'))
+    HideBox::c('hl world'),
+    HideBox::c('otherText'),
+    HideBox::c('hello'),
 ]);

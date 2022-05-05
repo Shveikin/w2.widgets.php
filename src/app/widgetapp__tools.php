@@ -45,22 +45,11 @@ abstract class widgetapp__tools {
         $app = '';
 
         if (static::hashApp){
-            /* 
-            $el = json_encode(widgetconventor::hashElement($widget));
-            $hashList = json_encode(widgetconventor::getHashList());
-
-            $app = "hashc(
-                $hashList, 
-                $el
-            )"; 
-            */
             $app = json_encode((new __h32($widget))->hash64());
         } else {
             $app = json_encode($widget);
         }
 
-        
-        
 
         $script = '';
         $requeststoragescript = '';

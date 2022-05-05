@@ -64,6 +64,7 @@ class __h32 extends widget {
         $type = widgetconventor::getType($value);
         switch($type){
             case 'Bool':
+            case 'None':
                 return $value?'+':'-';
             break;
             case 'String':

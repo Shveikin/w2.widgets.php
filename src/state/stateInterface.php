@@ -20,6 +20,6 @@ interface stateinterface {
 
     function default(): array;
     function alias(): array|bool;
-    function revice($key, $value);
+    function revice($key, $value, $isinit);
     function onchange();
 }

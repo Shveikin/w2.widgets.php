@@ -3,6 +3,7 @@
 namespace Widgets\state;
 
 use DI2\Container;
+use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
 
 class state extends widgetstate__tools {
@@ -11,6 +12,7 @@ class state extends widgetstate__tools {
     const upload_type = false;
 
     private $data = false;
+    private $stack = [];
     private $default = [];
     private $alias = false;
     public $delay = false;
@@ -21,6 +23,7 @@ class state extends widgetstate__tools {
     private $changed = false;
 
     private $childs = [];
+
 
     function __construct($super, $name = false){
         $super($this);
@@ -41,6 +44,7 @@ class state extends widgetstate__tools {
         if (method_exists($this, 'default')){
             $dafault = $this->default();
         }
+
         $this->default = $dafault;
         $this->setdata($dafault, 'create');
 
@@ -55,7 +59,12 @@ class state extends widgetstate__tools {
         if ($post){
             $this->setdata($post, 'request');
         }
+
         $this->initialization = true;
+
+        if (!empty($this->stack)){
+            $this->stack_init();
+        }
     }
 
     static function name($name){
@@ -71,30 +80,53 @@ class state extends widgetstate__tools {
         return $this->name;
     }
 
-    // private $__revice_block__ = [];
     protected function set(string|int $key, $value){
-        $lvalue = $this->get($key);
-        if ($lvalue!==$value) {
-            $this->data[$key] = $value;
+        $this->set__($key, $value);
+    }
 
-            if ($this->initialization && !$this->changed) {
-                widgetstate::changedState($this->getSource());
-                $this->changed = true;
+    private $__revice__ = [];
+    private function set__(string|int $key, $value, $type = 'auto'){
+        $lvalue = $this->get__($key);
+        if ($lvalue!==$value) {
+            if (!$this->initialization && $type=='auto'){
+                if (!isset($this->stack[$type])) $this->stack[$type] = [];
+                $this->stack[$type][$key] = $value;
+            } else {
+                $this->data[$key] = $value;
+                if (!$this->changed) {
+                    widgetstate::changedState($this->getSource());
+                    $this->changed = true;
+                }
+
+                $this->__revice__[$key] = true;
+                $this->revice($key, $value, $this->initialization);
             }
-            // $revice_block = isset($this->__revice_block__[$key])?$this->__revice_block__[$key]:false;
-            // if (!$revice_block){
-            //     $this->__revice_block__[$key] = true;
-            
-            $this->revice($key, $value);
-            
-            //     $this->__revice_block__[$key] = false;
-            // }
         }
     }
 
 
+    private function stack_init(){
+        // foreach ($this->stack as $type => $stack) {
+        //     if ($type!='auto'){
+        //         $this->setdata($stack, 'stack data');
+        //     }
+        // }
+
+        if (isset($this->stack['auto'])){
+            $this->setdata($this->stack['auto'], 'stack data');
+        }
+
+        $this->stack = [];
+    }
 
     protected function get(string|int $key){
+        if (!$this->initialization)
+            if (!isset($this->__revice__[$key]) || !$this->__revice__[$key])
+                throw new \ErrorException("$this->name [$key]", 0, 56, __FILE__, __LINE__);
+        return $this->get__($key);
+    }
+
+    private function get__(string|int $key){
         if (isset($this->data[$key])){
             return $this->data[$key];
         } else {
@@ -124,9 +156,7 @@ class state extends widgetstate__tools {
 
     protected function setdata(array $data, $form  = 'none'){
         foreach ($data as $key => $value) {
-            // $updates = $form=='request' && !str_starts_with($key, '__');
-            
-            $this->set($key, $value);
+            $this->set__($key, $value, $form);
         }
     }
 

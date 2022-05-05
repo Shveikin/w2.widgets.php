@@ -243,7 +243,7 @@ class widgetrequest {
     }
 
     addpenalty(penalty){
-        if (this.penaltytime<1500){
+        if (this.penaltytime<1000){
             this.penaltytime += penalty
         }
     }
@@ -257,7 +257,7 @@ class widgetrequest {
         if (delay && this.penaltytime!=0) {
             if (this.waiting2) {
                 clearTimeout(this.waiting2)
-                this.addpenalty(200)
+                this.addpenalty(150)
             }
             if (this.waiting) {
                 clearTimeout(this.waiting)
@@ -267,8 +267,8 @@ class widgetrequest {
             this.waiting = setTimeout(() => this.run(), delay + this.penaltytime);
         } else {
             this.waiting = false
-            console.log('penaltytime', this.penaltytime)
-            this.createRequest(200)
+            // console.log('penaltytime', this.penaltytime)
+            this.createRequest(150)
             // this.fetch()
         }
     }
@@ -279,7 +279,7 @@ class widgetrequest {
         if (delay) {
             if (this.waiting2) {
                 clearTimeout(this.waiting2)
-                this.addpenalty(200)
+                this.addpenalty(150)
             }
             this.waiting2 = setTimeout(() => this.createRequest(), delay + this.penaltytime);
         } else {
@@ -950,9 +950,9 @@ class widgetstate__tools extends widgetstate__static {
 
     isdefault(key){
         const def = this.getdefault(key)
-        const current = this._data[key]
+        const current = this.get(key)
 
-        const result = widgetconvertor__tools.arraysEqual(def, current)
+        const result = Array.isArray(def) || Array.isArray(current)?widgetconvertor__tools.arraysEqual(def, current):def == current
 
         return result
     }
@@ -1308,6 +1308,9 @@ class widgetconvertor__fromToFunc {
         return () => str
     }
 
+    static BoolToFunction(bool){
+        return () => bool
+    }
 
 }
 // widgetconvertor__tools.js
@@ -1771,7 +1774,7 @@ class widget_smartprops {
             const range = Array.isArray(sliderMoveRange)?sliderMoveRange[mouseDown]:sliderMoveRange
 
             if (props?.axis != 'y'){
-                posx = (parseInt(elements[mouseDown].domElement.style.left) + x)
+                posx = ((parseInt(elements[mouseDown].domElement.style.left) || 0) + x)
                 if (posx>range.x.max)
                     posx = range.x.max
                 if (posx < range.x.min)
@@ -1780,7 +1783,7 @@ class widget_smartprops {
                 elements[mouseDown].style('left', posx + 'px')
             }
             if (props?.axis != 'x'){
-                posy = (parseInt(elements[mouseDown].domElement.style.top) + y)
+                posy = ((parseInt(elements[mouseDown].domElement.style.top) || 0) + y)
                 if (posy>range.y.max)
                     posy = range.y.max
                 if (posy < range.y.min)

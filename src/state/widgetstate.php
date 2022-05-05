@@ -15,7 +15,7 @@ class widgetstate {
     private $post = [];
 
 
-    function __construct($super){
+    function __construct($super){ 
         $super($this);
     }
 
@@ -26,15 +26,16 @@ class widgetstate {
         foreach ($this->global as $key => $value) {
             if (!isset($this->rendered[$key]) || !$this->rendered[$key]) {
                 $data = $value->export('data');
-                $extra = [
-                    'default' => $value->export('default'),
-                    'alias' => $value->export('alias'),
-                    'onchange' => $value->export('onchange'),
-                    'delay' => $value->export('delay'),
-                ];
-
-                $result .= "widgetstate.use(\"$key\", ". json_encode($data) .", ". json_encode($extra) .") \n\t\t\t";
-                $this->rendered[$key] = true;
+                $extra = [];
+                foreach (['default', 'alias', 'onchange', 'delay'] as $stateProp) {
+                    $stateData = $value->export('default');
+                    if (!empty($stateData) && $stateData!=false)
+                        $extra[$stateProp] = $stateData;
+                }
+                if ((!empty($data) && $data!=false) || !empty($extra)){
+                    $result .= "widgetstate.use(\"$key\", ". json_encode($data) .   (!empty($extra)?", ".json_encode($extra):'')   . ") \n\t\t\t";
+                    $this->rendered[$key] = true;
+                }
             }
         } 
         return $result;
