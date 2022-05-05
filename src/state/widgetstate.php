@@ -28,7 +28,7 @@ class widgetstate {
                 $data = $value->export('data');
                 $extra = [];
                 foreach (['default', 'alias', 'onchange', 'delay'] as $stateProp) {
-                    $stateData = $value->export('default');
+                    $stateData = $value->export($stateProp);
                     if (!empty($stateData) && $stateData!=false)
                         $extra[$stateProp] = $stateData;
                 }

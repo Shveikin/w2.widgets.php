@@ -715,19 +715,20 @@ class widgetstate__props {
     }
 
     static getdefault(path, key){
-        if (key in widgetstate__props.props[path]?.defaults){
+        if (widgetstate__props.issetPropName('defaults', path, key))
             return widgetstate__props.props[path]?.defaults[key]
-        } else {
+        else 
             return key.startsWith('_')?[]:false
-        }
     }
 
-
-/*
-    static getAlias(path, key){
-        return widgetstate__props.props[path]?.alias[key]
+    static issetPropName(propName, path, key){
+        if (path in widgetstate__props.props)
+        if (propName in widgetstate__props.props[path])
+        if (key in widgetstate__props.props[path][propName])
+            return true
+        
+        return false
     }
-*/
 
 }
 // widgetstate__methods.js
@@ -913,7 +914,9 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     updateAlias(key){
-        const url = this.props?.alias[key]
+        const url = 'alias' in this.props && key in this.props.alias
+            ?this.props.alias[key]
+            :false
 
         if (url) 
         if (this.isdefault(key))
@@ -1310,6 +1313,10 @@ class widgetconvertor__fromToFunc {
 
     static BoolToFunction(bool){
         return () => bool
+    }
+
+    static ObjectToFunction(Obj){
+        return () => Obj
     }
 
 }
