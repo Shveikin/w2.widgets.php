@@ -86,6 +86,9 @@ class __h32 {
         qe: 'button',
         qr: 'onclick',
         qt: 'innerText',
+        qy: 'StateMapElement',
+        tt: 'title',
+        qu: 'key',
     };
 
     hashItm(itm){
@@ -467,18 +470,32 @@ class widgetelement {
     static StateMapElement({stateName, key, widget, props}){
 
         return state[stateName].watch(key, function(obj){
-            return obj.map(itm => {
-                let json = widget
+            
+            return Array.isArray(obj)
+                ?obj.map((itm, elementKey) => {
+                    let json = widget
 
-                Object.keys(props).map(propkey => {
-                    const hash = props[propkey]
-                    const value = itm[propkey]
+                    Object.keys(props.keys).map(propkey => {
+                        const hash = props.keys[propkey]
+                        const value = itm[propkey]
 
-                    json = json.replaceAll(`**${hash}**`, value)
+                        json = json.replaceAll(hash, value)
+                    })
+
+
+                    Object.keys(props.math).map(hash => {
+                        const calc = props.math[hash]
+                            .replaceAll('@key', elementKey)
+                            .replaceAll('@length', obj.length)
+                        
+                        let result = ''
+                        eval(`result = ${calc}`)
+                        json = json.replaceAll(hash, result)
+                    })
+
+                    return widgetconvertor.toWidget(JSON.parse(json))
                 })
-
-                return widgetconvertor.toWidget(JSON.parse(json))
-            })
+                :false
         })
 
     }
@@ -2219,15 +2236,7 @@ class widget extends widget__tools {
                             if (event.target!=this) 
                                 return false
 
-                        value.apply(this, [event])
-/* 
-                        if (this.element in widgetconvertor.singleElement){
-                            const defaultProp = widgetconvertor.singleElement[this.element]
-                            if (defaultProp){
-                                this.props[defaultProp] = this[defaultProp]
-                            }
-                        }
-*/
+                        return  value.apply(this, [event])
                     }
 
                     this.on(prop.substr(2), func)

@@ -20,6 +20,11 @@ trait widget__element {
             $props[$prop] = $value;
         }
 
+        if ($this->innerHTML){
+            $props['innerHTML'] = $this->innerHTML;
+        }
+
+
         foreach($this->child as $child){
             if (!isset($props['child'])) $props['child'] = [];
 

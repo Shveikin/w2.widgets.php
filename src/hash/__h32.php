@@ -41,6 +41,9 @@ class __h32 extends widget {
         'button' => 'qe',
         'onclick' => 'qr',
         'innerText' => 'qt',
+        'StateMapElement' => 'qy',
+        'key' => 'qu',
+        'title'=>'tt',
     ];
 
     private $stack = []; 

@@ -36,8 +36,8 @@ trait widget__html {
     private function renderChilds(){
         $result = '';
 
-        if (isset($this->props['innerHTML']))
-            $result = $this->props['innerHTML'];
+        if ($this->innerHTML)
+            $result = $this->innerHTML;
         else if (isset($this->props['innerText']))
             $result = $this->props['innerText'];
         else

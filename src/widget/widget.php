@@ -21,6 +21,7 @@ class widget implements JsonSerializable {
     private $props = [];
     private $child = [];
     private $bind = false;
+    private $innerHTML = false;
 
     public $useState = [];
 
@@ -36,8 +37,10 @@ class widget implements JsonSerializable {
         $attrs = [];
 
         foreach ($props as $attr => $val) {
-            if (in_array($attr, [0,'innerHTML', 'innerText'])){
+            if (in_array($attr, [0, 'innerText'])){
                 $child = $val;
+            } else if ($attr == 'innerHTML'){
+                $this->innerHTML = $val;
             } else {
                 $attrs[$attr] = $val;
             }
@@ -81,6 +84,9 @@ class widget implements JsonSerializable {
 
 
     function __to($key){
+        if ($key=='child')
+            return $this->child;
+        else
         if ($key=='state'){
             return state::name('localstate_' . spl_object_id($this));
         } else
@@ -114,7 +120,35 @@ class widget implements JsonSerializable {
     }
 
     static function c(...$props){
-        return new (static::class)(...$props);
+        $class = static::class;
+
+        $construct = [];
+
+        if (!empty($props)){
+            $parameters = (new \ReflectionClass($class))->getConstructor()?->getParameters();
+            if (!empty($parameters)){
+                $count = 0;
+                foreach ($parameters as $prop) {
+                    if (isset($props[$prop->name])){
+                        $construct[$prop->name] = $props[$prop->name];
+                        unset($props[$prop->name]);
+                    } else if (isset($props[$count])){
+                        $construct[$count] = $props[$count];
+                        unset($props[$count]);
+                    }
+                    $count++;
+                }
+            }
+        }
+
+
+        $component = new ($class)(...$construct);
+
+        foreach ($props as $attr => $value) {
+            $component->{$attr} = $value;
+        }
+
+        return $component;
     }
 
     public function jsonSerialize(){

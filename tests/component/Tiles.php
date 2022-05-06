@@ -12,24 +12,103 @@ class Tiles extends widget {
         $titlesState = state::name('tiles');
 
         $titlesState->set('_data', [
-            [
-                'title' => 'h1',
-            ],
-            [
-                'title' => 'h2',
-            ],
-            [
-                'title' => 'h3',
-            ],
-            [
-                'title' => '43',
-            ],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],            
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],            
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],            
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
+            ['title' => 'h1',],
+            ['title' => 'h2',],
+            ['title' => 'h3',],
+            ['title' => '43',],
         ]);
 
 
+        $size = 62;
 
-        $this->child = $titlesState->map('_data', function($itm){
-            return c::div($itm->title);
+        $map = $titlesState->map('_data', function($itm) use($titlesState, $size) {
+            return c::div(
+                $itm->title,
+                style: $titlesState->watchif('open', true, 
+                    '
+                        left: ' . $itm->calc("@key % Math.floor(window.document.body.clientWidth / $size) * 60") .'px;
+                        top: '. $itm->calc("Math.floor(@key / Math.floor(window.document.body.clientWidth / $size)) * 60")  .'px;
+                    ', 
+                    '
+                        left: ' . $itm->calc('@key * 45') .'px;
+                    '
+                ),
+                className: 'tile',
+            );
         });
+
+        $this->child = c::div(
+            $map,
+            style: $titlesState->watchif('open', true, 'height: 500px;'),
+            className: 'tilesBox'
+        );
     }
 }

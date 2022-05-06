@@ -19,6 +19,10 @@ class StateMapMethod implements JsonSerializable {
         $this->props = $imprint->getProps();
     }
 
+    function __toString(){
+        return '<-- StateMapMethod !-->';
+    }
+
     function toElement($json = false){
         return [
             'element' => 'StateMapElement',
