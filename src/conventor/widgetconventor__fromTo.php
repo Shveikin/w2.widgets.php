@@ -63,5 +63,10 @@ trait widgetconventor__fromTo {
         return '';
     }
 
+    protected function StateMapMethodToElement($stateMapMethod){
+        return $stateMapMethod->toElement();
+
+    }
+
 
 }

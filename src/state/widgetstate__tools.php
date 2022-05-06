@@ -28,9 +28,9 @@ class widgetstate__tools implements /*stateinterface,*/ JsonSerializable {
     protected function readget(){
         $requeststorage = requeststorage::main();
 
-
         $result = [];
 
+        if ($requeststorage->get)
         foreach ($this->getAliasList() as $statekey => $url) {
             if (isset($requeststorage->get[$url])){
 
@@ -78,7 +78,7 @@ class widgetstate__tools implements /*stateinterface,*/ JsonSerializable {
         return false;
     }
 
-    function revice($key, $value){
+    function revice($key, $value, $isinit){
         
     }
 

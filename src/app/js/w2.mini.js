@@ -243,7 +243,7 @@ class widgetrequest {
     }
 
     addpenalty(penalty){
-        if (this.penaltytime<1500){
+        if (this.penaltytime<1000){
             this.penaltytime += penalty
         }
     }
@@ -257,7 +257,7 @@ class widgetrequest {
         if (delay && this.penaltytime!=0) {
             if (this.waiting2) {
                 clearTimeout(this.waiting2)
-                this.addpenalty(200)
+                this.addpenalty(150)
             }
             if (this.waiting) {
                 clearTimeout(this.waiting)
@@ -267,8 +267,8 @@ class widgetrequest {
             this.waiting = setTimeout(() => this.run(), delay + this.penaltytime);
         } else {
             this.waiting = false
-            console.log('penaltytime', this.penaltytime)
-            this.createRequest(200)
+            // console.log('penaltytime', this.penaltytime)
+            this.createRequest(150)
             // this.fetch()
         }
     }
@@ -279,7 +279,7 @@ class widgetrequest {
         if (delay) {
             if (this.waiting2) {
                 clearTimeout(this.waiting2)
-                this.addpenalty(200)
+                this.addpenalty(150)
             }
             this.waiting2 = setTimeout(() => this.createRequest(), delay + this.penaltytime);
         } else {
@@ -416,7 +416,7 @@ class widgetrequest {
 
 class widgetelement {
     static tools = [
-        'group', 'func', 'requestmethod', 'list', 'requeststore_element', '__h32', 
+        'group', 'func', 'requestmethod', 'list', 'requeststore_element', '__h32', 'StateMapElement', 
     ]
 
     static make(element){
@@ -461,6 +461,26 @@ class widgetelement {
     static __h32({base, list, method = 32}){
         const result = (new __h32(list)).toElement(method==64?__h32.unpack(base):base);
         return result
+    }
+
+
+    static StateMapElement({stateName, key, widget, props}){
+
+        return state[stateName].watch(key, function(obj){
+            return obj.map(itm => {
+                let json = widget
+
+                Object.keys(props).map(propkey => {
+                    const hash = props[propkey]
+                    const value = itm[propkey]
+
+                    json = json.replaceAll(`**${hash}**`, value)
+                })
+
+                return widgetconvertor.toWidget(JSON.parse(json))
+            })
+        })
+
     }
 
 }
@@ -715,19 +735,20 @@ class widgetstate__props {
     }
 
     static getdefault(path, key){
-        if (key in widgetstate__props.props[path]?.defaults){
+        if (widgetstate__props.issetPropName('defaults', path, key))
             return widgetstate__props.props[path]?.defaults[key]
-        } else {
+        else 
             return key.startsWith('_')?[]:false
-        }
     }
 
-
-/*
-    static getAlias(path, key){
-        return widgetstate__props.props[path]?.alias[key]
+    static issetPropName(propName, path, key){
+        if (path in widgetstate__props.props)
+        if (propName in widgetstate__props.props[path])
+        if (key in widgetstate__props.props[path][propName])
+            return true
+        
+        return false
     }
-*/
 
 }
 // widgetstate__methods.js
@@ -913,7 +934,9 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     updateAlias(key){
-        const url = this.props?.alias[key]
+        const url = 'alias' in this.props && this.props.alias!=false && key in this.props.alias
+            ?this.props.alias[key]
+            :false
 
         if (url) 
         if (this.isdefault(key))
@@ -950,9 +973,9 @@ class widgetstate__tools extends widgetstate__static {
 
     isdefault(key){
         const def = this.getdefault(key)
-        const current = this._data[key]
+        const current = this.get(key)
 
-        const result = widgetconvertor__tools.arraysEqual(def, current)
+        const result = Array.isArray(def) || Array.isArray(current)?widgetconvertor__tools.arraysEqual(def, current):def == current
 
         return result
     }
@@ -1308,6 +1331,13 @@ class widgetconvertor__fromToFunc {
         return () => str
     }
 
+    static BoolToFunction(bool){
+        return () => bool
+    }
+
+    static ObjectToFunction(Obj){
+        return () => Obj
+    }
 
 }
 // widgetconvertor__tools.js
@@ -1771,7 +1801,7 @@ class widget_smartprops {
             const range = Array.isArray(sliderMoveRange)?sliderMoveRange[mouseDown]:sliderMoveRange
 
             if (props?.axis != 'y'){
-                posx = (parseInt(elements[mouseDown].domElement.style.left) + x)
+                posx = ((parseInt(elements[mouseDown].domElement.style.left) || 0) + x)
                 if (posx>range.x.max)
                     posx = range.x.max
                 if (posx < range.x.min)
@@ -1780,7 +1810,7 @@ class widget_smartprops {
                 elements[mouseDown].style('left', posx + 'px')
             }
             if (props?.axis != 'x'){
-                posy = (parseInt(elements[mouseDown].domElement.style.top) + y)
+                posy = ((parseInt(elements[mouseDown].domElement.style.top) || 0) + y)
                 if (posy>range.y.max)
                     posy = range.y.max
                 if (posy < range.y.min)

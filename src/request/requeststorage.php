@@ -10,14 +10,13 @@ class requeststorage {
     use Container;
 
     public $post = []; 
-    public $get = []; 
+    public $get = false; 
     private $storage = [];
 
 
     function __construct($super){
         $super($this);
 
-        $this->get = $_GET;
         $data = file_get_contents('php://input');
 
         if ($data){
@@ -30,6 +29,8 @@ class requeststorage {
                 if ($data['executor'])
                     $this->execute($data['executor'], $data['request_id']);
             }
+        } else {
+            $this->get = $_GET;
         }
 
     }

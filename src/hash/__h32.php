@@ -64,6 +64,7 @@ class __h32 extends widget {
         $type = widgetconventor::getType($value);
         switch($type){
             case 'Bool':
+            case 'None':
                 return $value?'+':'-';
             break;
             case 'String':
@@ -76,6 +77,7 @@ class __h32 extends widget {
             case 'StateMethod':
             case 'Widget':
             case 'Element':
+            case 'StateMapMethod':
                 return $this->hash(widgetconventor::toElement($value));
             break;
             default:

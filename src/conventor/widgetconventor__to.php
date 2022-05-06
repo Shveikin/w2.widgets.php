@@ -35,6 +35,9 @@ trait widgetconventor__to {
             case 'StateMethod':
                 return '<!-- StateMethod /-->';
             break;
+            case 'StateMapMethod':
+                return '<!-- StateMapMethod /-->';
+            break;
             default:
                 die("не знаю как перевести $type в HTML");
             break;

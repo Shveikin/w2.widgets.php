@@ -5,9 +5,7 @@ namespace Widgets\conventor;
 use Widgets\state\state;
 use Widgets\state\state__method;
 use Widgets\widget\widget;
-use Widgets\request\widgetrequest;
-
-
+use Widgets\state\map\StateMapMethod;
 
 trait widgetconventor__methods {
 
@@ -28,12 +26,18 @@ trait widgetconventor__methods {
         if ($element instanceof state__method){
             return 'StateMethod';
         } else
-        if ($element instanceof widgetrequest){
-            return 'Request';
+        if ($element instanceof state__method){
+            return 'StateMethod';
+        } else
+        if ($element instanceof StateMapMethod){
+            return 'StateMapMethod';
         } else
         if (is_string($element)){
             return 'String';
         } else 
+        if (is_callable($element)){
+            return 'Func';
+        } else
         if (is_numeric($element)){
             return 'Int';
         } else 

@@ -11,6 +11,7 @@
             "Widgets\\request\\": "src/request/",
             "Widgets\\dialog\\": "src/dialog/",
             "Widgets\\state\\": "src/state/",
+            "Widgets\\state\\map\\": "src/state/map",
             "Widgets\\hash\\": "src/hash/",
             "Widgets\\widget\\": "src/widget/",
             "Widgets\\widget\\tools\\": "src/widget/tools/",
