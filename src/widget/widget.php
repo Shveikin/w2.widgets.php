@@ -5,12 +5,14 @@ namespace Widgets\widget;
 use JsonSerializable;
 use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
+use Widgets\state\state;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
 
 class widget implements JsonSerializable {
     use widget__html;
     use widget__element;
+
 
     const vars = [];
 
@@ -69,7 +71,19 @@ class widget implements JsonSerializable {
         }
     }
 
+    function __anyKey($key){
+        return $this->__to($key);
+    }
+
     function __get($key){
+        return $this->__to($key);
+    }
+
+
+    function __to($key){
+        if ($key=='state'){
+            return state::name('localstate_' . spl_object_id($this));
+        } else
         if (method_exists($this, $key)){
             return requeststorage::get(
                 source: get_class($this),
@@ -84,6 +98,8 @@ class widget implements JsonSerializable {
             return $this->props[$key];
         }
     }
+
+
 
     static private $__vars__ = false;
     function __is_var($key){
