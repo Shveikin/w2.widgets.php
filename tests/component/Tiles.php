@@ -21,6 +21,9 @@ class Tiles extends widget {
             [
                 'title' => 'h3',
             ],
+            [
+                'title' => '43',
+            ],
         ]);
 
 
