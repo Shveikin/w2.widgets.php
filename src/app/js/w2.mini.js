@@ -577,31 +577,13 @@ class widgetwatcher__static {
 		}
 
         let strkeys = keys.join(',')
-/* 
-        if (callback)
-            strkeys += '_cbk' + widgetcallback.index('watchers', callback)
-*/
+
         return {
             keys,
             callback,
             strkeys,
         }
     }
-/* 
-    static by(path, keys, callback = false){
-        const j = widgetwatcher__static.parsekeys(keys, callback)
-
-        if (path in widgetwatcher.global){
-
-        } else {
-            widgetwatcher.global[path] = {}
-        }
-
-        widgetwatcher.global[path][j.strkeys] = new widgetwatcher(path, j.keys, j.callback)
-
-        return widgetwatcher.global[path][j.strkeys]
-    }
- */
 
     static by(path, keys, callback = false){
         const j = widgetwatcher__static.parsekeys(keys, callback)
@@ -909,7 +891,11 @@ class widgetstate__tools extends widgetstate__static {
 
                 requeststorage.setDelay(this.props?.delay)
 
-                return this[method].apply(this, args)
+                try {
+                    return this[method].apply(this, args)
+                } catch (e){
+                    console.error(`method ${method}`, args, ' - ', e)
+                }
             }
         }
     }
@@ -1143,6 +1129,23 @@ class widgetstate__tools extends widgetstate__static {
                         stt.pushto(key, equality)
                     else
                         stt.pullfrom(key, equality)
+                })
+            }
+        )
+    }
+
+    modelif(key, equality, set, reverse = false){
+        return this.watch(key, function(value){
+            const result = value===equality
+            return reverse?!result:result
+        }).setonlink(
+            (widget) => {
+                const stt = this
+                widget.assignProp('onchange', function(){
+                    if (this.checked)
+                        stt.set(key, !reverse?equality:set)
+                    else
+                        stt.set(key, !reverse?set:equality)
                 })
             }
         )
