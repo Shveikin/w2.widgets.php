@@ -402,7 +402,7 @@ class widgetrequest {
 
     wait(check){
         this.elementWaiting = check
-        if (this.bindToHtmlElement && this.bindToHtmlElement.tagName=='BUTTON')
+        if (this.bindToHtmlElement)// && this.bindToHtmlElement.tagName=='BUTTON')
             if (check){
                 this.bindToHtmlElement.classList.add('waiting')
                 this.bindToHtmlElement.disabled = true;
@@ -611,9 +611,11 @@ class widgetwatcher__static {
     static update_path(path, key){
         if (path in widgetwatcher.global){
             Object.keys(widgetwatcher.global[path]).forEach(watcherKey => {
-                const link = widgetwatcher.global[path][watcherKey]
-                if (link.key_inside(key)){
-                    link.update()
+                if (path in widgetwatcher.global && watcherKey in widgetwatcher.global[path]){
+                    const link = widgetwatcher.global[path][watcherKey]
+                    if (link.key_inside(key)){
+                        link.update()
+                    }
                 }
             })
         }
@@ -634,6 +636,8 @@ class widgetwatcher extends widgetwatcher__static {
         this._link = {}
 
         this.onlink = false
+
+        // console.log('create watcher', path, keys)
     }
 
     tempcallback(){
@@ -1928,10 +1932,87 @@ class widget_smartprops {
         
     }
 }
+// widgetcontentcontroller.js
+
+class widgetcontentcontroller {
+
+    checkContentProp(prop, type, value){
+        if (prop == 'child'){
+            return this.checkChilds(type, value);
+        } else if (['innerText', 'innerHTML'].includes(prop)){
+            return this.checkText(type, prop, value);
+        }
+
+        return [false, true];
+    }
+
+
+    checkChilds(type, value){
+        let result = false 
+        let update = true 
+
+        switch (type) {
+            case 'String':
+            case 'Int':
+            case 'Bool':
+                result = 'innerText'
+
+                if ('child' in this.watcher){
+                    this.clearWatcherFrom(this.childs)
+                    this.childs = []
+
+                    this.watcher['innerText'] = this.watcher['child']
+                    delete this.watcher['child']
+                }
+
+                this.props['innerText'] = value
+
+                delete this.props['child']
+            break;
+        }
+        return [result, update]
+    }
+
+
+    checkText(type, prop, value){
+        let result = false 
+        let update = true 
+
+
+        switch (type) {
+            case 'Array':
+            case 'Widget':
+            case 'Element':
+                this.watcher['child'] = this.watcher[prop]
+                delete this.watcher[prop]
+                result = 'child'
+
+                this.sequreAssign('innerText', '')
+                this.childs = []
+
+                delete this.props[prop]
+
+                this.props['child'] = value
+            break;
+            default: 
+                if (prop in this.watcher){
+                    if (this.watcher[prop]===value){
+                        update = false
+                    } else {
+                        this.watcher[prop] = value
+                    }
+                } else {
+                    this.props[prop] = value;
+                }
+            break;
+        }
+        return [result, update]
+    }
+}
 // widget__tools.js
 
 
-class widget__tools {
+class widget__tools extends widgetcontentcontroller {
     static current_id = 0
 
     static next_id(){
@@ -2022,6 +2103,8 @@ class widget extends widget__tools {
         this.element = element
         this.childs = []
         this.watchlist = []
+        this.watcher = {}
+
         // this.child = widgetconvertor.toArray(child)
         this.props = props
         this.id = widget__tools.next_id()
@@ -2118,6 +2201,7 @@ class widget extends widget__tools {
         let result = false;
         switch(type){
             case 'Watcher':
+                this.watcher[prop] = undefined;
                 const active = value.link(this, prop)
                 this.watchlist_push(active)
             return result
@@ -2145,52 +2229,67 @@ class widget extends widget__tools {
         }
 
         if (widgetconvertor.getType(value)!=type){
-            this.props[prop] = value;
+            if (!(prop in this.watcher))
+                this.props[prop] = value;
+
             return this.assignProp(prop, value);
         }
         
+        const [newProp, update] = this.checkContentProp(prop, type, value)
+        if (newProp)
+            prop = newProp
 
+        // if (prop=='innerText' || prop=='innerHTML'){
+        //     switch (type) {
+        //         case 'Array':
+        //         case 'Widget':
+        //         case 'Element':
+        //             this.sequreAssign('innerText', '')
+        //             this.childs = []
+        //             const lastprop = prop
+        //             prop = 'child'
+        //             result = 'child'
 
-        if (prop=='innerText' || prop=='innerHTML'){
-            switch (type) {
-                case 'Array':
-                case 'Widget':
-                case 'Element':
-                    this.sequreAssign('innerText', '')
-                    this.childs = []
-                    const lastprop = prop
-                    prop = 'child'
-                    result = 'child'
+        //             this.props['child'] = value
+        //             delete this.props[lastprop]
+        //         break;
+        //         default: 
+        //             this.props[prop] = value;
+        //             this.childs = [];
+        //         break;
+        //     }
+        // }
 
-                    this.props['child'] = value
-                    delete this.props[lastprop]
-                break;
-                default: 
-                    this.props[prop] = value;
-                    this.childs = [];
-                break;
-            }
-        }
-
+        if (update)
         if (prop=='child'){
-            switch (type) {
-                case 'String':
-                case 'Int':
-                case 'Bool':
-                    prop = 'innerText'
-                    this.props['innerText'] = value
-                    this.childs = []
-                    result = 'innerText'
-                    delete this.props['child']
-                break;
-                default:
-                    this.updateChilds(value)
-                    return result
-                break;
-            }
+            this.updateChilds(value)
+            return result
+            // switch (type) {
+            //     case 'String':
+            //     case 'Int':
+            //     case 'Bool':
+            //         prop = 'innerText'
+            //         this.props['innerText'] = value
+            //         this.clearWatcherFrom(this.childs)
+            //         this.childs = []
+            //         result = 'innerText'
+
+
+            //         delete this.props['child']
+            //         if ('child' in this.watcher){
+            //             this.watcher['innerText'] = this.watcher['child']
+            //             delete this.watcher['child']
+            //         }
+            //     break;
+            //     default:
+            //         this.updateChilds(value)
+            //         return result
+            //     break;
+            // }
+        } else {
+            this.sequreAssign(prop, value)
         }
 
-        this.sequreAssign(prop, value)
         return result
     }
     
@@ -2199,6 +2298,12 @@ class widget extends widget__tools {
      */
     
     sequreAssign(prop, value){
+        if (prop in this.watcher){
+            if (value === this.watcher.view){
+                return false;
+            }
+        }
+
         const type = widgetconvertor.getType(value)
         
         const targetOnly = prop.substr(0, 1)=='_';
@@ -2278,6 +2383,18 @@ class widget extends widget__tools {
     setTemplateData(data){
         this.templateData = data
         return this
+    }
+
+    clearWatcherFrom(childs){
+        childs.forEach(child => {
+
+            child.watchlist.forEach(watcherprop => {
+                // console.info('delete watcher', watcherprop)
+                delete widgetwatcher.global[watcherprop[0]][watcherprop[1]]
+            })
+
+            this.clearWatcherFrom(child.childs)
+        })
     }
 }
 // widgetdialog.js

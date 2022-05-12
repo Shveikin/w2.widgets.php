@@ -16,6 +16,8 @@ class widgetapp extends widgetapp__tools {
     const cigaretteBurn = true;
     const hashApp = false;
 
+    const onlyComplection = false;
+
 
     const script = true;
         const SCRIPT_CONNECTED_MANUALLY = 32;

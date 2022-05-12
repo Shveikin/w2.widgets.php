@@ -22,6 +22,7 @@ class state extends widgetstate__tools {
     private $name = false;
     private $initialization = false;
     private $changed = false;
+    private $isRendered = false;
 
     private $childs = [];
 
@@ -98,6 +99,7 @@ class state extends widgetstate__tools {
                     widgetstate::changedState($this->getSource());
                     $this->changed = true;
                 }
+                $this->isRendered = false;
 
                 $this->__revice__[$key] = true;
                 $this->revice($key, $value, $this->initialization);
@@ -115,9 +117,9 @@ class state extends widgetstate__tools {
     }
 
     protected function get(string|int $key){
-        if (!$this->initialization)
-            if (!isset($this->__revice__[$key]) || !$this->__revice__[$key])
-                throw new \ErrorException("$this->name [$key]", 0, 56, __FILE__, __LINE__);
+        // if (!$this->initialization)
+        //     if (!isset($this->__revice__[$key]) || !$this->__revice__[$key])
+        //         throw new \ErrorException("not init $this->name [$key]", 0, 56, __FILE__, __LINE__);
         return $this->get__($key);
     }
 
@@ -158,6 +160,7 @@ class state extends widgetstate__tools {
 
     protected function export($val){
         $result = $this->{$val};
+        $this->changed = false;
         return $result;
     }
 
@@ -182,11 +185,13 @@ class state extends widgetstate__tools {
     } 
 
     protected function appendto($key, $childkey, $value){
-        if (!isset($this->data[$key]) || !is_array($this->data[$key])){
-            $this->data[$key] = [];
-        }
+        if (!str_starts_with($key, '_'))
+            throw new Exception("$key - [appendto] key должкн быть array"); 
+        
+        $temp = $this->get($key);
+        $temp[$childkey] = $value;
 
-        $this->data[$key][$childkey] = $value;
+        $this->set($key, $temp);
     }
 
     protected function map($key, $callback){
@@ -225,6 +230,14 @@ class state extends widgetstate__tools {
         }
 
         return $result;
+    }
+
+    public function isRendered(){
+        return $this->isRendered;
+    }
+
+    public function setRendered(){
+        $this->isRendered = true;
     }
 
 }

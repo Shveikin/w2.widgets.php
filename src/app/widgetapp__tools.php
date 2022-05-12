@@ -14,6 +14,7 @@ abstract class widgetapp__tools {
     const cigaretteBurn = true;
     const hashApp = true;
     const script = true;
+    const onlyComplection = false;
 
 
 
@@ -66,10 +67,11 @@ abstract class widgetapp__tools {
             }
 
             
-
-            $requeststorage = requeststorage::toElement();
-            if (!empty($requeststorage)) {
-                $requeststoragescript = 'requeststorage.create(' . json_encode($requeststorage) . ')';
+            if (!static::onlyComplection){
+                $requeststorage = requeststorage::toElement();
+                if (!empty($requeststorage)) {
+                    $requeststoragescript = 'requeststorage.create(' . json_encode($requeststorage) . ')';
+                }
             }
         }
 
@@ -78,7 +80,8 @@ abstract class widgetapp__tools {
 
         $selector = "app" . md5(rand()) . "{$appcount}";
 
-        $state = widgetstate::render();
+
+        $state = !static::onlyComplection?widgetstate::render():'';
         $result = <<<HTML
 
                     <div id='$selector'>$html</div>
@@ -113,8 +116,36 @@ abstract class widgetapp__tools {
         return $result;
     }
 
+
+    /** 
+     * переименовать на target
+    */
+
     static function route() {
         requeststorage::main();
+    }
+
+
+
+    /** 
+     * вывод всего что осталось
+    */
+
+    static function completion(){
+        $requeststorage = requeststorage::toElement();
+        if (!empty($requeststorage)) {
+            $requeststoragescript = 'requeststorage.create(' . json_encode($requeststorage) . ')';
+        }
+
+        $state = widgetstate::render();
+        $result = <<<HTML
+                <script>
+                    $state
+                    $requeststoragescript
+                </script>
+        HTML;
+
+        return $result;
     }
 
 }

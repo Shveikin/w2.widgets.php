@@ -19,12 +19,11 @@ class widgetstate {
         $super($this);
     }
 
-    private $rendered = [];
 
     private function render(){
         $result = '';
         foreach ($this->global as $key => $value) {
-            if (!isset($this->rendered[$key]) || !$this->rendered[$key]) {
+            if (!$value->isRendered()) {
                 $data = $value->export('data');
                 $extra = [];
                 foreach (['default', 'alias', 'onchange', 'delay'] as $stateProp) {
@@ -34,7 +33,8 @@ class widgetstate {
                 }
                 if ((!empty($data) && $data!=false) || !empty($extra)){
                     $result .= "widgetstate.use(\"$key\", ". json_encode($data) .   (!empty($extra)?", ".json_encode($extra):'')   . ") \n\t\t\t";
-                    $this->rendered[$key] = true;
+                    // $this->rendered[$key] = true;
+                    $value->setRendered();
                 }
             }
         } 
@@ -162,5 +162,6 @@ class widgetstate {
 
         return $result;
     }
+
 
 }

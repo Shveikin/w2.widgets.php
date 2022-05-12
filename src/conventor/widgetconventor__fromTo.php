@@ -68,5 +68,18 @@ trait widgetconventor__fromTo {
 
     }
 
+    protected function NoneToElement($none){
+        return false;
+    }
+
+    protected function BoolToElement($bool){
+        return [
+            'element' => 'bool',
+            'props' => [
+                'value' => $bool
+            ],
+        ];
+    }
+
 
 }
