@@ -48,7 +48,13 @@ class state extends widgetstate__tools {
         }
 
         $this->default = $dafault;
-        $this->setdata($dafault, 'create');
+        
+        $post = requeststorage::getBySource($this->getSource());
+        if ($post){
+            $this->setdata($post, 'request');
+        } else {
+            $this->setdata($dafault, 'create');
+        }
 
         if (method_exists($this, 'alias')){
             $this->alias = $this->alias();
@@ -57,10 +63,7 @@ class state extends widgetstate__tools {
         $this->readget();
 
         $this->onchange = $this->onchange();
-        $post = requeststorage::getBySource($this->getSource());
-        if ($post){
-            $this->setdata($post, 'request');
-        }
+        
 
         $this->initialization = true;
 
@@ -147,6 +150,13 @@ class state extends widgetstate__tools {
         $this->set($key, $this->getdefault($key));
     }
 
+    function updateDefaults(){
+        foreach ($this->default as $key => $value) {
+            $this->default[$key] = $this->get($key);
+        }
+    }
+
+
     protected function isdefault(string|int $key) {
         return $this->getdefault($key) == $this->get($key);
     }
@@ -160,6 +170,9 @@ class state extends widgetstate__tools {
 
     protected function export($val){
         $result = $this->{$val};
+        if (is_callable($result)) {
+            $result = $result();
+        }
         $this->changed = false;
         return $result;
     }
