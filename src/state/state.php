@@ -19,7 +19,7 @@ class state extends widgetstate__tools {
     public $delay = false;
 
 
-    private $name = false;
+    protected $name = false;
     private $initialization = false;
     private $changed = false;
     private $isRendered = false;
@@ -150,8 +150,10 @@ class state extends widgetstate__tools {
         $this->set($key, $this->getdefault($key));
     }
 
-    function updateDefaults(){
-        foreach ($this->default as $key => $value) {
+    function updateDefaults(array|bool $keys = false){
+        $keys = $keys?$keys:array_keys($this->default);
+
+        foreach ($keys as $key) {
             $this->default[$key] = $this->get($key);
         }
     }

@@ -105,7 +105,16 @@ class widget implements JsonSerializable {
         }
     }
 
-
+    function bindAliasToMethod($methodName, $methodAlias = false){
+        requeststorage::setAlias(
+            $methodAlias?$methodAlias:$methodName, 
+            requeststorage::getHash(
+                get_class($this),
+                $methodName,
+                $this->url
+            )
+        );
+    }
 
     static private $__vars__ = false;
     function __is_var($key){

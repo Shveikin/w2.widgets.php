@@ -12,6 +12,7 @@ class requeststorage {
     public $post = []; 
     public $get = false; 
     private $storage = [];
+    private $alias = [];
 
 
     function __construct($super){
@@ -36,8 +37,15 @@ class requeststorage {
     }
 
 
+    protected function getHash($source, $method, $url){
+        return md5($source . $method . $url);
+    }
+
     protected function get($source, $method, $url, $useState){
-        $requestHash = md5($source . $method . $url);
+        $hash = $this->getHash($source, $method, $url);
+        $requestHash = isset($this->alias[$hash])?$this->alias[$hash]:$method;
+
+
 
         if (!isset($this->storage[$requestHash])){
 
@@ -50,6 +58,11 @@ class requeststorage {
         }
 
         return new widgetrequest($requestHash);
+    }
+
+
+    protected function setAlias($alias, $hash){
+        $this->alias[$hash] = $alias;
     }
 
 
