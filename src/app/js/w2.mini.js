@@ -469,10 +469,10 @@ class widgetelement {
     static StateMapElement({stateName, key, widget, props}){
 
         return state[stateName].watch(key, function(obj){
-            
+
             return Array.isArray(obj)
                 ?obj.map((itm, elementKey) => {
-                    let json = widget
+                    let json = widget.replaceAll('*@val@*', itm).replaceAll('*@key@*', elementKey)
 
                     Object.keys(props.keys).map(propkey => {
                         const hash = props.keys[propkey]
@@ -1035,11 +1035,13 @@ class widgetstate__tools extends widgetstate__static {
 
 
     inc(key, stap = 1){
-        this.set(key, this._data[key] + stap)
+        const val = parseInt(this.get(key))
+        this.set(key, val + stap)
     }
 
     dec(key, stap = 1){
-        this.set(key, this._data[key] - stap)
+        const val = parseInt(this.get(key))
+        this.set(key, val - stap)
     }
 
     onepushto(to, value){
@@ -2396,4 +2398,239 @@ class widget extends widget__tools {
         })
     }
 }
-////// файл отсутствует - widgetdialog1.js
+// widgetdialog.js
+
+class widgetdialog {
+
+    static props = {
+        template: 'template',
+        message: '__message',
+        title: 'title',
+        buttons: '__buttons', 
+
+        hidetitle: 'hidetitle',
+        width: 'width',
+        height: 'height',
+        
+        active: '_active',
+        active_arrow: 'active_arrow',
+
+        // form
+        enctype: 'enctype',
+        action: 'action',
+        method: 'method',
+        onsubmit: 'onsubmit',
+    }
+
+    static styles = {
+        black_h12nbsx9dk23m32ui4948382: "position:fixed;left:0;top:0;bottom:0;right:0;background:#0004;z-index:9999999999999999;overflow:auto;padding:10px;transition:all.1s;font-family:'Segoe UI', Roboto, Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue','sans-serif';",
+        black_habsolute: "position:absolute;background:#0000;",
+        window_h12nbsx9dk23m32ui4948382: "background:#fff;box-shadow: 5px 8px 20px 1px #00000057;color:#000;margin:12% auto;transition:all .3s;",
+        dialogTitle_h12nbsx9dk23m32ui4948382: "padding:10px !important;font-weight:bold !important;font-family:Verdana, Geneva, Tahoma, sans-serif !important;color:inherit;font-size:11pt !important;",
+        form_panel_h12nbsx9dk23m32ui4948382: "	display:flex !important; color:inherit;",
+        _form_h12nbsx9dk23m32ui4948382: "width: 100% !important;padding: 10px !important;border-radius: 0;",
+        close_panel_h12nbsx9dk23m32ui4948382: "border-bottom: 1px solid #0002;position: sticky !important;top: 0px !important;display: flex !important;background: #ffffff30;align-items: center !important;justify-content: space-between !important;color: inherit;",
+        buttons_panel_h12nbsx9dk23m32ui4948382: "background: #ffffff30;position: sticky !important;bottom: 0px !important;display: flex !important;justify-content: flex-start !important;color: inherit;flex-direction: row-reverse;border-top: 1px solid #0002;",
+        black_h12nbsx9dk23m32ui4948382__fieldset: "padding: 0 !important;margin: 0 !important;border: none !important;color: inherit;",
+        btnh12n: "display: inline-block !important;padding: 2px 10px !important;background: #fff2;margin: 5px 0 !important;border: 1px solid #0003;border-radius: 3px !important;cursor: pointer !important;margin-right: 5px !important;margin-left: 5px !important;font-size: 14px !important;box-shadow: none;color: inherit;",
+    }   
+
+    static templates = []
+
+    static __init__(){
+
+        const $state = state.dialogstate
+        const window = c.div({
+            child: c.div({
+                child: [
+                    $state.watchif('hidetitle', false,
+                        c.div({
+                            child: [
+                                '',
+                                c.div({
+                                    innerText: $state.watch('title'),
+                                    style: widgetdialog.styles.dialogTitle_h12nbsx9dk23m32ui4948382,
+                                }),
+                                c.button({
+                                    child: '✖',
+                                    onclick(){
+                                        $state.__message = false
+                                    },
+                                    style: widgetdialog.styles.btnh12n,
+                                })
+                            ],
+                            style: widgetdialog.styles.close_panel_h12nbsx9dk23m32ui4948382,
+                        }),
+                        false
+                    ),
+                    c.div({
+                        child: c.form({
+                            child: c.fieldset({
+                                child: $state.watch('__message'),
+                                style: widgetdialog.styles.black_h12nbsx9dk23m32ui4948382__fieldset,
+                            }),
+                            style: $state.watch(height => `${widgetdialog.styles._form_h12nbsx9dk23m32ui4948382}; min-height: ${height?height:120}px;`),
+                            enctype: $state.watch('enctype'),
+                            action: $state.watch('action'),
+                            method: $state.watch('method'),
+                            onsubmit(){
+                                event.preventDefault()
+                                return false;
+                            },
+                        }),
+                        style: widgetdialog.styles.form_panel_h12nbsx9dk23m32ui4948382,
+                    }),
+                    c.div({
+                        child: ['', $state.watch('__buttons')],
+                        style: widgetdialog.styles.buttons_panel_h12nbsx9dk23m32ui4948382,
+                    })
+                ],
+                style: $state.watch(width => 
+                    `max-width:${width?width:650}px;${widgetdialog.styles.window_h12nbsx9dk23m32ui4948382}`
+                ) 
+            }),
+            style: $state.watch(__style => `${widgetdialog.styles.black_h12nbsx9dk23m32ui4948382}; ${__style}`),
+            _onmousedown(){
+                $state.__message = false
+            }
+        })
+
+        $state.watch('__message').link(message => { 
+            const style = message==false?'opacity: 0; visibility: hidden;':''
+            widgetdom.querySelector('body').then(body => {
+                if ($state.get('__style'))
+                    body.style.overflow = 'auto'
+                else
+                    body.style.overflow = 'hidden'
+            })
+
+            $state.__style = style
+        })
+
+        $state.watch(['width', 'height', '_active', 'hidetitle'])
+        .link((width, height, active, hidetitle) => {
+            let window_style = ''
+
+            if (width) window_style += `width: ${width}px; `
+            if (height) window_style += `min-height: ${hidetitle?height:height+39}px; `
+
+            if (active){
+                if ('element' in active){
+                    widgetdom.querySelector(active.element).then(element => {
+                        const rect = element.getBoundingClientRect()
+                        window_style += `position: absolute; margin: 0;`
+
+
+                        window_style += `bottom: calc(100% - ${rect.y-10}px); `
+                        window_style += `left: ${rect.x}px; `
+                        $state.active_arrow = 'bottom'
+                        $state.__position = window_style
+                    })
+                }
+            } else {
+                $state.active_arrow = false
+            }
+
+
+            $state.__position = window_style
+        })
+
+
+        c.render('body', window, 'append')
+    }
+
+
+    static setup(template_name, props){
+        widgetdialog.templates[template_name] = props
+    }
+
+    static template(template_name){
+        if (template_name)
+        if (template_name in widgetdialog.templates){
+
+            const template = widgetdialog.templates[template_name];
+
+            for (const [statekey, objectkey] of Object.entries(widgetdialog.props)){
+                if (objectkey in template){
+                    widgetdialog.setPorp(statekey, template[objectkey])
+                } else {
+                    widgetdialog.setPorp(statekey, false)
+                }
+            }
+        } else {
+            if (widgetdom.debug)
+                console.info(template_name, ' отсутствует')
+        }
+
+        return widgetdialog
+    }
+
+    static show(props = true, title = false){
+        const proptype = widgetconvertor.getType(props)
+
+        switch (proptype) {
+            case 'String':
+            case 'Array':
+
+                state.dialogstate.__message = props
+                if (title)
+                state.dialogstate.title = title
+            break;
+            case 'Object':
+
+
+                for (const [key, value] of Object.entries(props)){
+                    if (key in widgetdialog.props){
+                        const statekey = widgetdialog.props[key]
+                        widgetdialog.setPorp(statekey, value)
+                    }
+                }
+
+
+            break;
+            case 'Bool':
+                if (!props)
+                state.dialogstate.__message = false
+            break;
+        }
+    }
+
+    static setPorp(prop, value){
+        switch (prop){
+            case '__buttons':
+                if (typeof value == 'object'){
+                    const buttons = [];
+                    for (const [buttontitle, func] of Object.entries(value)){
+                        buttons.push(
+                            c.button({
+                                innerText: buttontitle,
+                                style: widgetdialog.styles.btnh12n,
+                                onclick: () => {
+                                    widgetconvertor.toFunction(func).apply(this)
+                                } 
+                            })
+                        )
+                    }
+
+                    state.dialogstate[prop] = buttons
+                }
+            break;
+            case 'template':
+                widgetdialog.template(value)
+            break;
+            default:
+                state.dialogstate[prop] = value
+            break;
+        }
+    }
+}
+
+
+function showDialog(props, title = false){
+    widgetdialog.show(props, title)
+}
+
+
+
+widgetdialog.__init__();
+

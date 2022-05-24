@@ -38,6 +38,6 @@ class widgetrequest implements JsonSerializable {
     }
 
     function jsonSerialize(){
-        return $this->toElement(true);
+        return $this->bind();
     }
 }

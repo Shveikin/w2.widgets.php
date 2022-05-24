@@ -18,6 +18,9 @@ class widgetdialog {
         'action' => 'action',
         'method' => 'method',
         'onsubmit' => 'onsubmit',
+        'hidetitle' => 'hidetitle',
+        'width' => 'width',
+        'height' => 'height',
     ];
 
     static function show(...$props){
@@ -31,18 +34,19 @@ class widgetdialog {
 
     }
 
-/*
-    static function show__fw(...$props){
+
+    static function _show(...$props){
         $rules = [];
 
-        foreach (self::$props as $key => $value) {
-            if (isset($props[$value])){
-                $rules[] = dialogstate::state()->applyTo($key, $props[$value]);
+        foreach ($props as $key => $value) {
+            if (isset(self::$props[$key])) {
+                $stateKey = self::$props[$key];
+                $rules[] = dialogstate::_set($stateKey, $value);
             }
         }
 
-        return state::group($rules);
+        return $rules;
     }
-*/
+
 
 }

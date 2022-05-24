@@ -21,12 +21,12 @@
 <?php
 
 use Tests\app\main;
+use Tests\component\iButton;
 use Tests\component\Tiles;
 use Widgets\state\state;
 use Widgets\widget\c;
 
 require  "./vendor/autoload.php";
 
-$el = c::div(innerHTML: '<b>Hello</b> world');
 
-echo c::app($el);
+echo c::app(new iButton('click', 'kl2'));
