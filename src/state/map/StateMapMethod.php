@@ -20,7 +20,7 @@ class StateMapMethod implements JsonSerializable {
     }
 
     function __toString(){
-        return '<-- StateMapMethod !-->';
+        return '<!-- StateMapMethod -->';
     }
 
     function toElement($json = false){
