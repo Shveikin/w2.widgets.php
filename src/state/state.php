@@ -30,6 +30,8 @@ class state extends widgetstate__tools {
     function __construct($super, $name = false){
         $super($this);
 
+        $this->constructor();
+
         widgetstate::reg($this, $name);
 
         if (static::upload_type==state::UPLOAD_ALIAS_FIRST){

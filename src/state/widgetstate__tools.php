@@ -68,6 +68,9 @@ class widgetstate__tools implements /*stateinterface,*/ JsonSerializable {
     }
 
 
+    function constructor(){
+        
+    }
 
     // interface default
     function default(): array {

@@ -1621,7 +1621,16 @@ class widgetdom__api {
 
         if (querySelector in widgetdom__api.active){
             const currNode = widgetdom__api.active[querySelector]
-            widgetdom.update(currNode, widget)
+            const status = widgetdom.update(currNode, widget)
+
+            switch(status[0]){
+                case 'delete':
+                    delete widgetdom__api.active[querySelector]
+                break;
+                case 'replace':
+                    widgetdom__api.active[querySelector] = status[1]
+                break;
+            }
         } else {
             widgetdom.querySelector(querySelector, mode).then(rootElement => {
                 widgetdom.firstRender(rootElement, querySelector, widget)
@@ -1812,12 +1821,6 @@ class widget_smartprops {
             widgetconvertor.toArray(props.childs).forEach(child => {
                 widgetconvertor.toWidget(child).setRootElement(dragboard.domElement, dragboard)
             })
-            // const widgets = widgetconvertor.toArrayOfWidgets(props.childs);
-            // widgets.forEach(widget => {
-            //     dragboard.domElement.appendChild(
-            //         widgetdom.createElement(widget)
-            //     )
-            // })
         }
 
         function rangeArray(){
@@ -1968,15 +1971,34 @@ class widget_smartprops {
 
         dragboard.domElement.onmouseup = () => { mouseDown = false }
         dragboard.domElement.onmouseleave = () => { mouseDown = false }
-
-            // dragboard.domElement.appendChild(dragElement)
-        
-        
     }
 }
 // widgetcontentcontroller.js
 
 class widgetcontentcontroller {
+
+    removeProps(props){
+        props.forEach(prop => {
+            if (prop in this.props)
+                delete this.props[prop]
+
+            if (prop=='child')
+                this.childs = []
+        })
+    }
+
+    checkWatchers(prop, value){
+        if (prop in this.watcher){
+            if (this.watcher[prop]===value){
+                return false
+            } else {
+                this.watcher[prop] = value
+            }
+        } else {
+            this.props[prop] = value;
+        }
+        return true
+    }
 
     checkContentProp(prop, type, value){
         if (prop == 'child'){
@@ -1990,7 +2012,6 @@ class widgetcontentcontroller {
                 return [false, true];
             }
         }
-
     }
 
 
@@ -2015,6 +2036,11 @@ class widgetcontentcontroller {
                 this.props['innerText'] = value
 
                 delete this.props['child']
+                this.childs = []
+            break;
+            default:
+                this.removeProps(['innerText', 'innerHTML'])
+                update = this.checkWatchers('child', value)
             break;
         }
         return [result, update]
@@ -2041,16 +2067,16 @@ class widgetcontentcontroller {
 
                 this.props['child'] = value
             break;
-            default: 
-                if (prop in this.watcher){
-                    if (this.watcher[prop]===value){
-                        update = false
-                    } else {
-                        this.watcher[prop] = value
-                    }
-                } else {
-                    this.props[prop] = value;
+            default:
+                switch(prop){
+                    case 'innerText': 
+                        this.removeProps(['innerHTML', 'child'])
+                    break;
+                    case 'innerHTML': 
+                        this.removeProps(['innerText', 'child'])
+                    break;
                 }
+                update = this.checkWatchers(prop, value) 
             break;
         }
         return [result, update]
@@ -2136,6 +2162,7 @@ class widget__tools extends widgetcontentcontroller {
 
             if (currvalue!=nextvalue){
                 this.assignProp(prop, nextvalue)
+                this.props[prop] = nextvalue
             }
         }
     }
@@ -2241,7 +2268,7 @@ class widget extends widget__tools {
 
 
     assignProp(prop, value) {
-        if (prop in widget_smartprops)
+        if (prop in widget_smartprops && typeof widget_smartprops[prop] == 'function')
             return widget_smartprops[prop](this, value)
 
         let type = widgetconvertor.getType(value)
@@ -2422,10 +2449,30 @@ class widgetdialog {
         onsubmit: 'onsubmit',
     }
 
+    static defaultProps = {
+        template: false,
+        message: '',
+        title: 'dialog',
+        buttons: false, 
+
+        hidetitle: false,
+        width: 650,
+        height: 400,
+        
+        active: false,
+        active_arrow: false,
+
+        // form
+        enctype: false,
+        action: false,
+        method: 'POST',
+        onsubmit: false,
+    }
+
     static styles = {
         black_h12nbsx9dk23m32ui4948382: "position:fixed;left:0;top:0;bottom:0;right:0;background:#0004;z-index:9999999999999999;overflow:auto;padding:10px;transition:all.1s;font-family:'Segoe UI', Roboto, Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue','sans-serif';",
         black_habsolute: "position:absolute;background:#0000;",
-        window_h12nbsx9dk23m32ui4948382: "background:#fff;box-shadow: 5px 8px 20px 1px #00000057;color:#000;margin:12% auto;transition:all .3s;",
+        window_h12nbsx9dk23m32ui4948382: "background:#fff;box-shadow: 5px 8px 20px 1px #00000057;color:#000;margin:12% auto;$table",
         dialogTitle_h12nbsx9dk23m32ui4948382: "padding:10px !important;font-weight:bold !important;font-family:Verdana, Geneva, Tahoma, sans-serif !important;color:inherit;font-size:11pt !important;",
         form_panel_h12nbsx9dk23m32ui4948382: "	display:flex !important; color:inherit;",
         _form_h12nbsx9dk23m32ui4948382: "width: 100% !important;padding: 10px !important;border-radius: 0;",
@@ -2579,12 +2626,24 @@ class widgetdialog {
             case 'Object':
 
 
+                for (const [key, defaultValue] of Object.entries(widgetdialog.defaultProps)){
+                    let value = defaultValue
+                    const statekey = widgetdialog.props[key]
+                    if (key in props){
+                        value = props[key]
+                    }
+
+                    widgetdialog.setPorp(statekey, value)
+                } 
+
+                /* 
                 for (const [key, value] of Object.entries(props)){
                     if (key in widgetdialog.props){
                         const statekey = widgetdialog.props[key]
                         widgetdialog.setPorp(statekey, value)
                     }
-                }
+                } 
+                */
 
 
             break;
