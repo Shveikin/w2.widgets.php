@@ -6,7 +6,7 @@ use JsonSerializable;
 use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
 use Widgets\state\state;
-use Widgets\widget\tools\autoload_widget_layout;
+use Widgets\widget\tools\autoload_widget_props;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
 use Widgets\widget\tools\widget_layout;
@@ -14,7 +14,7 @@ use Widgets\widget\tools\widget_layout;
 // use Widgets\widget\tools\widgetprops_proxy;
 
 class widget implements JsonSerializable {
-    use autoload_widget_layout;
+    use autoload_widget_props;
     use widget__html;
     use widget__element;
 
@@ -33,7 +33,6 @@ class widget implements JsonSerializable {
     public $useState = [];
 
     function __construct($tag, $props){
-        // $this->layout = new widget_layout($this);
         $this->element = $tag;
 
         $child = isset($props[0])
@@ -83,11 +82,6 @@ class widget implements JsonSerializable {
     // }
 
     function __anyKey($key){
-        // return $this->__to($key);
-
-        if ($key=='state'){
-            return state::name('localstate_' . spl_object_id($this));
-        } else
         if (method_exists($this, $key)){
             return requeststorage::get(
                 source: get_class($this),
