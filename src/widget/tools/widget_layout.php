@@ -32,7 +32,13 @@ class widget_layout {
 
     function set(...$props){
         foreach ($props as $key => $value) {
-            return $this->{$key} = $value;
+            $this->{$key} = $value;
+        }
+    }
+
+    function childs(...$childs){
+        foreach ($childs as $child) {
+            $this->child = $child;
         }
     }
 

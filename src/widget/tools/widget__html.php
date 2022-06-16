@@ -22,6 +22,8 @@ trait widget__html {
     private function renderProps() {
         $result = '';
         foreach($this->props as $attr => $value) {
+            if ($attr=='className') $attr = 'class';
+            
             if (!in_array($attr, ['innerHTML', 'innerText'])){
                 $type = widgetconventor::getType($value);
 
