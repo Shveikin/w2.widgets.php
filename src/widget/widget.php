@@ -6,13 +6,15 @@ use JsonSerializable;
 use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
 use Widgets\state\state;
-use Widgets\widget\tools\autoload_widgetprops_proxy;
+use Widgets\widget\tools\autoload_widget_layout;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
+use Widgets\widget\tools\widget_layout;
+
 // use Widgets\widget\tools\widgetprops_proxy;
 
 class widget implements JsonSerializable {
-    use autoload_widgetprops_proxy;
+    use autoload_widget_layout;
     use widget__html;
     use widget__element;
 
@@ -24,13 +26,14 @@ class widget implements JsonSerializable {
     public $url = '/';
     public $element = 'div';
     public $props = [];
-    private $child = [];
+    public $child = [];
     private $bind = false;
     private $innerHTML = false;
     
     public $useState = [];
 
     function __construct($tag, $props){
+        // $this->layout = new widget_layout($this);
         $this->element = $tag;
 
         $child = isset($props[0])
@@ -45,7 +48,7 @@ class widget implements JsonSerializable {
             if (in_array($attr, [0, 'innerText'])){
                 $child = $val;
             } else if ($attr == 'innerHTML'){
-                $this->layout->innerHTML = $val;
+                $this->innerHTML = $val;
             } else {
                 $attrs[$attr] = $val;
             }
@@ -171,7 +174,7 @@ class widget implements JsonSerializable {
         $component = new ($class)(...$construct);
 
         foreach ($props as $attr => $value) {
-            $component->{$attr} = $value;
+            $component->layout->{$attr} = $value;
         }
 
         return $component;
