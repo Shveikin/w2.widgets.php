@@ -965,7 +965,7 @@ class widgetstate__tools extends widgetstate__static {
             //     :{...result}
             // )
         }
-        
+
         return false
     }
 
@@ -1028,8 +1028,26 @@ class widgetstate__tools extends widgetstate__static {
     }
 
 
-    toggle(key){
-        this.set(key, !this.get(key))
+    toggle(key, _true = true, _false = false){
+        const currentValue = this.get(key)
+        let nextValue = false
+
+        if (key.startsWith('_')){ // для массивов делаем простую проверку на есть в массиве _true или нет
+            if (currentValue==false) 
+                nextValue = []
+            else
+                nextValue = [...currentValue]
+
+            if (nextValue.includes(_true)){
+                nextValue = nextValue.filter(itm => itm!=_true)
+            } else {
+                nextValue.push(_true)
+            }
+        } else {
+            nextValue = currentValue==_true?_false:_true
+        }
+
+        this.set(key, nextValue)
     }
 
 
@@ -1112,12 +1130,22 @@ class widgetstate__tools extends widgetstate__static {
     }
 
     watchif(key, equality, __true, __false = false){
+        let args = false
+        if (Array.isArray(key)){
+            args = key.slice(1)
+            key = key[0]
+        }
+
         return this.watch(key, function(value){
-
-            return value==equality
-                ?__true
-                :__false
-
+            if (args==false){
+                return value==equality
+                                ?__true
+                                :__false
+            } else {
+                return value[args[0]]==equality
+                                ?__true
+                                :__false
+            }
         })
     }
 
@@ -1621,16 +1649,26 @@ class widgetdom__api {
 
         if (querySelector in widgetdom__api.active){
             const currNode = widgetdom__api.active[querySelector]
-            const status = widgetdom.update(currNode, widget)
 
-            switch(status[0]){
-                case 'delete':
-                    delete widgetdom__api.active[querySelector]
+            switch (mode) {
+                case 'rebuild':
+                    const status = widgetdom.update(currNode, widget)
+
+                    switch(status[0]){
+                        case 'delete':
+                            delete widgetdom__api.active[querySelector]
+                        break;
+                        case 'replace':
+                            widgetdom__api.active[querySelector] = status[1]
+                        break;
+                    }
                 break;
-                case 'replace':
-                    widgetdom__api.active[querySelector] = status[1]
+                case 'append':
+                    currNode.child = widget
+                    currNode.render()
                 break;
             }
+            
         } else {
             widgetdom.querySelector(querySelector, mode).then(rootElement => {
                 widgetdom.firstRender(rootElement, querySelector, widget)
