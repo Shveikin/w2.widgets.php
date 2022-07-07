@@ -102,12 +102,13 @@ class requeststorage {
         // $state = $instance->getUseStateDataWithSource();
         $state = widgetstate::getChangedStateDataWithSource();
 
-        
+
         $result = [
             'result' => $functionResult,
             'state' => $state,
             'rem' => $ob_length,
-            'current_request' => $resuest_id
+            'current_request' => $resuest_id,
+            '__rs' => $this->toElement(),
         ];
 
         die(json_encode($result));

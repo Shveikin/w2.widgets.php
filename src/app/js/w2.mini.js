@@ -138,6 +138,10 @@ class requeststorage {
         this.storage = data
     }
 
+    static append(storage){
+        this.storage = Object.assign(this.storage, storage)
+    }
+
     static fetch(hash, bind, then = false){
         if ('then' in bind){
             then = bind.then
@@ -371,6 +375,10 @@ class widgetrequest {
                     })
                 }
             })
+        }
+
+        if ('__rs' in res){
+            requeststorage.append(res.__rs)
         }
 
         if (this.then){
@@ -2554,7 +2562,7 @@ class widgetdialog {
                                 child: $state.watch('__message'),
                                 style: widgetdialog.styles.black_h12nbsx9dk23m32ui4948382__fieldset,
                             }),
-                            style: $state.watch(height => `${widgetdialog.styles._form_h12nbsx9dk23m32ui4948382}; min-height: ${height?height:120}px;`),
+                            style: $state.watch(height => `${widgetdialog.styles._form_h12nbsx9dk23m32ui4948382}; min-height: ${height?height:0}px;`),
                             enctype: $state.watch('enctype'),
                             action: $state.watch('action'),
                             method: $state.watch('method'),
