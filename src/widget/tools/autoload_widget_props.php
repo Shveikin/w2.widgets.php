@@ -14,16 +14,25 @@ trait autoload_widget_props {
     }
 
     function _state(){
+        $state = false;
         $className = get_class($this);
         if (state::$__loadStateFromRequestStorage__){
-            if ($state = requeststorage::getLocalStateFor($className)){
-                return $state;
+            if ($isState = requeststorage::getLocalStateFor($className)){
+                $state = &$isState;
             }
         }
 
 
-        $stateName = 'localstate_' . spl_object_id($this);
-        array_push($this->useState, [$className, $stateName]);
-        return state::name($stateName);
+
+        if (!$state){
+            $stateName = 'localstate_' . spl_object_id($this);
+            $state = state::name($stateName);
+        }
+
+
+
+
+        $this->useState([$className, $state->getName()]);
+        return $state;
     }
 }

@@ -83,7 +83,7 @@ class state extends widgetstate__tools {
             $this->name = $name;
     }
 
-    protected function getName(){
+    function getName(){
         return $this->name;
     }
 

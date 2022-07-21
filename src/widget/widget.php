@@ -9,7 +9,6 @@ use Widgets\state\state;
 use Widgets\widget\tools\autoload_widget_props;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
-use Widgets\widget\tools\widget_layout;
 
 // use Widgets\widget\tools\widgetprops_proxy;
 
@@ -70,16 +69,11 @@ class widget implements JsonSerializable {
         $this->props = $attrs;
     }
 
-    // function __set($key, $value){
-    //     if ($key=='child') {
-    //         array_push($this->child, $value);
-    //     } else 
-    //     if (in_array($key, static::vars) || $key=='layout') {
-    //         $this->{$key} = $value;
-    //     } else {
-    //         $this->props[$key] = $value;
-    //     }
-    // }
+    function useState(...$states){
+        foreach($states as $state){
+            array_push($this->useState, $state);
+        }
+    }
 
     function __anyKey($key){
         if (method_exists($this, $key)){
@@ -92,32 +86,6 @@ class widget implements JsonSerializable {
         }
     }
 
-    // function __get($key){
-    //     return $this->__to($key);
-    // }
-
-
-    // function __to($key){
-    //     if ($key=='child')
-    //         return $this->child;
-    //     else
-    //     if ($key=='state'){
-    //         return state::name('localstate_' . spl_object_id($this));
-    //     } else
-    //     if (method_exists($this, $key)){
-    //         return requeststorage::get(
-    //             source: get_class($this),
-    //             method: $key,
-    //             url: $this->url,
-    //             useState: $this->useState
-    //         );
-    //     } else 
-    //     if ($this->__is_var($key) || $key == 'layout') {
-    //         return $this->{$key};
-    //     } else {
-    //         return $this->props[$key];
-    //     }
-    // }
 
     function bindAliasToMethod($methodName, $methodAlias = false){
         requeststorage::setAlias(
