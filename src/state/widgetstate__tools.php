@@ -8,17 +8,18 @@ use Widgets\request\requeststorage;
 
 class widgetstate__tools implements /*stateinterface,*/ JsonSerializable {
     const target = '/';
-
-
+    
+    
     const upload_type = 1;
-        const UPLOAD_DEFAULT_FIRST = 1;
-        const UPLOAD_ALIAS_FIRST = 2;
-
-
+    const UPLOAD_DEFAULT_FIRST = 1;
+    const UPLOAD_ALIAS_FIRST = 2;
+    
+    
     const data_type = false;
-        const DATA_INT = 3;
-        const DATA_FLOAT = 4;
-
+    const DATA_INT = 3;
+    const DATA_FLOAT = 4;
+    
+    static $__loadStateFromRequestStorage__ = false;
 
 
     public function jsonSerialize(){
@@ -68,6 +69,9 @@ class widgetstate__tools implements /*stateinterface,*/ JsonSerializable {
     }
 
 
+    function constructor(){
+        
+    }
 
     // interface default
     function default(): array {
@@ -84,6 +88,13 @@ class widgetstate__tools implements /*stateinterface,*/ JsonSerializable {
 
     function onchange(){
         return false;
+    }
+
+
+    protected function useLocalState(callable $callback){
+        self::$__loadStateFromRequestStorage__ = true;
+        $callback();
+        self::$__loadStateFromRequestStorage__ = false;
     }
 
 }

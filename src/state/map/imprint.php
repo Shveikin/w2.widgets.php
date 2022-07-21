@@ -26,6 +26,7 @@ class imprint {
 
     /** 
      * @key - key of item,
+     * @val - value of array,
      * @length - length of array
     */
 
@@ -33,6 +34,14 @@ class imprint {
         $keyHash =  '**' . md5($math) . '**';
         $this->math[$keyHash] = $math;
         return $keyHash;
+    }
+
+    function val(){
+        return '*@val@*';
+    }
+
+    function key(){
+        return '*@key@*';
     }
 
 }

@@ -1,6 +1,6 @@
 // c.js
 
-// v18.2f
+// v18.2
 
 const c = new Proxy({}, {
 	get:(_, _type) => {
@@ -431,9 +431,6 @@ class widgetelement {
 
     static make(element){
         let result = false;
-
-        console.log('make:: ', element?.element);
-
 
         if (widgetelement.tools.includes(element.element)){
             result = widgetelement[element.element](element.props)
@@ -874,7 +871,6 @@ class widgetstate__tools extends widgetstate__static {
         'onepushto',
         'pushto',
         'lpushto',
-        'mergeto', // merge array with array
         'pullfrom',
 
 
@@ -882,7 +878,6 @@ class widgetstate__tools extends widgetstate__static {
         'watchif', 
         'watchin', 
         'watchdefault', 
-        'watchincase',
         'model', 
         'modelin', 
 
@@ -1123,20 +1118,6 @@ class widgetstate__tools extends widgetstate__static {
         this.set(to, temp)
     }
 
-    mergeto(to, value){
-        let current = this.get(to)
-
-        if (!Array.isArray(current)) {
-            if (to.startsWith('_'))
-                current = []
-            else
-                console.error('#pushto', to, 'is not Array')
-        }
-
-        const temp = [...current, ...value]
-        this.set(to, temp)
-    }
-
     pullfrom(from, value){
         let current = this.get(from)
 
@@ -1176,75 +1157,31 @@ class widgetstate__tools extends widgetstate__static {
         })
     }
 
-    watchin(key, equality, __true, __false = false){ // можно передавать массив
+    watchin(key, equality, __true, __false = false){
         return this.watch(key, function(value){
-            if (!Array.isArray(value))
-                return __false
-            
-            const array = widgetconvertor.toArray(equality)
 
-            for (const itm of array){
-                if (value.includes(itm))
-                    return __true
-            }
+            return Array.isArray(value) && value.includes(equality)
+                ?__true
+                :__false
 
-            return __false
         })
     }
 
     watchdefault(key, __true, __false){
         return this.watch(key, (value) => {
-                let result = false
+            const defaultValue = this.getdefault(key) 
+            
+            return value==defaultValue
+                ?__true
+                :__false
+        }
 
+            
 
-                const defaultValue = this.getdefault(key) 
-                if (Array.isArray(value)){
-                    result = widgetconvertor.arraysEqual(value, defaultValue)
-                    console.log('check array eq: ', value, defaultValue, '==', result)
-                } else {
-                    result = value==defaultValue
-                }
-
-
-                result
-                    ?__true
-                    :__false
-            }
         )
     }
 
-    watchincase(key, inlist, {all, some, none}){
-        if (!key.startsWith('_')){
-            console.error(key, ' (modelin) должен иметь тип array (_)')
-            return false
-        }
 
-        return this.watch(key, (value) => {
-            if (Array.isArray(value) && value.length != 0){
-                let status_find_all = true
-                let status_find_one = false
-                for (const itm of inlist){
-                    if (value.includes(itm)){
-                        status_find_one = true
-                        if (!status_find_all)
-                            return some
-                    } else {
-                        status_find_all = false
-                        if (status_find_one)
-                            return some
-                    }
-                }
-
-                if (status_find_one){
-                    return all
-                } else {
-                    return none
-                }
-            } else {
-                return none
-            }
-        })
-    }
 
     model(key, method = 'oninput'){
 

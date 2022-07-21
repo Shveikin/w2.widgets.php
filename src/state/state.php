@@ -19,7 +19,7 @@ class state extends widgetstate__tools {
     public $delay = false;
 
 
-    private $name = false;
+    protected $name = false;
     private $initialization = false;
     private $changed = false;
     private $isRendered = false;
@@ -29,6 +29,8 @@ class state extends widgetstate__tools {
 
     function __construct($super, $name = false){
         $super($this);
+
+        $this->constructor();
 
         widgetstate::reg($this, $name);
 
@@ -119,18 +121,19 @@ class state extends widgetstate__tools {
         $this->stack = [];
     }
 
+/* 
     protected function get(string|int $key){
-        // if (!$this->initialization)
-        //     if (!isset($this->__revice__[$key]) || !$this->__revice__[$key])
-        //         throw new \ErrorException("not init $this->name [$key]", 0, 56, __FILE__, __LINE__);
         return $this->get__($key);
-    }
+    } 
+*/
 
-    private function get__(string|int $key){
-        if (isset($this->data[$key])){
-            return $this->data[$key];
+    private function get(string|int|array $key){
+        $stateKey = is_array($key)?$key[0]:$key;
+
+        if (isset($this->data[$stateKey])){
+            return $this->data[$stateKey];
         } else {
-            if (str_starts_with($key, '_')){
+            if (str_starts_with($stateKey, '_')){
                 return [];
             } else {
                 return false;
@@ -150,8 +153,10 @@ class state extends widgetstate__tools {
         $this->set($key, $this->getdefault($key));
     }
 
-    function updateDefaults(){
-        foreach ($this->default as $key => $value) {
+    function updateDefaults(array|bool $keys = false){
+        $keys = $keys?$keys:array_keys($this->default);
+
+        foreach ($keys as $key) {
             $this->default[$key] = $this->get($key);
         }
     }

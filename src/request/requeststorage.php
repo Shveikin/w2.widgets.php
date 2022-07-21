@@ -4,7 +4,10 @@ namespace Widgets\request;
 
 use DI2\Container;
 use DI2\MP;
+use Widgets\state\state;
 use Widgets\state\widgetstate;
+use Widgets\widget\c;
+use Widgets\widget\widget;
 
 class requeststorage {
     use Container;
@@ -12,6 +15,7 @@ class requeststorage {
     public $post = []; 
     public $get = false; 
     private $storage = [];
+    private $alias = [];
 
 
     function __construct($super){
@@ -36,8 +40,15 @@ class requeststorage {
     }
 
 
+    protected function getHash($source, $method, $url){
+        return md5($source . $method . $url);
+    }
+
     protected function get($source, $method, $url, $useState){
-        $requestHash = md5($source . $method . $url);
+        $hash = $this->getHash($source, $method, $url);
+        $requestHash = isset($this->alias[$hash])?$this->alias[$hash]:$method;
+
+
 
         if (!isset($this->storage[$requestHash])){
 
@@ -50,6 +61,11 @@ class requeststorage {
         }
 
         return new widgetrequest($requestHash);
+    }
+
+
+    protected function setAlias($alias, $hash){
+        $this->alias[$hash] = $alias;
     }
 
 
@@ -82,24 +98,40 @@ class requeststorage {
         $method = $executor['method'];
         $bind = isset($executor['bind'])?$executor['bind']:[];
 
-        $instance = MP::GET($class);
+        $instance = $this->createWidgetWithLocalState($class);
         $functionResult = $instance->{$method}(...$bind);
 
         // state::getChangedDataWith
         // $state = $instance->getUseStateDataWithSource();
         $state = widgetstate::getChangedStateDataWithSource();
 
-        
+
         $result = [
             'result' => $functionResult,
             'state' => $state,
             'rem' => $ob_length,
-            'current_request' => $resuest_id
+            'current_request' => $resuest_id,
+            '__rs' => $this->toElement(),
         ];
 
         die(json_encode($result));
     }
 
+    function createWidgetWithLocalState($class):widget {
+        $result = false;
+        
+        state::useLocalState(function() use(&$result, $class){
+            $result = MP::GET($class);
+        });
+
+
+        return $result;
+    }
+
+
+    function bindLocalState($class, $instance){
+
+    }
 
 
     protected function applyPostDataToStates($states){
@@ -122,5 +154,21 @@ class requeststorage {
         } else {
             return false;
         }
+    }
+
+
+    protected function getLocalStateFor($className){
+        foreach($this->post as $stateSource => $data){
+            if (str_starts_with($stateSource, $className . '::')){
+                $stateName = explode('::', $stateSource)[1];
+
+                $state = state::name($stateName);
+                $state->setdata($data);
+
+                return $state;
+            }
+        }
+
+        return false;
     }
 }

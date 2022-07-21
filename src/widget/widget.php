@@ -6,23 +6,30 @@ use JsonSerializable;
 use Widgets\conventor\widgetconventor;
 use Widgets\request\requeststorage;
 use Widgets\state\state;
+use Widgets\widget\tools\autoload_widget_props;
 use Widgets\widget\tools\widget__element;
 use Widgets\widget\tools\widget__html;
+use Widgets\widget\tools\widget_layout;
+
+// use Widgets\widget\tools\widgetprops_proxy;
 
 class widget implements JsonSerializable {
+    use autoload_widget_props;
     use widget__html;
     use widget__element;
 
 
+
     const vars = [];
 
+    
     public $url = '/';
     public $element = 'div';
-    private $props = [];
-    private $child = [];
+    public $props = [];
+    public $child = [];
     private $bind = false;
     private $innerHTML = false;
-
+    
     public $useState = [];
 
     function __construct($tag, $props){
@@ -63,33 +70,18 @@ class widget implements JsonSerializable {
         $this->props = $attrs;
     }
 
-    function __set($key, $value){
-        if ($key=='child') {
-            array_push($this->child, $value);
-        } else 
-        if (in_array($key, static::vars)) {
-            $this->{$key} = $value;
-        } else {
-            $this->props[$key] = $value;
-        }
-    }
+    // function __set($key, $value){
+    //     if ($key=='child') {
+    //         array_push($this->child, $value);
+    //     } else 
+    //     if (in_array($key, static::vars) || $key=='layout') {
+    //         $this->{$key} = $value;
+    //     } else {
+    //         $this->props[$key] = $value;
+    //     }
+    // }
 
     function __anyKey($key){
-        return $this->__to($key);
-    }
-
-    function __get($key){
-        return $this->__to($key);
-    }
-
-
-    function __to($key){
-        if ($key=='child')
-            return $this->child;
-        else
-        if ($key=='state'){
-            return state::name('localstate_' . spl_object_id($this));
-        } else
         if (method_exists($this, $key)){
             return requeststorage::get(
                 source: get_class($this),
@@ -97,15 +89,46 @@ class widget implements JsonSerializable {
                 url: $this->url,
                 useState: $this->useState
             );
-        } else 
-        if ($this->__is_var($key)) {
-            return $this->{$key};
-        } else {
-            return $this->props[$key];
         }
     }
 
+    // function __get($key){
+    //     return $this->__to($key);
+    // }
 
+
+    // function __to($key){
+    //     if ($key=='child')
+    //         return $this->child;
+    //     else
+    //     if ($key=='state'){
+    //         return state::name('localstate_' . spl_object_id($this));
+    //     } else
+    //     if (method_exists($this, $key)){
+    //         return requeststorage::get(
+    //             source: get_class($this),
+    //             method: $key,
+    //             url: $this->url,
+    //             useState: $this->useState
+    //         );
+    //     } else 
+    //     if ($this->__is_var($key) || $key == 'layout') {
+    //         return $this->{$key};
+    //     } else {
+    //         return $this->props[$key];
+    //     }
+    // }
+
+    function bindAliasToMethod($methodName, $methodAlias = false){
+        requeststorage::setAlias(
+            $methodAlias?$methodAlias:$methodName, 
+            requeststorage::getHash(
+                get_class($this),
+                $methodName,
+                $this->url
+            )
+        );
+    }
 
     static private $__vars__ = false;
     function __is_var($key){
@@ -145,7 +168,7 @@ class widget implements JsonSerializable {
         $component = new ($class)(...$construct);
 
         foreach ($props as $attr => $value) {
-            $component->{$attr} = $value;
+            $component->layout->{$attr} = $value;
         }
 
         return $component;

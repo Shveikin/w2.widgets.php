@@ -7,7 +7,7 @@ use Widgets\widget\widget;
 
 class __h32 extends widget {
     public $element = '__h32';
-    const vars = ['map', 'stack'];
+    // const vars = ['map', 'stack'];
 
     private $map = [
         'div' => 'q',
@@ -50,9 +50,9 @@ class __h32 extends widget {
 
 
     function __construct($widget, $toLang = false){
-        $this->method = 32;
-        $this->base = $this->hash(is_array($widget)?$widget:widgetconventor::toElement($widget));
-        $this->list = $this->translate($toLang);
+        $this->layout->method = 32;
+        $this->layout->base = $this->hash(is_array($widget)?$widget:widgetconventor::toElement($widget));
+        $this->layout->list = $this->translate($toLang);
     }
 
     function translate($translate){
@@ -121,8 +121,8 @@ class __h32 extends widget {
     }
 
     function hash64(){
-        $this->method = 64;
-        $this->base = str_replace('"', '', json_encode($this->base));
+        $this->layout->method = 64;
+        $this->layout->base = str_replace('"', '', json_encode($this->layout->base));
         return $this;
     }
 }

@@ -46,7 +46,8 @@ abstract class widgetapp__tools {
         $app = '';
 
         if (static::hashApp){
-            $app = json_encode((new __h32($widget))->hash64());
+            $__hash__ = (new __h32($widget))->hash64();
+            $app = json_encode($__hash__);
         } else {
             $app = json_encode($widget);
         }
