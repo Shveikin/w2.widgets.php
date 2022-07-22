@@ -134,6 +134,7 @@ abstract class widgetapp__tools {
 
     static function completion(){
         $requeststorage = requeststorage::toElement();
+        $requeststoragescript = '';
         if (!empty($requeststorage)) {
             $requeststoragescript = 'requeststorage.create(' . json_encode($requeststorage) . ')';
         }

@@ -1,3 +1,2804 @@
-/*! For license information please see cs.min.js.LICENSE.txt */
-(()=>{"use strict";var __webpack_modules__={"./CyberScript.js":(t,e,s)=>{s.r(e),s.d(e,{mods:()=>l});var r=s("./src/dialog/widgetdialog.js"),i=s("./src/state/widgetstate.js"),o=s("./src/c.js"),a=s("./src/widget.js"),n=s("./src/state.js"),c=s("./src/request/requeststorage.js"),d=s("./src/convertor/widgetconvertor.js");const l={state:n.state,widget:a.widget,widgetstate:i.widgetstate,c:o.c,showDialog:r.showDialog,requeststorage:c.requeststorage,widgetconvertor:d.widgetconvertor}},"./src/ancor/widgetancor.js":(t,e,s)=>{s.r(e),s.d(e,{widgetancor:()=>r});class r{static global={};static create(t,e){r.global[t]=e}static get(t,e="div"){if(t in r.global)return r.global[t]}}},"./src/c.js":(t,e,s)=>{s.r(e),s.d(e,{c:()=>a});var r=s("./src/widgetdom/widgetdom.js"),i=s("./src/widgetdom/widgetdom__api.js"),o=s("./src/convertor/widgetconvertor.js");const a=new Proxy({},{get:(t,e)=>"function"==typeof r.widgetdom[e]?r.widgetdom[e]:t=>e in i.widgetdom__api.widgetStore?i.widgetdom__api.widgetStore[e](t):o.widgetconvertor.toWidget(t,e),set:(t,e,s)=>i.widgetdom__api.widgetRegister(e,s)})},"./src/convertor/widgetconvertor.js":(t,e,s)=>{s.r(e),s.d(e,{widgetconvertor:()=>n});var r=s("./src/convertor/widgetconvertor__tools.js"),i=s("./src/statemethod/statemethod.js"),o=s("./src/watcher/widgetwatcher.js"),a=s("./src/widget.js");class n extends r.widgetconvertor__tools{static map(t,e,s){try{const[r,i]=e,[o,a]=s;return(a-o)/100*((t-r)/((i-r)/100))+o}catch(r){console.error(t,e,s,r)}}static roundValue(t,e){switch(e){case"int":return parseInt(t);case"float":return Math.round(10*t)/10;case"float2":return Math.round(100*t)/100;case"float3":return Math.round(1e3*t)/1e3}}static convert(t,e,s,r=!1){if(e==s)return t;const i=`${e}To${s}`;if(i in n){const e=n[i](t,r),o=n.getType(e);return o==s?e:n.convert(e,o,s)}throw new Error(`${i} отсутствует!`)}static methods=["StateMethod","WidgetRequest"];static getType(t){let e="Unknown";if(Array.isArray(t))e="Array";else if(t instanceof a.widget)e="Widget";else if(t instanceof i.statemethod)e="StateMethod2";else if(t instanceof o.widgetwatcher)e="Watcher";else if(t&&"object"==typeof t){if(e="Object",t instanceof HTMLElement||t instanceof Text?e="HTML":"element"in t&&(e="Element"),n.methods.includes(t.element))return t.element}else"string"==typeof t?e="String":"number"==typeof t?e="Int":"function"==typeof t?e="Function":"boolean"==typeof t&&(e="Bool");return e}static copy(t){const e=n.getType(t);switch(e){case"Widget":const s=new a.widget(t.element);return s.props=n.copy(t.props),s.templateData=n.copy(t.templateData),s;case"Array":return t.map((t=>n.copy(t)));case"Object":const r={};for(const[e,s]of Object.entries(t))r[e]=n.copy(s);return r;case"String":case"Int":case"Bool":return t;default:console.log("Не знаю как копировать этот тип",e,t)}}}},"./src/convertor/widgetconvertor__fromToFunc.js":(t,e,s)=>{s.r(e),s.d(e,{widgetconvertor__fromToFunc:()=>d});var r=s("./src/element/widgetelement.js"),i=s("./src/state/widgetstate__methods.js"),o=s("./src/widget.js"),a=s("./src/widgetdom/widgetdom.js"),n=s("./src/convertor/widgetconvertor.js");class d{static IntToWidget(t,e=!1){e=a.widgetdom.getDefaultTag(e);const s=a.widgetdom.getPropForDefaultValue(t,e);return new o.widget(e,s)}static StringToWidget(t,e=!1){e=a.widgetdom.getDefaultTag(e);const s=a.widgetdom.getPropForDefaultValue(t,e);return new o.widget(e,s)}static ArrayToWidget(t,e=!1){return e=a.widgetdom.getDefaultTag(e),new o.widget(e,{child:t})}static WatcherToWidget(t,e=!1){e=a.widgetdom.getDefaultTag(e);const s=a.widgetdom.getPropForDefaultValue(t,e);return new o.widget(e,s)}static ObjectToWidget(t,e=!1){return e=a.widgetdom.getDefaultTag(e),new o.widget(e,"object"==typeof t?t:{})}static FunctionToWidget(t,e=!1){return e=a.widgetdom.getDefaultTag(e),n.widgetconvertor.toWidget(t(),e)}static ElementToWidget(t){return r.widgetelement.make(t)}static StateMethodToWidget(t){return i.widgetstate__methods.getFromElement(t)}static StateMethodToFunction(t){const e=i.widgetstate__methods.getFromElement(t);return"Function"==n.widgetconvertor.getType(e)?e:()=>e}static BoolToWidget(t){return c.div("")}static ArrayToFunction(t){return function(){t.forEach((t=>{n.widgetconvertor.toFunction(t).apply(this)}))}}static UnknownToWidget(t){return c.div("")}static HTMLToWidget(t){return c.div({innerHTML:t})}static StringToFunction(t){return t in window?window[t]:()=>t}static BoolToFunction(t){return()=>t}static ObjectToFunction(t){return()=>t}static StateMethod2ToWidget(t){return c.div({innerText:t})}}},"./src/convertor/widgetconvertor__tools.js":(t,e,s)=>{s.r(e),s.d(e,{widgetconvertor__tools:()=>a});var r=s("./src/convertor/widgetconvertor__fromToFunc.js"),i=s("./src/convertor/widgetconvertor.js"),o=s("./src/element/widgetelement.js");class a extends r.widgetconvertor__fromToFunc{static toJSONForState(t,e,s){return"Widget"==i.widgetconvertor.getType(s)&&s.setPropsForJsonSerializeFunctions(this._path,e),JSON.stringify(s)}static toArray(t){return"Element"==i.widgetconvertor.getType(t)&&"list"==t.element?t.props.list:Array.isArray(t)?t:[t]}static toWidget(t,e=!1){const s=i.widgetconvertor.getType(t);return"Widget"==s?t:i.widgetconvertor.convert(t,s,"Widget",e)}static toElement(t,e=!1){return"Element"==i.widgetconvertor.getType(t)?t:i.widgetconvertor.convert(newelement,newtype,"Element",e)}static toFunction(t){const e=i.widgetconvertor.getType(t);return"Function"==e?t:"Element"===e?o.widgetelement.make(t):i.widgetconvertor.convert(t,e,"Function")}static arraysEqual(t,e){if(t===e)return!0;if(null==t||null==e)return!1;if(t.length!==e.length)return!1;for(var s=0;s<t.length;++s)if(Array.isArray(t[s])){if(!Array.isArray(e[s]))return!1;if(!a.arraysEqual(t[s],e[s]))return!1}else if(!e.includes(t[s]))return!1;return!0}}},"./src/dialog/widgetdialog.js":(t,e,s)=>{s.r(e),s.d(e,{showDialog:()=>c,widgetdialog:()=>n});var r=s("./src/c.js"),i=s("./src/convertor/widgetconvertor.js"),o=s("./src/state.js"),a=s("./src/widgetdom/widgetdom.js");class n{static props={template:"template",message:"__message",title:"title",buttons:"__buttons",hidetitle:"hidetitle",width:"width",height:"height",active:"_active",active_arrow:"active_arrow",enctype:"enctype",action:"action",method:"method",onsubmit:"onsubmit"};static defaultProps={template:!1,message:"",title:"dialog",buttons:!1,hidetitle:!1,width:650,height:400,active:!1,active_arrow:!1,enctype:!1,action:!1,method:"POST",onsubmit:!1};static styles={black_h12nbsx9dk23m32ui4948382:"position:fixed;left:0;top:0;bottom:0;right:0;background:#0004;z-index:9999999999999999;overflow:auto;padding:10px;transition:all.1s;font-family:'Segoe UI', Roboto, Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue','sans-serif';",black_habsolute:"position:absolute;background:#0000;",window_h12nbsx9dk23m32ui4948382:"background:#fff;box-shadow: 5px 8px 20px 1px #00000057;color:#000;margin:12% auto;$table",dialogTitle_h12nbsx9dk23m32ui4948382:"border-radius:10px;padding:10px !important;font-weight:bold !important;font-family:Verdana, Geneva, Tahoma, sans-serif !important;color:inherit;font-size:11pt !important;",form_panel_h12nbsx9dk23m32ui4948382:"display:flex !important; color:inherit; ",_form_h12nbsx9dk23m32ui4948382:"width:100% !important;padding:10px !important;border-radius:0;",close_panel_h12nbsx9dk23m32ui4948382:"border-bottom:1px solid #0002;position:sticky !important;top:0px !important;display:flex !important;background:#ffffff30;align-items:center !important;justify-content:space-between !important;color:inherit;",buttons_panel_h12nbsx9dk23m32ui4948382:"background:rgb(177 177 177 / 19%);position:sticky !important;bottom:0px !important;display:flex !important;justify-content:flex-start !important;color:inherit;flex-direction:row-reverse;border-top:1px solid #0002;",black_h12nbsx9dk23m32ui4948382__fieldset:"padding:0 !important;margin:0 !important;border:none !important;color:inherit;",btnh12n:"display:inline-block !important;padding:2px 10px !important;background:#fff;margin:5px 0 !important;border:1px solid #0003;cursor:pointer !important;margin-right:5px !important;margin-left:5px !important;font-size:14px !important;box-shadow:none;color:inherit;"};static templates=[];static __init__(){const t=o.state.dialogstate,e=r.c.div({child:r.c.div({child:[t.watchif("hidetitle",!1,r.c.div({child:["",r.c.div({innerText:t.watch("title"),style:n.styles.dialogTitle_h12nbsx9dk23m32ui4948382}),r.c.button({innerHTML:"✖",onclick(){t.__message=!1},style:n.styles.btnh12n+"font-size: 12px !important;"})],style:n.styles.close_panel_h12nbsx9dk23m32ui4948382})),r.c.div({child:r.c.form({child:r.c.fieldset({child:t.watch("__message"),style:n.styles.black_h12nbsx9dk23m32ui4948382__fieldset}),style:t.watch("height",(t=>`${n.styles._form_h12nbsx9dk23m32ui4948382}; min-height: ${t||0}px;`)),enctype:t.watch("enctype"),action:t.watch("action"),method:t.watch("method"),onsubmit:()=>(event.preventDefault(),!1),ancor:"DialogUserForm"}),style:n.styles.form_panel_h12nbsx9dk23m32ui4948382}),r.c.div({child:["",t.watch("__buttons")],style:n.styles.buttons_panel_h12nbsx9dk23m32ui4948382})],style:t.watch("width",(t=>`max-width:${t||650}px;${n.styles.window_h12nbsx9dk23m32ui4948382}`))}),style:t.watch("__style",(t=>`${n.styles.black_h12nbsx9dk23m32ui4948382}; ${t}`)),_onmousedown(){t.__message=!1}});t.watch("__message").link((e=>{const s=0==e?"opacity: 0; visibility: hidden;":"";a.widgetdom.querySelector("body").then((e=>{t.get("__style")?e.style.overflow="auto":e.style.overflow="hidden"})),t.__style=s})),t.watch(["width","height","_active","hidetitle"]).link(((e,s,r,i)=>{let o="";e&&(o+=`width: ${e}px; `),s&&(o+=`min-height: ${i?s:s+39}px; `),r?"element"in r&&a.widgetdom.querySelector(r.element).then((e=>{const s=e.getBoundingClientRect();o+="position: absolute; margin: 0;",o+=`bottom: calc(100% - ${s.y-10}px); `,o+=`left: ${s.x}px; `,t.active_arrow="bottom",t.__position=o})):t.active_arrow=!1,t.__position=o})),r.c.render("body",e,"append")}static setup(t,e){n.templates[t]=e}static template(t){if(t)if(t in n.templates){const e=n.templates[t];for(const[t,s]of Object.entries(n.props))s in e?n.setPorp(t,e[s]):n.setPorp(t,!1)}else a.widgetdom.debug&&console.info(t," отсутствует");return n}static show(t=!0,e=!1){switch(i.widgetconvertor.getType(t)){case"String":case"Array":o.state.dialogstate.__message=t,e&&(o.state.dialogstate.title=e);break;case"Object":for(const[e,s]of Object.entries(n.defaultProps)){let r=s;const i=n.props[e];e in t&&(r=t[e]),n.setPorp(i,r)}break;case"Bool":t||(o.state.dialogstate.__message=!1)}}static setPorp(t,e){switch(t){case"__buttons":if("object"==typeof e){const s=[];for(const[t,o]of Object.entries(e))s.push(r.c.button({innerText:t,style:n.styles.btnh12n,onclick:()=>{i.widgetconvertor.toFunction(o)({close:()=>c(!1),data:r.c.ancor("DialogUserForm",(t=>new FormData(t.domElement)))})}}));o.state.dialogstate[t]=s}break;case"template":n.template(e);break;default:o.state.dialogstate[t]=e}}}function c(t,e=!1){n.show(t,e)}n.__init__()},"./src/element/widgetelement.js":(__unused_webpack_module,__webpack_exports__,__webpack_require__)=>{__webpack_require__.r(__webpack_exports__),__webpack_require__.d(__webpack_exports__,{widgetelement:()=>widgetelement});var _widgetdom_widgetdom_api__WEBPACK_IMPORTED_MODULE_0__=__webpack_require__("./src/widgetdom/widgetdom__api.js"),_statemethod_statemethod__WEBPACK_IMPORTED_MODULE_1__=__webpack_require__("./src/statemethod/statemethod.js"),_hash_h32__WEBPACK_IMPORTED_MODULE_2__=__webpack_require__("./src/hash/__h32.js"),_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_3__=__webpack_require__("./src/convertor/widgetconvertor.js");class widgetelement{static tools=["group","func","requestmethod","list","requeststore_element","__h32","StateMapElement","StateMethod2","widgetcallback"];static make(t){let e=!1;return e=widgetelement.tools.includes(t.element)?widgetelement[t.element](t.props):_widgetdom_widgetdom_api__WEBPACK_IMPORTED_MODULE_0__.widgetdom__api.isReg(t.element)?_widgetdom_widgetdom_api__WEBPACK_IMPORTED_MODULE_0__.widgetdom__api.get(t.element,t.props):new widget(t.element,t.props),e}static group({list:t}){return()=>t.forEach((t=>_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_3__.widgetconvertor.toFunction(t)()))}static func({body:t}){return new Function(t)}static list({list:t}){return t}static requeststore_element({hash:t,bind:e,then:s}){return function(){return requeststorage.run(t,e,s,this)}}static __h32({base:t,list:e,method:s=32}){return new _hash_h32__WEBPACK_IMPORTED_MODULE_2__.__h32(e).toElement(64==s?_hash_h32__WEBPACK_IMPORTED_MODULE_2__.__h32.unpack(t):t)}static StateMapElement({stateName,key,widget,props}){return state[stateName].watch(key,(function(obj){return!!Array.isArray(obj)&&obj.map(((itm,elementKey)=>{let json=widget.replaceAll("*@val@*",itm).replaceAll("*@key@*",elementKey);return Object.keys(props.keys).map((t=>{const e=props.keys[t],s=itm[t];json=json.replaceAll(e,s)})),Object.keys(props.math).map((hash=>{const calc=props.math[hash].replaceAll("@key",elementKey).replaceAll("@length",obj.length);let result="";eval(`result = ${calc}`),json=json.replaceAll(hash,result)})),_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_3__.widgetconvertor.toWidget(JSON.parse(json))}))}))}static StateMethod2({path:t,method:e,props:s,wrapFunc:r}){return new _statemethod_statemethod__WEBPACK_IMPORTED_MODULE_1__.statemethod(t,e,s,r)}static widgetcallback({index:t,group:e}){return widgetcallback.get(t,e)}}},"./src/hash/__h32.js":(t,e,s)=>{s.r(e),s.d(e,{__h32:()=>i});var r=s("./src/convertor/widgetconvertor.js");class i{static map={"+":!0,"-":!1,q:"div",w:"element",e:"props",r:"child",t:"method",u:"stateName",i:"modelin",o:"value",p:"label",a:"args",s:"style",d:"input",f:"checked",g:"h1",h:"h2",j:"h3",k:"h4",l:"h5",z:"h6",x:"textarea",c:"span",y:"watch",v:"watchif",b:"watchin",n:"watchdefault",m:"StateMethod",qq:"type",qw:"json",qe:"button",qr:"onclick",qt:"innerText",qy:"StateMapElement",tt:"title",qu:"key"};hashItm(t){return"object"==typeof t?this.toElement(t):t in i.map?i.map[t]:this.list[t]}constructor(t){this.list=r.widgetconvertor.toArray(t)}toElement(t){if(Array.isArray(t))return t.map((t=>this.hashItm(t)));{const e={};for(const[s,r]of Object.entries(t)){const t=this.hashItm(s),i=this.hashItm(r);e[t]=i}return e}}static unpack(t){const e=t.replace(/(\w+|[+|-])/g,'"$1"');return JSON.parse(e)}}},"./src/request/requeststorage.js":(t,e,s)=>{s.r(e),s.d(e,{requeststorage:()=>i});var r=s("./src/request/widgetrequest.js");class i{static storage={};static active={};static delay=!1;static create(t){this.storage=t}static append(t){this.storage=Object.assign(this.storage,t)}static fetch(t,e,s=!1){"then"in e&&(s=e.then,delete e.then),i.run(t,e,s,this)}static run(t,e=!1,s=!1,o=!1){t in i.storage?(t in i.active?i.active[t]:new r.widgetrequest(t,i.storage[t],e,o,s)).run(i.delay):showDialog({title:"Ошибка 842",message:`Request "${t}" отсутствует!`})}static setDelay(t){i.delay=t}}},"./src/request/widgetalias.js":(t,e,s)=>{s.r(e),s.d(e,{widgetalias:()=>r});class r{static global={};static url="";static set(t,e){r.global[t]=e,r.updateHistory()}static remove(t){t in r.global&&(delete r.global[t],r.updateHistory())}static getUrl(){let t="";return Object.keys(r.global).forEach((e=>{t+="&"+e,Array.isArray(r.global[e])?t+=`=${r.global[e].join(",")}`:t+=`=${r.global[e]}`})),""!=t?t.substring(1):""}static updateHistory(){const t=r.getUrl();t!=r.url&&(window.history.replaceState(0,"",location.origin+location.pathname+"?"+t),r.url=t)}}},"./src/request/widgetrequest.js":(t,e,s)=>{s.r(e),s.d(e,{widgetrequest:()=>r});class r{static active={};constructor(t,e,s=!1,r=!1,i=!1){this.hash=t,requeststorage.active[this.hash]=this,this.url=e.url,this.source=e.source,this.method=e.method,this.useState=e.useState,this.bind=s,this.bindToHtmlElement=r,this.then=i,this.status=!1,this.current_request=!1,this.waiting=!1,this.waiting2=!1,this.loading=!1,this.block=!1,this.elementWaiting=!1,this.penaltytime=0}stopLoading(){this.loading&&(this.loading.abort(),this.loading=!1,this.addpenalty(500))}addpenalty(t){this.penaltytime<1e3&&(this.penaltytime+=t)}run(t=!1){if(this.block)return!1;this.elementWaiting||this.wait(!0),this.stopLoading(),t&&0!=this.penaltytime?(this.waiting2&&(clearTimeout(this.waiting2),this.addpenalty(150)),this.waiting&&(clearTimeout(this.waiting),this.addpenalty(100)),this.waiting=setTimeout((()=>this.run()),t+this.penaltytime)):(this.waiting=!1,this.createRequest(150))}createRequest(t=!1){this.stopLoading(),t?(this.waiting2&&(clearTimeout(this.waiting2),this.addpenalty(150)),this.waiting2=setTimeout((()=>this.createRequest()),t+this.penaltytime)):(this.waiting2=!1,this.fetch())}fetch(){const t=this.getStateData();this.current_request=Math.random();const e=JSON.stringify({state:t,executor:{source:this.source,method:this.method,props:this.props,bind:this.bind},request_id:this.current_request});fetch(this.url,{method:"POST",body:e,signal:this.getSignal()}).then((t=>t.json())).then((t=>{this.current_request==t.current_request&&(this.loading=!1,this.apply(t),this.wait(!1),delete requeststorage.active[this.hash])}))}getSignal(){return this.loading=new AbortController,this.loading.signal}getStateData(){const t={};return this.useState.forEach((e=>{const s=Array.isArray(e)?e[1]:e,r=state[s].getRequestData();0!=Object.keys(r).length&&(t[s]={data:r,source:e})})),t}apply(t){this.block=!0,"state"in t&&Object.keys(t.state).forEach((e=>{"data"in t.state[e]&&Object.keys(t.state[e].data).forEach((s=>{state[e].set(s,t.state[e].data[s])})),"runOnFrontend"in t.state[e]&&(console.log("runOnFrontend",t.state[e].runOnFrontend),t.state[e].runOnFrontend.forEach((t=>{widgetconvertor.toFunction(t)()})))})),"__rs"in t&&requeststorage.append(t.__rs),this.then&&window[this.then].bind(this)(t.result),this.catchControll(t),this.block=!1}error(t){this.catchControll(t)}setCatch(t){return this.catch=t,this}catchControll(t){"function"==typeof this.catch&&(this.catch(t),this.catch=!1)}wait(t){this.elementWaiting=t,this.bindToHtmlElement instanceof HTMLElement&&(t?(this.bindToHtmlElement.classList.add("waiting"),this.bindToHtmlElement.disabled=!0):(this.bindToHtmlElement.classList.remove("waiting"),this.bindToHtmlElement.disabled=!1))}}},"./src/state.js":(t,e,s)=>{s.r(e),s.d(e,{state:()=>n});var r=s("./src/state/widgetstate.js"),i=s("./src/state/widgetstate__static.js"),o=s("./src/state/widgetstate__tools.js"),a=s("./src/statemethod/statemethod.js");const n=new Proxy({path:[r.widgetstate.start]},{get(t,e){const s="_"==e.substring(0,1),n=s?e.slice(1):e;if(i.widgetstate__static.smart_methods.includes(e))return i.widgetstate__static[e](t.path);if(n in o.widgetstate__tools.tools)return s||o.widgetstate__tools.tools[n]?(...e)=>new a.statemethod(t.path,n,e,s):new r.widgetstate(t.path).run_method(n);if("function"==typeof r.widgetstate[e])return r.widgetstate[e];const c=[...t.path];return""!=e&&c.push(e),new Proxy({path:c},this)},set:(t,e,s)=>{const i=new r.widgetstate(t.path);if(""==e&&"object"==typeof s)for(const[t,e]of Object.entries(s))i.set(t,e);else i.set(e,s);return!0}})},"./src/state/widgetstate.js":(t,e,s)=>{s.r(e),s.d(e,{widgetstate:()=>o});var r=s("./src/state/widgetstate__tools.js"),i=s("./src/state/widgetstate__props.js");class o extends r.widgetstate__tools{static global={};static start="#";static splitter="/";constructor(t){super(),this._path=o.path_from_args(t),this._data=this.getdata(),this.props=i.widgetstate__props.by(this._path),this.activerequest=!1,this.bind=!1}static name(){return new o(Array.from(arguments))}static use(t,e,s=!1){state[t]=e;const r=o.path_from_args(t);if(s)for(const[t,e]of Object.entries(s))try{i.widgetstate__props["set"+t](r,e)}catch(e){console.error("Неизвестный метод widgetstate__props.set"+t)}}}},"./src/state/widgetstate__methods.js":(t,e,s)=>{s.r(e),s.d(e,{widgetstate__methods:()=>r});class r{static getFromElement(t){let{method:e,args:s,stateName:r}=t.props;const i="_"==e.substr(0,1);i&&(e=e.substr(1));const o=function(){return state[r].method(e).apply(this,s)};return i?o:o()}}},"./src/state/widgetstate__props.js":(t,e,s)=>{s.r(e),s.d(e,{widgetstate__props:()=>r});class r{static props={};static setdefault(t,e){r.setStateProp(t,"defaults",e)}static setalias(t,e){r.setStateProp(t,"alias",e)}static setonchange(t,e){r.setStateProp(t,"onchange",e)}static setdelay(t,e){r.setStateProp(t,"delay",e)}static setStateProp(t,e,s){t in r.props||(r.props[t]={}),r.props[t][e]=s}static by(t){return t in r.props&&r.props[t]}static getdefault(t,e){return r.issetPropName("defaults",t,e)&&"defaults"in r.props[t]&&e in r.props[t].defaults?r.props[t].defaults[e]:!!e.startsWith("_")&&[]}static issetPropName(t,e,s){return e in r.props&&t in r.props[e]&&s in r.props[e][t]}}},"./src/state/widgetstate__static.js":(t,e,s)=>{s.r(e),s.d(e,{widgetstate__static:()=>i});var r=s("./src/state/widgetstate.js");class i{static smart_methods=["val"];static val(t){const e=t.pop(),s=r.widgetstate.by(t);return e in s&&s[e]}static set(t,e){const s=t.pop();r.widgetstate.by(t)[s]=e}static path_from_args(){let t="";return t=Array.isArray(arguments[0])?r.widgetstate.path_from_args(...arguments[0]):Array.from(arguments).join(r.widgetstate.splitter),t.startsWith(r.widgetstate.start)?t:r.widgetstate.path_from_args(r.widgetstate.start,t)}run_method(t){return function(){return this[t].apply(this,arguments)}.bind(this)}static by(t){const e=Array.isArray(t)?t.join(r.widgetstate.splitter):t;return e in r.widgetstate.global?r.widgetstate.global[e]:{}}path(){return this._path}getdata(){return this._path in r.widgetstate.global||(r.widgetstate.global[this._path]={}),r.widgetstate.global[this._path]}}},"./src/state/widgetstate__tools.js":(t,e,s)=>{s.r(e),s.d(e,{widgetstate__tools:()=>l});var r=s("./src/state/widgetstate__static.js"),i=s("./src/watcher/widgetwatcher__links.js"),o=s("./src/watcher/widgetwatcher.js"),a=s("./src/convertor/widgetconvertor.js"),n=s("./src/request/requeststorage.js"),c=s("./src/state/widgetstate__props.js"),d=s("./src/request/widgetalias.js");class l extends r.widgetstate__static{static tools={method:!1,to:!1,get:!1,getdefault:!1,set:!1,setdefault:!1,onepushto:!1,pushto:!1,lpushto:!1,mergeto:!1,pullfrom:!1,watch:!0,watchif:!0,watchin:!0,watchdefault:!0,watchcase:!0,watchincase:!0,model:!0,modelin:!0,modelif:!0,toggle:!1,map:!0,inc:!1,dec:!1,getRequestData:!1};constructor(){super(),this._data={}}method(t){return{apply:(e,s)=>{this.bind=e,s=a.widgetconvertor.toArray(s),n.requeststorage.setDelay(this.props.delay||!1);try{return this[t].apply(this,s)}catch(e){console.error(`method ${t}`,s," - ",e)}}}}isWrap(t,e=!1){return t.substr(0,e?2:1)==(e?"__":"_")}to(t){return state.name(this._path,t)}set(t,e){if("object"!=typeof e||this.isWrap(t)){let s=!1;this.isWrap(t,!0)&&(e=a.widgetconvertor.toJSONForState(this._path,t,e)),s=Array.isArray(e)?!a.widgetconvertor.arraysEqual(this._data[t],e):this._data[t]!=e,s&&(this._data[t]=e,i.widgetwatcher__links.update(this._path,t),this.props&&(this.updateAlias(t),this.change(t)))}else{let s=this.to(t);for(const[t,r]of Object.entries(e))s.set(t,r)}}get(t){if(t in this._data){let e=this._data[t];return this.isWrap(t,!0)&&(e=JSON.parse(e)),e}return!1}updateAlias(t){const e="alias"in this.props&&0!=this.props.alias&&t in this.props.alias&&this.props.alias[t];e&&(this.isdefault(t)?d.widgetalias.remove(e):d.widgetalias.set(e,this._data[t]))}change(t){const e="onchange"in this.props&&this.props.onchange;e&&(n.requeststorage.setDelay(this.props.delay||!1),a.widgetconvertor.toFunction(e).apply(this.bind,[]))}getdefault(t){return c.widgetstate__props.getdefault(this._path,t)}setdefault(t){const e=this.getdefault(t);this.set(t,e)}isdefault(t){const e=this.getdefault(t),s=this.get(t);return Array.isArray(e)||Array.isArray(s)?a.widgetconvertor.arraysEqual(e,s):e==s}toggle(t,e=!0,s=!1){const r=this.get(t);let i=!1;t.startsWith("_")?(i=0==r?[]:[...r],i.includes(e)?i=i.filter((t=>t!=e)):i.push(e)):i=r==e?s:e,this.set(t,i)}inc(t,e=1){const s=parseInt(this.get(t));this.set(t,s+e)}dec(t,e=1){const s=parseInt(this.get(t));this.set(t,s-e)}onepushto(t,e){let s=this.get(t);if(Array.isArray(s)||(this.isWrap(t)?s=[]:console.error("#pushto",t,"is not Array")),!s.includes(e)){const r=[...s];r.push(e),this.set(t,r)}}pushto(t,e){let s=this.get(t);Array.isArray(s)||(this.isWrap(t)?s=[]:console.error("#pushto",t,"is not Array"));const r=[...s];r.push(e),this.set(t,r)}lpushto(t,e){let s=this.get(t);Array.isArray(s)||(this.isWrap(t)?s=[]:console.error("#lpushto",t,"is not Array"));const r=[e,...s];this.set(t,r)}mergeto(t,e){let s=this.get(t);Array.isArray(s)||(t.startsWith("_")?s=[]:console.error("#pushto",t,"is not Array"));const r=[...s,...e];this.set(t,r)}pullfrom(t,e){let s=this.get(t);Array.isArray(s)||(this.isWrap(t)?s=[]:console.error("#pullfrom",to,"is not Array"));const r=s.filter((t=>e!=t));this.set(t,r)}watch(t,e=!1){return new o.widgetwatcher(this._path,t,e)}watchif(t,e,s,r=!1){let i=!1;return Array.isArray(t)&&(i=t.slice(1),t=t[0]),this.watch(t,(function(t){return 0==i?t==e?s:r:t[i[0]]==e?s:r}))}watchin(t,e,s,r=!1){return this.watch(t,(function(t){return Array.isArray(t)&&t.includes(e)?s:r}))}watchdefault(t,e,s){return this.watch(t,(e=>{let s=!1;const r=this.getdefault(t);Array.isArray(e)?(s=a.widgetconvertor.arraysEqual(e,r),console.log("check array eq: ",e,r,"==",s)):s=e==r}))}watchcase(t,e){return this.watch(t,(t=>"object"==typeof e&&t in e&&e[t]))}watchincase(t,e,{all:s,some:r,none:i}){return t.startsWith("_")?this.watch(t,(t=>{if(Array.isArray(t)&&0!=t.length){let o=!0,a=!1;for(const s of e)if(t.includes(s)){if(a=!0,!o)return r}else if(o=!1,a)return r;return a?s:i}return i})):(console.error(t," (watchincase) должен иметь тип array (_)"),!1)}model(t,e="oninput"){return this.watch(t).setonlink(((s,r)=>{const i=this;s.assignProp(e,(function(){i.set(t,this[r])}))}))}modelin(t,e){return this.isWrap(t)?this.watch(t,(function(t){return Array.isArray(t)&&t.includes(e)})).setonlink((s=>{const r=this;s.assignProp("onchange",(function(){this.checked?r.pushto(t,e):r.pullfrom(t,e)}))})):(console.error(t," (modelin) должен иметь тип array (_)"),!1)}modelif(t,e,s,r=!1){return this.watch(t,(function(t){const s=t===e;return r?!s:s})).setonlink((i=>{const o=this;i.assignProp("onchange",(function(){this.checked?o.set(t,r?s:e):o.set(t,r?e:s)}))}))}map(t,e=!1){return e=a.widgetconvertor.toWidget(e),this.watch(t,(t=>!!Array.isArray(t)&&t.map((t=>a.widgetconvertor.copy(e.setTemplateData(t))))))}getRequestData(){const t={};return Object.keys(this._data).forEach((e=>{this.isWrap(e,!0)||(t[e]=this._data[e])})),t}}},"./src/statemethod/statemethod.js":(t,e,s)=>{s.r(e),s.d(e,{statemethod:()=>i});var r=s("./src/state/widgetstate.js");class i{static canBindMethod(t){return["watch","watchif","watchin","watchdefault","model","watchin"].includes(t)}constructor(t,e,s,r=!1){this.path=t,this.method=e,this.props=s,this.wrapFunc=r}apply(){const t=()=>new r.widgetstate(this.path).run_method(this.method)(...this.props);return this.wrapFunc?t:t()}link(t){this.apply().link(t)}toJSON(){return{element:"StateMethod2",props:{path:this.path,method:this.method,props:this.props,wrapFunc:this.wrapFunc}}}}},"./src/tools/widget__tools.js":(t,e,s)=>{s.r(e),s.d(e,{widget__tools:()=>a});var r=s("./src/tools/widgetcontentcontroller.js"),i=s("./src/state.js"),o=s("./src/convertor/widgetconvertor.js");class a extends r.widgetcontentcontroller{static current_id=0;element="div";childs=[];watchlist=[];watcher={};parent=!1;templateData=!1;eventControllList={};constructor(){super(),this.id=a.next_id(),this.state=i.state["--system--"]["element_"+this.id],this.layout=new Proxy({},{get:(t,e)=>this.__get(e),set:(t,e,s)=>(this.__set(e,s),!0)}),this.jsonSerializePath=!1,this.jsonSerializeKey=!1}static next_id(){return++a.current_id}checkDomElement(){return"HTML"!=o.widgetconvertor.getType(this.domElement)&&(this.domElement=window.document.createElement(this.element),this.domElement.setAttribute("key_id",this.id)),this}mix_props(t){const e=Object.keys(this.props);return Object.keys(t.props).forEach((t=>{t in this.props||e.push(t)})),e}delete(){this.domElement&&this.domElement.parentElement&&this.domElement.parentElement.removeChild(this.domElement),this.domElement=null,this.watchlist_clear(),this.childs=[]}watchlist_push(t){this.watchlist.push(t),this.parent&&this.parent.watchlist_push(t)}watchlist_clear(){this.watchlist.forEach((t=>{widgetwatcher.removeFromGlobal(t[0],t[1])}))}replace_on(t){t.checkDomElement(),this.domElement.parentElement.replaceChild(t.domElement,this.domElement),this.delete(),t.render()}set_props_from_widget(t){const e=this.mix_props(t);for(const s of e){const e=s in this.props?this.props[s]:"";let r="";s in t.props&&(r=t.props[s]),e!=r&&(this.assignProp(s,r),this.props[s]=r)}}}},"./src/tools/widget_smartprops.js":(t,e,s)=>{s.r(e),s.d(e,{widget_smartprops:()=>o});var r=s("./src/ancor/widgetancor.js"),i=s("./src/convertor/widgetconvertor.js");class o{static dragboard(t,e){let s=!1,r=[];const o=[],a=e.boxsizing?e.boxsizing.x?e.boxsizing.x:e.boxsizing:0,n=(e.boxsizing&&(e.boxsizing.y?e.boxsizing.y:e.boxsizing),e.width),c=e.height;function d(){return[e.state.get("range_min"),e.state.get("range_max")]}t.domElement.style.position="relative",t.domElement.style.userSelect="none",t.domElement.style.width=n+a+"px",t.domElement.style.height=e.height+"px",t.domElement.innerHTML="","childs"in e&&i.widgetconvertor.toArray(e.childs).forEach((e=>{i.widgetconvertor.toWidget(e).setRootElement(t.domElement,t)}));let l=!1,h={x:{min:0,max:e.width},y:{min:0,max:e.height}};e.useSlide&&e.state.watch(["slide_min_start","slide_min_finish","slide_max_start","slide_max_finish"]).link((function(t,s,r,o){"rangeMin"==t&&(t=e.state.get("range_min")),"rangeMax"==o&&(o=e.state.get("range_max")),h=[{x:{min:i.widgetconvertor.map(t,d(),[0,e.width]),max:i.widgetconvertor.map(s,d(),[0,e.width])}},{x:{min:i.widgetconvertor.map(r,d(),[0,e.width]),max:i.widgetconvertor.map(o,d(),[0,e.width])}}]}));let _=[];"Object"===i.widgetconvertor.getType(e.drag)?(_=Object.values(e.drag),l=Object.keys(e.drag)):_=e.drag,_=i.widgetconvertor.toArray(_),_.forEach(((a,h)=>{if((a=i.widgetconvertor.toWidget(a)).setRootElement(t.domElement,t),a.style("position","absolute"),l)if("state"in e)e.state.watch([l[h],"range_"+l[h]]).link((function(t){if(!1===s){const s=i.widgetconvertor.map(t[0],d(),[0,e.width]);a.style("left",s+"px")}}));else{const[t,s]=function(t){let s=0,r=0;const o="axis"in e&&e.axis;return"y"!=o&&(s=t),"x"!=o&&(r=t),s=i.widgetconvertor.map(s,d(),[0,n]),r=i.widgetconvertor.map(r,d(),[0,c]),[s,r]}(l[h]);a.assignProp("style",`position: absolute; left: ${t}px; top: ${s}px`)}else a.assignProp("style","position: absolute; left: 0px; top: 0px");a.assignProp("onmousedown",(t=>{r=[t.screenX,t.screenY],s=h})),o.push(a)})),t.domElement.onmousemove=t=>{!1!==s&&(!function(t,r){let a,d=0;const l=Array.isArray(h)?h[s]:h,_="axis"in e&&e.axis;if("y"!=_&&(a=(parseInt(o[s].domElement.style.left)||0)+t,a>l.x.max&&(a=l.x.max),a<l.x.min&&(a=l.x.min),o[s].style("left",a+"px")),"x"!=_&&(d=(parseInt(o[s].domElement.style.top)||0)+r,d>l.y.max&&(d=l.y.max),d<l.y.min&&(d=l.y.min),o[s].style("top",d+"px")),"function"==typeof e.ondrag){let t=a,r=d;t=i.widgetconvertor.map(a,[0,n],[0,100]),r=i.widgetconvertor.map(d,[0,c],[0,100]),e.ondrag(s,t,r,a,d)}}(t.screenX-r[0],t.screenY-r[1]),r=[t.screenX,t.screenY])},t.domElement.onmouseup=()=>{s=!1},t.domElement.onmouseleave=()=>{s=!1}}static ancor(t,e){return r.widgetancor.create(e,t),!1}}},"./src/tools/widgetcontentcontroller.js":(t,e,s)=>{s.r(e),s.d(e,{widgetcontentcontroller:()=>r});class r{removeProps(t){t.forEach((t=>{t in this.props&&delete this.props[t],"child"==t&&(this.childs=[])}))}checkWatchers(t,e){if(t in this.watcher){if(this.watcher[t]===e)return!1;this.watcher[t]=e}else this.props[t]=e;return!0}checkContentProp(t,e,s){return"child"==t?this.checkChilds(e,s):["innerText","innerHTML"].includes(t)?this.checkText(e,t,s):t in this.watcher?[!1,this.watcher[t]!=s]:[!1,!0]}checkChilds(t,e){let s=!1,r=!0;switch(t){case"String":case"Int":case"Bool":s="innerText","child"in this.watcher&&(this.clearWatcherFrom(this.childs),this.childs=[],this.watcher.innerText=this.watcher.child,delete this.watcher.child),this.props.innerText=e,delete this.props.child,this.childs=[];break;default:this.removeProps(["innerText","innerHTML"]),r=this.checkWatchers("child",e)}return[s,r]}checkText(t,e,s){let r=!1,i=!0;switch(t){case"Array":case"Widget":case"Element":this.watcher.child=this.watcher[e],delete this.watcher[e],r="child",this.sequreAssign("innerText",""),this.childs=[],delete this.props[e],this.props.child=s;break;default:switch(e){case"innerText":this.removeProps(["innerHTML","child"]);break;case"innerHTML":this.removeProps(["innerText","child"])}i=this.checkWatchers(e,s)}return[r,i]}}},"./src/watcher/widgetwatcher.js":(t,e,s)=>{s.r(e),s.d(e,{widgetwatcher:()=>a});var r=s("./src/watcher/widgetwatcher__update.js"),i=s("./src/watcher/widgetwatcher__tools.js"),o=s("./src/watcher/widgetwatcher__links.js");class a extends r.widgetwatcher__update{static global=[];constructor(t,e,s=!1){super(),this.path=t;const r=i.widgetwatcher__tools.parsekeys(e,s);this.keys=r.keys,this.callback=r.callback?r.callback:this.tempcallback,this.keys.forEach((t=>{o.widgetwatcher__links.add(this.path,t,this)})),this.to=!1,this.props=!1,this.view=!1,this.onlink=!1,a.global.push(this),this.id=a.global.length}tempcallback(){return 1==arguments.length?arguments[0]:arguments}link(t,e=!1){return this.to=t,this.props=e,this.onlink&&this.onlink(this.to,this.props),this.update(),[this.path,this.id]}setonlink(t){return this.onlink=t,this}toJSON(){return{widgetwatcher:"HELLO!"}}}},"./src/watcher/widgetwatcher__links.js":(t,e,s)=>{s.r(e),s.d(e,{widgetwatcher__links:()=>r});class r{static global={};static add(t,e,s){t in r.global||(r.global[t]={}),e in r.global[t]||(r.global[t][e]=[]),r.global[t][e].push(s)}static update(t,e){return t in r.global&&e in r.global[t]&&void r.global[t][e].forEach((t=>{t.update()}))}}},"./src/watcher/widgetwatcher__tools.js":(t,e,s)=>{s.r(e),s.d(e,{widgetwatcher__tools:()=>r});class r{static parsekeys(t,e=!1){if("function"==typeof t){e=t;const[s,r]=/\(?(.{0,}?)[\)|=]/m.exec(t.toString());t=r.split(",").map((t=>t.trim()))}else"string"==typeof t&&(t=t.split(",").map((t=>t.trim())));let s=t.join(",");return{keys:t,callback:e,strkeys:s}}}},"./src/watcher/widgetwatcher__update.js":(t,e,s)=>{s.r(e),s.d(e,{widgetwatcher__update:()=>o});var r=s("./src/state/widgetstate.js"),i=s("./src/convertor/widgetconvertor.js");class o{is_func(){return"function"==typeof this.to}get_value(t=!1){const e=new r.widgetstate(this.path),s=[];return this.keys.forEach((t=>{s.push(e.get(t))})),i.widgetconvertor.toFunction(this.callback).apply(t,s)}update(){const t=this.is_func(),e=this.get_value(!t&&this.to);t?this.update_callback(e):this.update_widget(e)}update_callback(t){this.to(t)}update_widget(t){if(this.to){const e=this.to.assignProp(this.props,t);e&&(this.props=e)}}}},"./src/widget.js":(__unused_webpack_module,__webpack_exports__,__webpack_require__)=>{__webpack_require__.r(__webpack_exports__),__webpack_require__.d(__webpack_exports__,{widget:()=>widget});var _tools_widget_tools__WEBPACK_IMPORTED_MODULE_0__=__webpack_require__("./src/tools/widget__tools.js"),_tools_widget_smartprops__WEBPACK_IMPORTED_MODULE_1__=__webpack_require__("./src/tools/widget_smartprops.js"),_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_2__=__webpack_require__("./src/convertor/widgetconvertor.js"),_element_widgetelement__WEBPACK_IMPORTED_MODULE_3__=__webpack_require__("./src/element/widgetelement.js"),_widgetdom_widgetdom__WEBPACK_IMPORTED_MODULE_4__=__webpack_require__("./src/widgetdom/widgetdom.js"),_state_widgetstate_methods__WEBPACK_IMPORTED_MODULE_5__=__webpack_require__("./src/state/widgetstate__methods.js");class widget extends _tools_widget_tools__WEBPACK_IMPORTED_MODULE_0__.widget__tools{constructor(t="div",e={},s=!1){super(),this.element=t,this.props=e}__get(t){}__set(t,e){"child"==t?("child"in this.props||(this.props.child=[]),this.props.child.push(e)):this.props[t]=e}setRootElement(t,e=!1){return this.rootElement=t,this.checkDomElement(),this.rootElement.appendChild(this.domElement),this.parent=e,this.render(),this}render(){for(const[t,e]of Object.entries(this.props))this.assignProp(t,e);return this}updateChilds(t){t=_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_2__.widgetconvertor.toArray(t);const e=[],s=Math.max(this.childs.length,t.length);for(let r=0;r<s;r++)if(this.childs[r]){const s=_widgetdom_widgetdom__WEBPACK_IMPORTED_MODULE_4__.widgetdom.update(this.childs[r],t[r]);switch(s[0]){case"delete":e.push(r);break;case"replace":this.childs[r]=s[1]}}else{const e=_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_2__.widgetconvertor.toWidget(t[r]);e.setRootElement(this.domElement,this),this.childs[r]=e}if(e.length>0){const t=this.childs.filter(((t,s)=>!e.includes(s)));this.childs=t}return this}setTemplateData(t){return this.templateData=t,this}templateFillContents(template){const regex=/\$\{(\w+)\}/gm;template=template.replace(regex,'${tval("$1")}'),current_template_data.data=this.templateData;let val="";return eval(`val = \`${template}\``),val}assignProp(t,e){if(t in _tools_widget_smartprops__WEBPACK_IMPORTED_MODULE_1__.widget_smartprops&&"function"==typeof _tools_widget_smartprops__WEBPACK_IMPORTED_MODULE_1__.widget_smartprops[t])return _tools_widget_smartprops__WEBPACK_IMPORTED_MODULE_1__.widget_smartprops[t](this,e);let s=_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_2__.widgetconvertor.getType(e),r=!1;switch(s){case"Watcher":return e.link(this,t),r;case"String":this.templateData&&(e=this.templateFillContents(e));break;case"StateMethod2":e=e.apply();break;case"StateMethod":e=_state_widgetstate_methods__WEBPACK_IMPORTED_MODULE_5__.widgetstate__methods.getFromElement(e);break;case"Element":e=_element_widgetelement__WEBPACK_IMPORTED_MODULE_3__.widgetelement.make(e);break;case"Array":"on"==t.substr(0,2)&&(e=_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_2__.widgetconvertor.toFunction(e));break;case"Function":if(["innerText","innerHTML","child"].includes(t))return this.assignProp(t,e())}if(_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_2__.widgetconvertor.getType(e)!=s)return t in this.watcher||(this.props[t]=e),this.assignProp(t,e);const[i,o]=this.checkContentProp(t,s,e);return i&&(t=i,r=i),o&&("child"==t?this.updateChilds(e):this.sequreAssign(t,e,s)),r}sequreAssign(t,e,s=!1){0==s&&(s=_convertor_widgetconvertor__WEBPACK_IMPORTED_MODULE_2__.widgetconvertor.getType(e));const r="_"==t.substr(0,1);switch(r&&(t=t.substr(1)),s){case"Bool":["innerHTML","innerText","value"].includes(t)?this.domElement[t]="":this.domElement[t]=e;break;case"String":case"Int":["for"].includes(t)?this.domElement.setAttribute(t,e):this.domElement[t]=e;break;case"HTML":"innerHTML"==t||"innerText"==t?this.domElement.appendChild(e):console.info("не знаю как применить в",t," ->",e);break;case"Function":if("on"==t.substr(0,2)){const s=function(t){return(!r||t.target==this)&&e.apply(this,[t])};this.on(t.substr(2),s)}else this.domElement[t]=e();break;case"Array":console.info("ARRAY",`${t} (${s})`,e);break;default:console.info("Не применено - ","prop: ",t,"value: ",e,"type: ",s)}}on(t,e,s=""){const r=t+s;r in this.eventControllList||(this.eventControllList[r]=e,this.domElement.addEventListener(t,e))}style(t,e){this.domElement&&(this.domElement.style[t]=e)}styles(t){for(const[e,s]of Object.entries(t))this.style(e,s)}clearWatcherFrom(t){t.forEach((t=>{t.watchlist.forEach((t=>{})),this.clearWatcherFrom(t.childs)}))}setPropsForJsonSerializeFunctions(t,e){this.jsonSerializePath=t,this.jsonSerializeKey=e}toJSON(){const t={};return Object.keys(this.props).forEach((e=>{"function"==typeof this.props[e]?t[e]=new widgetcallback(this.props[e],`element_${this.id}`):t[e]=this.props[e]})),{element:this.element,props:t}}}},"./src/widgetdom/widgetdom.js":(t,e,s)=>{s.r(e),s.d(e,{widgetdom:()=>o});var r=s("./src/widgetdom/widgetdom__tools.js"),i=s("./src/convertor/widgetconvertor.js");class o extends r.widgetdom__tools{static _debug=!0;static _trace=!0;static debug(t,e){return function(){o._debug&&(console.group(arguments),console.info(`class: %c${t} %cmethod:%c ${e} `,"color: #c00","color: #fff","color: #cc0"),o._trace&&console.trace(),console.groupEnd())}}static update(t,e){return e?(e=i.widgetconvertor.toWidget(e),o.changedType(t,e)?(t.replace_on(e),["replace",e]):(t.set_props_from_widget(e),["change"])):(t.delete(),["delete"])}static changedType(t,e){return t.element!=e.element||t.constructor.name!=e.constructor.name}}},"./src/widgetdom/widgetdom__api.js":(t,e,s)=>{s.r(e),s.d(e,{widgetdom__api:()=>i});var r=s("./src/convertor/widgetconvertor.js");class i{static ancor(t,e=!1){const s=widgetancor.get(t);return e?e(s):s}static app(t){i.render("#app",t)}static active={};static render(t,e,s="rebuild"){if(e=r.widgetconvertor.toWidget(e),t in i.active){const r=i.active[t];switch(s){case"rebuild":const s=i.update(r,e);switch(s[0]){case"delete":delete i.active[t];break;case"replace":i.active[t]=s[1]}break;case"append":r.child=e,r.render()}}else i.querySelector(t,s).then((s=>{i.firstRender(s,t,e)}))}static querySelector(t,e="rebuild"){return new Promise((function(s,r){const o=window.document.querySelector(t);if(o)switch(e){case"rebuild":s(o);break;case"append":const t=document.createElement("div");o.appendChild(t),s(t)}else window.addEventListener("load",(()=>{const o=i.querySelector(t,e);o?s(o):r("Элемента нет "+t)}))}))}static firstRender(t,e,s){t.innerHTML="",s.setRootElement(t),i.active[e]=s}static widgetStore={};static widgetRegister(t,e){i.widgetStore[t]=e}static isReg(t){return t in i.widgetStore}static get(t,e){return i.widgetStore[t](e)}}},"./src/widgetdom/widgetdom__tools.js":(t,e,s)=>{s.r(e),s.d(e,{widgetdom__tools:()=>o});var r=s("./src/widgetdom/widgetdom__api.js"),i=s("./src/widgetdom/widgetdom.js");class o extends r.widgetdom__api{static defaulttag="div";static getDefaultTag(t=!1){return t||i.widgetdom.defaulttag}static singleElement={area:!1,base:!1,br:!1,col:!1,embed:!1,hr:!1,img:"src",input:"value",textarea:"value",link:"href",menuitem:!1,meta:!1,param:!1,source:!1,track:!1,wbr:!1};static getPropForDefaultValue(t,e){const s=e in i.widgetdom.singleElement&&i.widgetdom.singleElement[e];return s?{[s]:t}:{innerText:t}}}}},__webpack_module_cache__={};function __webpack_require__(t){var e=__webpack_module_cache__[t];if(void 0!==e)return e.exports;var s=__webpack_module_cache__[t]={exports:{}};return __webpack_modules__[t](s,s.exports,__webpack_require__),s.exports}__webpack_require__.d=(t,e)=>{for(var s in e)__webpack_require__.o(e,s)&&!__webpack_require__.o(t,s)&&Object.defineProperty(t,s,{enumerable:!0,get:e[s]})},__webpack_require__.o=(t,e)=>Object.prototype.hasOwnProperty.call(t,e),__webpack_require__.r=t=>{"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})};var __webpack_exports__={};(()=>{__webpack_require__.r(__webpack_exports__);var t=__webpack_require__("./CyberScript.js");for(const e of Object.keys(t.mods))window[e]=t.mods[e]})()})();
-//# sourceMappingURL=cs.min.js.map
+// c.js
+
+// v18.2f
+
+const c = new Proxy({}, {
+	get:(_, _type) => {
+        if (typeof widgetdom[_type] == 'function')
+            return widgetdom[_type]
+        else
+            return (source) => {
+                if (_type in widgetdom__api.widgetStore)
+                    return widgetdom__api.widgetStore[_type](source)
+                
+                const result = widgetconvertor.toWidget(source, _type)
+                return result
+            }
+    },
+    set:(_, _type, element) => widgetdom__api.widgetRegister(_type, element)
+})
+// helpers.js
+
+const current_template_data = {}
+function tval(key){
+    if (key in current_template_data.data){
+        return current_template_data.data[key]
+    } else {
+        return ''
+    }
+}
+// widgetcallback.js
+
+class widgetcallback {
+    static group = {}
+    
+    static index(group, callback){
+        callback = callback.toString()
+        if (group in widgetcallback.group){
+            const index = widgetcallback.group[group].indexOf(callback)
+            if (index != -1){
+                return index
+            } else {
+                widgetcallback.group[group].push(callback)
+                return widgetcallback.group[group].length
+            }
+        } else {
+            widgetcallback.group[group] = []
+            widgetcallback.group[group].push(callback)
+            return 0
+        }
+    }
+}
+// __h32.js
+class __h32 {
+
+    static map = {
+        '+': true,
+        '-': false,
+        q: 'div',
+        w: 'element',
+        e: 'props',
+        r: 'child',
+        t: 'method',
+        u: 'stateName',
+        i: 'modelin',
+        o: 'value',
+        p: 'label',
+        a: 'args',
+        s: 'style',
+        d: 'input',
+        f: 'checked',
+        g: 'h1',
+        h: 'h2',
+        j: 'h3',
+        k: 'h4',
+        l: 'h5',
+        z: 'h6',
+        x: 'textarea',
+        c: 'span',
+        y: 'watch',
+        v: 'watchif',
+        b: 'watchin',
+        n: 'watchdefault',
+        m: 'StateMethod',
+        qq: 'type',
+        qw: 'json',
+        qe: 'button',
+        qr: 'onclick',
+        qt: 'innerText',
+        qy: 'StateMapElement',
+        tt: 'title',
+        qu: 'key',
+    };
+
+    hashItm(itm){
+        if (typeof itm == 'object'){
+            return this.toElement(itm)
+        } else
+        if (itm in __h32.map){
+            return __h32.map[itm]
+        } else {
+            return this.list[itm]
+        }
+    }
+
+    constructor(list){
+        this.list = widgetconvertor.toArray(list)
+    }
+
+    toElement(hash){
+        if (Array.isArray(hash)){
+            return hash.map(value => this.hashItm(value))
+        } else {
+            const result = {}
+            for (const [hashkey, hashvalue] of Object.entries(hash)){
+                const key = this.hashItm(hashkey)
+                const value = this.hashItm(hashvalue)
+            
+                result[key] = value
+            }
+            return result;
+        }
+    }
+
+    static unpack(pack64){
+        const regex = /(\w+|[+|-])/g;
+        const hash = pack64.replace(regex, '"$1"')
+        return JSON.parse(hash)
+    }
+}
+// requeststorage.js
+
+class requeststorage {
+    static storage = {};
+    static active = {};
+    static delay = false;
+
+    static create(data){
+        this.storage = data
+    }
+
+    static append(storage){
+        this.storage = Object.assign(this.storage, storage)
+    }
+
+    static fetch(hash, bind, then = false){
+        if ('then' in bind){
+            then = bind.then
+            delete bind.then
+        }
+        requeststorage.run(hash, bind, then, this)
+    }
+
+    static run(hash, bind = false, then = false, bindToHtmlElement = false){
+        if (hash in requeststorage.storage){
+
+            const request = hash in requeststorage.active
+                ?requeststorage.active[hash]
+                :new widgetrequest(hash, requeststorage.storage[hash], bind, bindToHtmlElement, then)
+
+            request.run(requeststorage.delay)
+        } else {
+            showDialog({
+                title: 'Ошибка 842',
+                message: `Request "${hash}" отсутствует!`
+            })
+        }
+    }
+
+    static setDelay(delay){
+        requeststorage.delay = delay
+    }
+}
+// widgetalias.js
+
+class widgetalias {
+    static global = {}
+    static url = ''
+
+    static set(url, value){
+        widgetalias.global[url] = value
+		widgetalias.updateHistory()
+    }
+
+	static remove(url){
+		if (url in widgetalias.global) {
+			delete widgetalias.global[url]
+			widgetalias.updateHistory()
+		}
+	}
+
+    static getUrl(){
+        let result = '';
+        
+		Object.keys(widgetalias.global).forEach(key => {
+			result += '&' + key
+			if (Array.isArray(widgetalias.global[key])){
+				result += `=${widgetalias.global[key].join(',')}`
+			} else {
+				result += `=${widgetalias.global[key]}`
+			}
+		})
+        
+		return result!=''?result.substring(1):''
+    }
+
+	static updateHistory(){
+		const currentUrl = widgetalias.getUrl()
+        if (currentUrl!=widgetalias.url){
+			window.history.replaceState(0, "", location.origin + location.pathname + '?' + currentUrl);
+			widgetalias.url = currentUrl
+		}
+	}
+}
+// widgetrequest.js
+
+class widgetrequest {
+    static active = {};
+
+    constructor(hash, request, bind = false, bindToHtmlElement = false, then = false){
+        this.hash = hash
+        requeststorage.active[this.hash] = this
+
+        this.url = request.url
+        this.source = request.source
+        this.method = request.method
+        this.useState = request.useState
+        this.bind = bind
+        this.bindToHtmlElement = bindToHtmlElement
+        this.then = then
+
+        this.status = false
+        this.current_request = false
+
+        this.waiting = false
+        this.waiting2 = false
+        this.loading = false;
+        this.block = false;
+
+        this.elementWaiting = false
+        this.penaltytime = 0
+    }
+
+    stopLoading(){
+        if (this.loading){
+            this.loading.abort();
+            this.loading = false;
+            this.addpenalty(500)
+        }
+    }
+
+    addpenalty(penalty){
+        if (this.penaltytime<1000){
+            this.penaltytime += penalty
+        }
+    }
+
+    run(delay = false){
+        if (this.block) return false
+
+        if (!this.elementWaiting) this.wait(true)
+        this.stopLoading()
+
+        if (delay && this.penaltytime!=0) {
+            if (this.waiting2) {
+                clearTimeout(this.waiting2)
+                this.addpenalty(150)
+            }
+            if (this.waiting) {
+                clearTimeout(this.waiting)
+                this.addpenalty(100)
+
+            }
+            this.waiting = setTimeout(() => this.run(), delay + this.penaltytime);
+        } else {
+            this.waiting = false
+            // console.log('penaltytime', this.penaltytime)
+            this.createRequest(150)
+            // this.fetch()
+        }
+    }
+
+    createRequest(delay = false){
+        this.stopLoading()
+
+        if (delay) {
+            if (this.waiting2) {
+                clearTimeout(this.waiting2)
+                this.addpenalty(150)
+            }
+            this.waiting2 = setTimeout(() => this.createRequest(), delay + this.penaltytime);
+        } else {
+            this.waiting2 = false
+            this.fetch()
+        }
+    }
+
+
+
+
+    fetch(){
+        const stateData = this.getStateData()
+
+        this.current_request = Math.random()
+
+        const body = JSON.stringify({
+            state: stateData,
+            executor: {
+                source: this.source,
+                method: this.method,
+                props: this.props,
+                bind: this.bind,
+            },
+            request_id: this.current_request,
+        })
+
+        fetch(this.url, {
+            method: 'POST',
+            body,
+            signal: this.getSignal()
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (this.current_request==res.current_request){
+                this.loading = false
+                this.apply(res)
+
+                this.wait(false)
+                delete requeststorage.active[this.hash]
+            }
+        })
+        // .finally(() => {
+        //     this.loading = false
+        // });
+    }
+
+    getSignal(){
+        this.loading = new AbortController()
+		return this.loading.signal
+    }
+
+
+    getStateData(){
+        const result = {}
+    
+        this.useState.forEach(useState => {
+            const stateName = Array.isArray(useState)?useState[1]:useState
+            const data = state[stateName].getRequestData()
+            if (Object.keys(data).length!=0)
+                result[stateName] = {
+                    data,
+                    source: useState
+                }
+        })
+
+        return result
+    }
+
+
+
+    apply(res){
+        this.block = true
+        if ('state' in res){
+            Object.keys(res.state).forEach(stateName => {
+                if ('data' in res.state[stateName])
+                    Object.keys(res.state[stateName].data).forEach(propName => {
+                        state[stateName].set(propName, res.state[stateName].data[propName])
+                    })
+
+                if ('runOnFrontend' in res.state[stateName]){
+                    console.log('runOnFrontend', res.state[stateName].runOnFrontend)
+
+                    res.state[stateName].runOnFrontend.forEach(func => {
+                        const func2 = widgetconvertor.toFunction(func)
+                        func2()
+                    })
+                }
+            })
+        }
+
+        if ('__rs' in res){
+            requeststorage.append(res.__rs)
+        }
+
+        if (this.then){
+            const func = window[this.then].bind(this)
+            func(res.result)
+        }
+
+        this.catchControll(res)
+        this.block = false
+    }
+
+    error(error){
+        this.catchControll(error)
+    }
+
+
+    setCatch(callback){
+        this.catch = callback
+        return this
+    }
+
+    catchControll(result){
+        if (typeof this.catch == 'function'){
+            this.catch(result)
+            this.catch = false
+        }
+    }
+
+    wait(check){
+        this.elementWaiting = check
+        if (this.bindToHtmlElement instanceof HTMLElement)// && this.bindToHtmlElement.tagName=='BUTTON')
+            if (check){
+                this.bindToHtmlElement.classList.add('waiting')
+                this.bindToHtmlElement.disabled = true;
+            } else {
+                this.bindToHtmlElement.classList.remove('waiting')
+                this.bindToHtmlElement.disabled = false;
+            }
+    }
+
+}
+// widgetelement.js
+
+
+
+class widgetelement {
+    static tools = [
+        'group', 'func', 'requestmethod', 'list', 'requeststore_element', '__h32', 'StateMapElement', 
+    ]
+
+    static make(element){
+        let result = false;
+
+        console.log('make:: ', element?.element);
+
+
+        if (widgetelement.tools.includes(element.element)){
+            result = widgetelement[element.element](element.props)
+        } else if (widgetdom__api.isReg(element.element)){
+            result = widgetdom__api.get(element.element, element.props)
+        } else {
+            result = new widget(element.element, element.props) 
+        }
+
+        return result
+    }
+
+
+
+
+
+    static group({list}){
+        return () => 
+            list.forEach(itm => 
+                widgetconvertor.toFunction(itm)()
+            )
+    }
+
+    static func({body}){
+        return new Function(body);
+    }
+
+    static list({list}){
+        return list;
+    }
+
+    static requeststore_element({hash, bind, then}){
+        return function(){
+            return requeststorage.run(hash, bind, then, this)
+        }
+    }
+
+    static __h32({base, list, method = 32}){
+        const result = (new __h32(list)).toElement(method==64?__h32.unpack(base):base);
+        return result
+    }
+
+
+    static StateMapElement({stateName, key, widget, props}){
+
+        return state[stateName].watch(key, function(obj){
+
+            return Array.isArray(obj)
+                ?obj.map((itm, elementKey) => {
+                    let json = widget.replaceAll('*@val@*', itm).replaceAll('*@key@*', elementKey)
+
+                    Object.keys(props.keys).map(propkey => {
+                        const hash = props.keys[propkey]
+                        const value = itm[propkey]
+
+                        json = json.replaceAll(hash, value)
+                    })
+
+
+                    Object.keys(props.math).map(hash => {
+                        const calc = props.math[hash]
+                            .replaceAll('@key', elementKey)
+                            .replaceAll('@length', obj.length)
+                        
+                        let result = ''
+                        eval(`result = ${calc}`)
+                        json = json.replaceAll(hash, result)
+                    })
+
+                    return widgetconvertor.toWidget(JSON.parse(json))
+                })
+                :false
+        })
+
+    }
+
+}
+// widgetwatcher__link.js
+
+class widgetwatcher__link {
+    /**
+     * 
+     * @param {*} watcher 
+     * @param {*} to == widget || callback 
+     * @param {*} props - widget.props
+     */
+    constructor(watcher, to, props = false){
+        this._watcher = watcher
+        this._to = to
+        this._props = props
+
+        this._key = this.generate_key();
+
+        if (watcher.onlink){
+            watcher.onlink(this._to, props)
+        }
+
+        this.view = false
+    }
+
+    generate_key(){
+        if (this.is_func()){
+            return Math.random()
+        } else {
+            return [this._to.id, this._props].join('_')
+        }
+    }
+
+    is_func(){
+        return typeof this._to == 'function';
+    }
+
+    key(){
+        return this._key
+    }
+
+    update(){
+        const is_func = this.is_func()
+        const value = this._watcher.get_value(is_func?false:this._to)
+        
+        if (is_func){
+            this.update_callback(value)
+        } else {
+            this.update_widget(value)
+        }
+        // this._watcher.updateAlias()
+    }
+
+    update_callback(value){
+        this._to(value)
+    }
+
+    update_widget(value){
+        const changeProps = this._to.assignProp(this._props, value)
+        if (changeProps)
+            this._props = changeProps
+    }
+}
+// widgetwatcher__static.js
+
+class widgetwatcher__static {
+
+    static parsekeys(keys, callback = false){
+
+        if (typeof keys == 'function'){
+			callback = keys
+			const [_, fprops] = /\(?(.{0,}?)[\)|=]/m.exec(keys.toString())
+			keys = fprops.split(',').map(i => i.trim())
+		} else if (typeof keys == 'string'){
+			keys = keys.split(',').map(i => i.trim())
+		}
+
+        let strkeys = keys.join(',')
+
+        return {
+            keys,
+            callback,
+            strkeys,
+        }
+    }
+
+    static by(path, keys, callback = false){
+        const j = widgetwatcher__static.parsekeys(keys, callback)
+        const watcher = new widgetwatcher(path, j.keys, j.callback)
+        return watcher
+    }
+
+    static addToGlobal(path, watcherKey, link){
+        if (!(path in widgetwatcher.global)) 
+            widgetwatcher.global[path] = {}
+        
+        widgetwatcher.global[path][watcherKey] = link
+    }
+
+    static removeFromGlobal(path, watcherKey){
+        if (path in widgetwatcher.global)
+        if (watcherKey in widgetwatcher.global[path])
+            delete widgetwatcher.global[path][watcherKey]
+    }
+
+    key_inside(key){
+        return this._keys.includes(key)
+    }
+
+    static update_path(path, key){
+        if (path in widgetwatcher.global){
+            Object.keys(widgetwatcher.global[path]).forEach(watcherKey => {
+                if (path in widgetwatcher.global && watcherKey in widgetwatcher.global[path]){
+                    const link = widgetwatcher.global[path][watcherKey]
+                    if (link.key_inside(key)){
+                        link.update()
+                    }
+                }
+            })
+        }
+    }
+
+}
+// widgetwatcher.js
+
+class widgetwatcher extends widgetwatcher__static {
+    static global = {}
+
+    constructor(path, keys, callback = false){
+        super()
+
+        this._path = path
+        this._keys = keys
+        this._callback = callback?callback:this.tempcallback 
+        this._link = {}
+
+        this.onlink = false
+
+        // console.log('create watcher', path, keys)
+    }
+
+    tempcallback(){
+        if (arguments.length==1)
+            return arguments[0]
+        else 
+            return arguments
+    }
+
+    update(){
+        for (const [key, link] of Object.entries(this._link)){
+            link.update()
+        }
+    }
+
+    link(to, props = false){
+        const link = new widgetwatcher__link(this, to, props)
+
+        const watcherKey = link.key()
+        this._link[watcherKey] = link
+
+        widgetwatcher.addToGlobal(this._path, watcherKey, this)
+
+        this.update()
+
+
+        return [this._path, watcherKey]
+    }
+
+    setonlink(callback){
+        this.onlink = callback
+        return this
+    }
+
+
+    get_value(widget = false){
+        const stt = new widgetstate(this._path)
+        const args = []
+
+        this._keys.forEach(
+            key => args.push(stt.get(key))
+        )
+
+        const result = widgetconvertor.toFunction(this._callback).apply(widget, args)
+        return result
+    }
+
+    // updateAlias(){
+        
+    // }
+
+}
+// widgetstate__props.js
+
+class widgetstate__props {
+
+    static props = {}
+
+    static setdefault(path, defaults){
+        widgetstate__props.setStateProp(path, 'defaults', defaults);
+    }
+
+    static setalias(path, alias){
+        widgetstate__props.setStateProp(path, 'alias', alias);
+    }
+
+    static setonchange(path, onchange){
+        widgetstate__props.setStateProp(path, 'onchange', onchange);
+    }
+
+    static setdelay(path, delay){
+        widgetstate__props.setStateProp(path, 'delay', delay);
+    }
+
+
+
+
+
+    static setStateProp(path, prop, data){
+        if (!(path in widgetstate__props.props))
+            widgetstate__props.props[path] = {};
+
+        widgetstate__props.props[path][prop] = data;
+    }
+
+
+
+
+    static by(path){
+        if (path in widgetstate__props.props)
+            return widgetstate__props.props[path]
+        else
+            return false
+    }
+
+    static getdefault(path, key){
+        if (widgetstate__props.issetPropName('defaults', path, key))
+            return widgetstate__props.props[path]?.defaults[key]
+        else 
+            return key.startsWith('_')?[]:false
+    }
+
+    static issetPropName(propName, path, key){
+        if (path in widgetstate__props.props)
+        if (propName in widgetstate__props.props[path])
+        if (key in widgetstate__props.props[path][propName])
+            return true
+        
+        return false
+    }
+
+}
+// widgetstate__methods.js
+
+class widgetstate__methods {
+
+    static getFromElement(element){
+        let {method, args, stateName} = element.props;
+        const functionWrap = method.substr(0, 1)=='_'
+
+        if (functionWrap)
+            method = method.substr(1)
+
+        const result = function(){
+            return state[stateName].method(method).apply(this, args)
+        }
+
+
+        return functionWrap?result:result()
+    }
+
+}
+// widgetstate__static.js
+
+class widgetstate__static {
+    static smart_methods = ['val']
+
+    static val(path){
+        const to = path.pop()
+        const stateobject = widgetstate.by(path)
+
+        if (to in stateobject)
+            return stateobject[to]
+        else 
+            return false
+    }
+
+    static set(path, data){
+        const to = path.pop()
+        const state = widgetstate.by(path)
+
+        state[to] = data
+    }
+
+    static path_from_args(){
+        let result = ''
+        if (Array.isArray(arguments[0])){
+            result = widgetstate.path_from_args(...arguments[0])
+        } else {
+            result = Array.from(arguments).join(widgetstate.splitter)
+        }
+
+        if (result.startsWith(widgetstate.start)){
+            return result;
+        } else {
+            return widgetstate.path_from_args(widgetstate.start, result)
+        }
+        /* let result = ''
+        if (Array.isArray(args)){
+            if (args.length==1){
+                return widgetstate.path_from_args(args[0])
+            } else {
+                return ['#', ...args].join(widgetstate.splitter)
+            }
+        } else {
+            return args.toString()
+        } */
+    }
+
+    run_method(method){
+        return function(){
+            return this[method].apply(this, arguments)
+        }.bind(this)
+    }
+
+    static by(path){
+        const cpath = Array.isArray(path)?path.join(widgetstate.splitter):path
+
+        if (cpath in widgetstate.global){
+            return widgetstate.global[cpath]
+        } else {
+            return {}
+        }
+    }
+
+
+    path(){
+        return this._path
+    }
+
+
+    getdata(){
+        if (!(this._path in widgetstate.global)){
+            widgetstate.global[this._path] = {
+                // data: {},
+                // keys: [],
+            }
+        }
+        return widgetstate.global[this._path]
+    }
+
+}
+// widgetstate__tools.js
+
+class widgetstate__tools extends widgetstate__static {
+    static tools = [
+        'method',
+        'to', 
+
+        'get', 
+        'getdefault',
+        'set', 
+        'setdefault', 
+        'onepushto',
+        'pushto',
+        'lpushto',
+        'mergeto', // merge array with array
+        'pullfrom',
+
+
+        'watch', 
+        'watchif', 
+        'watchin', 
+        'watchdefault', 
+        'watchincase',
+        'model', 
+        'modelin', 
+
+
+        'toggle', 
+        'map', 
+        'inc',
+        'dec',
+
+        'proxy', 
+        'getRequestData'
+    ]
+
+    method(method){
+        return {
+            apply: (bind, args) => {
+                this.bind = bind
+                args = widgetconvertor.toArray(args)
+
+                requeststorage.setDelay(this.props?.delay)
+
+                try {
+                    return this[method].apply(this, args)
+                } catch (e){
+                    console.error(`method ${method}`, args, ' - ', e)
+                }
+            }
+        }
+    }
+    
+    to(key){
+        return state.name(this._path, key)
+    }
+
+    proxy(){
+        
+    }
+
+
+    set(key, value){
+        if (typeof value == 'object' && !key.startsWith('_')) {
+            let tempState = this.to(key)
+            for (const [nkey, nvalue] of Object.entries(value)) {
+                tempState.set(nkey, nvalue)
+            }
+        } else {
+            let changed = false
+
+            if (key.startsWith('__')){
+                value = JSON.stringify(value)
+            }
+
+            if (Array.isArray(value)){
+                changed = !widgetconvertor.arraysEqual(this._data[key], value)
+            } else {
+                changed = this._data[key] != value
+            }
+
+            if (changed){
+                this._data[key] = value
+                widgetwatcher.update_path(this._path, key)
+
+                // if (!key.startsWith('__'))
+                if (this.props){
+                    this.updateAlias(key)
+                    this.change(key)
+                }
+                // this.request(key)
+            }
+        }
+    }
+
+
+
+
+
+
+
+    get(key){
+        if (key in this._data){
+            let result = this._data[key]
+            
+            if (key.startsWith('__'))
+                result = JSON.parse(result)
+            
+            return result
+
+            // return !key.startsWith('_')
+            // ?result
+            // :(
+            //     Array.isArray(result)
+            //     ?[...result]
+            //     :{...result}
+            // )
+        }
+
+        return false
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    updateAlias(key){
+        const url = 'alias' in this.props && this.props.alias!=false && key in this.props.alias
+            ?this.props.alias[key]
+            :false
+
+        if (url) 
+        if (this.isdefault(key))
+            widgetalias.remove(url)
+        else
+            widgetalias.set(url, this._data[key]) // обновил url без задержек!
+
+    }
+
+    change(key){
+        const onchange = this.props?.onchange
+        if (onchange){
+            requeststorage.setDelay(this.props?.delay)
+            widgetconvertor.toFunction(onchange).apply(this.bind, [])
+        }
+    }
+
+
+
+    getdefault(key){
+        return widgetstate__props.getdefault(this._path, key)
+    }
+
+    setdefault(key){
+        const def = this.getdefault(key)
+        this.set(key, def)
+    }
+
+    isdefault(key){
+        const def = this.getdefault(key)
+        const current = this.get(key)
+
+        const result = Array.isArray(def) || Array.isArray(current)?widgetconvertor__tools.arraysEqual(def, current):def == current
+
+        return result
+    }
+
+
+    toggle(key, _true = true, _false = false){
+        const currentValue = this.get(key)
+        let nextValue = false
+
+        if (key.startsWith('_')){ // для массивов делаем простую проверку на есть в массиве _true или нет
+            if (currentValue==false) 
+                nextValue = []
+            else
+                nextValue = [...currentValue]
+
+            if (nextValue.includes(_true)){
+                nextValue = nextValue.filter(itm => itm!=_true)
+            } else {
+                nextValue.push(_true)
+            }
+        } else {
+            nextValue = currentValue==_true?_false:_true
+        }
+
+        this.set(key, nextValue)
+    }
+
+
+
+    inc(key, stap = 1){
+        const val = parseInt(this.get(key))
+        this.set(key, val + stap)
+    }
+
+    dec(key, stap = 1){
+        const val = parseInt(this.get(key))
+        this.set(key, val - stap)
+    }
+
+    onepushto(to, value){
+        let current = this.get(to)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#pushto', to, 'is not Array')
+        }
+
+        
+
+        if (!current.includes(value)){
+            const temp = [...current]
+            temp.push(value)
+            this.set(to, temp)
+        }
+    }
+
+    pushto(to, value){
+        let current = this.get(to)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#pushto', to, 'is not Array')
+        }
+
+        const temp = [...current]
+        temp.push(value)
+        this.set(to, temp)
+    }
+
+    lpushto(to, value){
+        let current = this.get(to)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#lpushto', to, 'is not Array')
+        }
+
+        const temp = [value ,...current]
+        this.set(to, temp)
+    }
+
+    mergeto(to, value){
+        let current = this.get(to)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#pushto', to, 'is not Array')
+        }
+
+        const temp = [...current, ...value]
+        this.set(to, temp)
+    }
+
+    pullfrom(from, value){
+        let current = this.get(from)
+
+        if (!Array.isArray(current)) {
+            if (to.startsWith('_'))
+                current = []
+            else
+                console.error('#pullfrom', to, 'is not Array')
+        }
+
+        const temp = current.filter(val => value!=val)
+        this.set(from, temp)
+    }
+
+
+    watch(keys, callback = false){
+        return widgetwatcher.by(this._path, keys, callback)
+    }
+
+    watchif(key, equality, __true, __false = false){
+        let args = false
+        if (Array.isArray(key)){
+            args = key.slice(1)
+            key = key[0]
+        }
+
+        return this.watch(key, function(value){
+            if (args==false){
+                return value==equality
+                                ?__true
+                                :__false
+            } else {
+                return value[args[0]]==equality
+                                ?__true
+                                :__false
+            }
+        })
+    }
+
+    watchin(key, equality, __true, __false = false){ // можно передавать массив
+        return this.watch(key, function(value){
+            if (!Array.isArray(value))
+                return __false
+            
+            const array = widgetconvertor.toArray(equality)
+
+            for (const itm of array){
+                if (value.includes(itm))
+                    return __true
+            }
+
+            return __false
+        })
+    }
+
+    watchdefault(key, __true, __false){
+        return this.watch(key, (value) => {
+                let result = false
+
+
+                const defaultValue = this.getdefault(key) 
+                if (Array.isArray(value)){
+                    result = widgetconvertor.arraysEqual(value, defaultValue)
+                    console.log('check array eq: ', value, defaultValue, '==', result)
+                } else {
+                    result = value==defaultValue
+                }
+
+
+                result
+                    ?__true
+                    :__false
+            }
+        )
+    }
+
+    watchincase(key, inlist, {all, some, none}){
+        if (!key.startsWith('_')){
+            console.error(key, ' (modelin) должен иметь тип array (_)')
+            return false
+        }
+
+        return this.watch(key, (value) => {
+            if (Array.isArray(value) && value.length != 0){
+                let status_find_all = true
+                let status_find_one = false
+                for (const itm of inlist){
+                    if (value.includes(itm)){
+                        status_find_one = true
+                        if (!status_find_all)
+                            return some
+                    } else {
+                        status_find_all = false
+                        if (status_find_one)
+                            return some
+                    }
+                }
+
+                if (status_find_one){
+                    return all
+                } else {
+                    return none
+                }
+            } else {
+                return none
+            }
+        })
+    }
+
+    model(key, method = 'oninput'){
+
+        const linkCallback = (widget, prop) => {
+            const stt = this
+            widget.assignProp(method, function(){
+                stt.set(key, this[prop])
+            })
+        }
+
+        return this.watch(key).setonlink(linkCallback)
+    }
+
+    modelin(key, equality){
+        if (!key.startsWith('_')){
+            console.error(key, ' (modelin) должен иметь тип array (_)')
+            return false
+        }
+
+        return this.watch(key, function(value){
+            return Array.isArray(value) && value.includes(equality)
+        }).setonlink(
+            (widget) => {
+                const stt = this
+                widget.assignProp('onchange', function(){
+                    if (this.checked)
+                        stt.pushto(key, equality)
+                    else
+                        stt.pullfrom(key, equality)
+                })
+            }
+        )
+    }
+
+    modelif(key, equality, set, reverse = false){
+        return this.watch(key, function(value){
+            const result = value===equality
+            return reverse?!result:result
+        }).setonlink(
+            (widget) => {
+                const stt = this
+                widget.assignProp('onchange', function(){
+                    if (this.checked)
+                        stt.set(key, !reverse?equality:set)
+                    else
+                        stt.set(key, !reverse?set:equality)
+                })
+            }
+        )
+    }
+
+
+    map(_key, reference = false){
+        reference = widgetconvertor.toWidget(reference)
+        return this.watch(_key, array => 
+            Array.isArray(array)
+                ?array.map(data => {
+                    const copy = widgetconvertor.copy(
+                        reference.setTemplateData(data)
+                    )
+                    return copy
+                })
+                :false
+        )
+    }
+
+
+
+    getRequestData(){
+        const result = {}
+
+        Object.keys(this._data).forEach(key => {
+            if (!key.startsWith('__')){
+                result[key] = this._data[key]
+            }
+        });
+
+        // добавить source
+
+        return result
+    }
+}
+// widgetstate.js
+
+class widgetstate extends widgetstate__tools {
+
+    static global = {}
+    static start = '#' 
+    static splitter = '/'
+
+    constructor(path){
+        super()
+        this._path = widgetstate.path_from_args(path)
+        this._data = this.getdata()
+
+        this.props = widgetstate__props.by(this._path)
+        this.activerequest = false
+        this.bind = false
+    }
+
+    static name(){
+        return new widgetstate(Array.from(arguments))
+    }
+
+    static use(name, data, extra = false){
+        state[name] = data
+        const path = widgetstate.path_from_args(name)
+
+        if (extra)
+        for (const [key, value] of Object.entries(extra)) {
+            try {
+                widgetstate__props['set' + key](path, value);
+            } catch (error) {
+                console.error('Неизвестный метод widgetstate__props.set' + key)
+            }
+        }
+    }
+
+}
+// state.js
+
+const state = new Proxy({path: [widgetstate.start]}, {
+	get(sm, to){
+        if (widgetstate__static.smart_methods.includes(to)){
+            return widgetstate__static[to](sm.path)
+        } else
+        if (widgetstate__tools.tools.includes(to)){
+            return new widgetstate(sm.path).run_method(to)
+        } else 
+        if (typeof widgetstate[to] == 'function') {
+            return widgetstate[to]
+        }
+
+        const path = [...sm.path]
+        if (to!='') path.push(to)
+
+        return new Proxy({path}, this)
+    },
+    set:(sm, to, data) => {
+        const stt = new widgetstate(sm.path)
+
+        if (to=='' && typeof data == 'object'){
+            for (const [keyTo, val] of Object.entries(data)) {
+                // const element = array[index];
+                stt.set(keyTo, val)
+            }
+        } else {
+            stt.set(to, data)
+        }
+
+        return true;
+    }
+})
+// widgetconvertor__fromToFunc.js
+
+
+class widgetconvertor__fromToFunc {
+
+    static IntToWidget(int, tag = false){
+        tag = widgetdom.getDefaultTag(tag)
+        const val = widgetdom.getPropForDefaultValue(int, tag)
+        return new widget(
+            tag,
+            val
+        )
+    }
+
+    static StringToWidget(str, tag = false){
+        tag = widgetdom.getDefaultTag(tag)
+        const val = widgetdom.getPropForDefaultValue(str, tag)
+        return new widget(
+            tag,
+            val
+        )
+    }
+
+    static ArrayToWidget(array, tag = false){
+        tag = widgetdom.getDefaultTag(tag)
+        return new widget(
+            tag,
+            {child: array}
+        )
+    }
+
+    static WatcherToWidget(watcher, tag = false){
+        tag = widgetdom.getDefaultTag(tag)
+        const val = widgetdom.getPropForDefaultValue(watcher, tag)
+        return new widget(
+            tag,
+            val
+        )
+    }
+
+    static ObjectToWidget(object, tag = false){
+        tag = widgetdom.getDefaultTag(tag)
+        return new widget(
+            tag,
+            typeof object == 'object'
+                ?object
+                :{}
+        )
+    }
+
+    static FunctionToWidget(func, tag = false){
+        tag = widgetdom.getDefaultTag(tag)
+        return widgetconvertor.toWidget(func(), tag)
+    }
+
+    static ElementToWidget(element){
+        return widgetelement.make(element)
+    }
+
+    static StateMethodToWidget(state_method){
+        return widgetstate__methods.getFromElement(state_method);
+    }
+
+    static StateMethodToFunction(state_method){
+        const result = widgetstate__methods.getFromElement(state_method);
+        return widgetconvertor.getType(result)=='Function'?result:() => result;
+    }
+
+    static BoolToWidget(bool){
+        return c.div('')
+    }
+
+    static ArrayToFunction(array){
+        return function(){
+            array.forEach(itm => {
+                try {
+                    widgetconvertor.toFunction(itm).apply(this)
+                } catch (error) {
+                    console.error('Не удалось выполнить функцию ', itm)
+                }
+            })
+        }
+    }
+
+    static UnknownToWidget(unc){
+        return c.div('')
+    }
+
+    static HTMLToWidget(HTML){
+        return c.div({innerHTML: HTML})
+    }
+
+    static StringToFunction(str){
+        if (str in window)
+            return window[str]
+        return () => str
+    }
+
+    static BoolToFunction(bool){
+        return () => bool
+    }
+
+    static ObjectToFunction(Obj){
+        return () => Obj
+    }
+
+}
+// widgetconvertor__tools.js
+
+class widgetconvertor__tools extends widgetconvertor__fromToFunc {
+
+    static toArray(element){
+        const type = widgetconvertor.getType(element);
+        if (type=='Element' && element.element == 'list'){
+            return element.props.list;
+        }
+
+        if (Array.isArray(element))
+            return element
+        else 
+            return [element]
+    }
+
+    static toWidget(element, tag = false){
+        const type = widgetconvertor.getType(element)
+        if (type == 'Widget')
+            return element
+
+        const result = widgetconvertor.convert(element, type, 'Widget', tag)
+        return result
+    }
+
+    static toElement(element, tag = false){
+        const type = widgetconvertor.getType(element)
+        if (type == 'Element')
+            return element
+
+        const result = widgetconvertor.convert(newelement, newtype, 'Element', tag)
+        return result
+    }
+
+    static toFunction(element){
+        const type = widgetconvertor.getType(element)
+        if (type == 'Function')
+            return element
+
+        switch(type){
+            case 'Element':
+                return widgetelement.make(element)
+            break;
+            default:
+                const result = widgetconvertor.convert(element, type, 'Function')
+                return result
+            break;
+        }
+    }
+
+    static arraysEqual(a, b) {
+        if (a === b) return true;
+        if (a == null || b == null) return false;
+        if (a.length !== b.length) return false;
+        
+        for (var i = 0; i < a.length; ++i) {
+            if (Array.isArray(a[i])){
+                if (Array.isArray(b[i])){
+                    if (!widgetconvertor__tools.arraysEqual(a[i], b[i])){
+                        return false;
+                    }
+                } else {
+                    return false;
+                }
+            } else
+            if (a[i] !== b[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+}
+// widgetconvertor.js
+
+class widgetconvertor extends widgetconvertor__tools {
+
+	static map(value, first, last) {
+		try {
+			const [from, to] = first; const [from2, to2] = last;
+			return (((to2 - from2) / 100) * ((value - from) / ((to - from) / 100))) + from2
+		} catch (error) {
+			console.error(value, first, last, error)
+		}
+	}
+
+	static roundValue(value, type){
+        switch (type) {
+            case 'int': return parseInt(value)
+            case 'float': return Math.round(value * 10) / 10
+            case 'float2': return Math.round(value * 100) / 100
+            case 'float3': return Math.round(value * 1000) / 1000
+        }
+    }
+
+    static convert(element, from, to, tag = false){
+		if (from == to){
+			return element
+		}
+        const func = `${from}To${to}`
+		
+        if (func in widgetconvertor){
+			const result = widgetconvertor[func](element, tag)
+			const newType = widgetconvertor.getType(result)
+			if (newType==to){
+				return result;
+			} else {
+				return widgetconvertor.convert(result, newType, to)
+			}
+        } else {
+            throw new Error(`${func} отсутствует!`);
+        }
+    }
+
+	static methods = ['StateMethod', 'WidgetRequest'];
+
+    static getType(element){
+		let type = 'Unknown'
+        if (Array.isArray(element))
+			type = 'Array'
+		else
+		if (element instanceof widget)
+			return 'Widget'
+		else
+		if (element instanceof widgetwatcher)
+			return 'Watcher'
+		else
+        if (element && typeof element == 'object'){
+			type = 'Object'
+            
+			if (element instanceof HTMLElement || element instanceof Text)
+				type = 'HTML'
+			else
+			if ('element' in element)
+				type = 'Element'
+				if (widgetconvertor.methods.includes(element.element)){
+					return element.element
+				}
+/* 
+				if (element.element == 'WidgetTools' || typeof widgettools[element.element] === 'function'){
+					type = 'WidgetTools'
+				}
+*/
+		} else
+		if (typeof element=='string')
+			type = 'String'
+		else
+		if (typeof element=='number')
+			type = 'Int'
+		else
+		if (typeof element == 'function')
+			type = 'Function'
+		else
+		if (typeof element == 'boolean')
+			type = 'Bool'
+		
+		return type;
+	}
+
+
+	static copy(element){
+		const type = widgetconvertor.getType(element)
+		switch (type) {
+			case 'Widget':
+				const wcopy = new widget(element.element)
+
+				wcopy.props = widgetconvertor.copy(element.props)
+				wcopy.templateData = widgetconvertor.copy(element.templateData)
+
+			return wcopy	
+			case 'Array': 
+				return element.map(itm => widgetconvertor.copy(itm))
+			break;
+			case 'Object': 
+				const copy = {}
+				for (const [key, value] of Object.entries(element)){
+					copy[key] = widgetconvertor.copy(value)
+				}
+				return copy
+			break;
+			case 'String':
+			case 'Int':
+			case 'Bool':
+				return element
+			break;
+			default:
+				// widgetdom.debug('widgetconvertor', 'copy')('Не знаю как копировать этот тип', type)
+				console.log('Не знаю как копировать этот тип', type, element)
+			break;
+		}
+	}
+
+
+}
+// widgetdom__api.js
+
+/** 
+ * metods для работы с js - dom_api
+*/
+class widgetdom__api {
+    static app(element){
+        widgetdom__api.render('#app', element)
+    }
+
+    /**
+     * RENDER
+     */
+    static active = {}
+    
+    static render(querySelector, widget, mode = 'rebuild'){
+        widget = widgetconvertor.toWidget(widget)
+
+        if (querySelector in widgetdom__api.active){
+            const currNode = widgetdom__api.active[querySelector]
+
+            switch (mode) {
+                case 'rebuild':
+                    const status = widgetdom.update(currNode, widget)
+
+                    switch(status[0]){
+                        case 'delete':
+                            delete widgetdom__api.active[querySelector]
+                        break;
+                        case 'replace':
+                            widgetdom__api.active[querySelector] = status[1]
+                        break;
+                    }
+                break;
+                case 'append':
+                    currNode.child = widget
+                    currNode.render()
+                break;
+            }
+            
+        } else {
+            widgetdom.querySelector(querySelector, mode).then(rootElement => {
+                widgetdom.firstRender(rootElement, querySelector, widget)
+            })
+            // .catch(message => {
+            //     console.error('widget render ', message)
+            // })
+        }
+    }
+
+    static querySelector(querySelector, mode = 'rebuild'){
+        return new Promise(function(resolve, reject){
+            const rootElement = window.document.querySelector(querySelector);
+            if (rootElement){
+                switch (mode) {
+                    case 'rebuild':
+                        resolve(rootElement);
+                    break;
+                    case 'append':
+                        const wrapper = document.createElement('div')
+                        rootElement.appendChild(wrapper)
+                        resolve(wrapper);
+                    break;
+                }
+            } else {
+                window.addEventListener('load', () => {
+                    const rootElement = widgetdom.querySelector(querySelector, mode);
+                    if (rootElement){
+                        resolve(rootElement)
+                    } else {
+                        reject('Элемента нет ' + querySelector)
+                    }
+                })
+            }
+        })
+    }
+
+    static firstRender(rootElement, querySelector, widget){
+        rootElement.innerHTML = ''
+        widget.setRootElement(rootElement)
+        // widgetdom.createElement(widget, rootElement)
+        widgetdom.active[querySelector] = widget
+    }
+
+
+    static widgetStore = {};
+    static widgetRegister(_type, element){
+        widgetdom__api.widgetStore[_type] = element
+    }
+
+    static isReg(element){
+        return element in widgetdom__api.widgetStore
+    }
+
+    static get(element, props){
+        return widgetdom__api.widgetStore[element](props)
+    }
+
+}
+// widgetdom__tools.js
+
+class widgetdom__tools extends widgetdom__api {
+    
+    static defaulttag = 'div'
+
+    static getDefaultTag(tag = false){
+        return tag?tag:widgetdom.defaulttag
+    }
+
+
+
+
+
+	static singleElement = {
+		area: false,
+		base: false,
+		br: false,
+		col: false,
+		embed: false,
+		hr: false,
+		img: 'src',
+		input: 'value',
+		textarea: 'value',
+		link: 'href',
+		menuitem: false,
+		meta: false,
+		param: false,
+		source: false,
+		track: false,
+		wbr: false,
+	}
+
+    static getPropForDefaultValue(value, tag){
+
+        const prop = tag in widgetdom.singleElement
+            ?widgetdom.singleElement[tag]
+            :false
+
+        if (prop)
+            return {[prop]: value}
+        else 
+            return {innerText: value}
+    }
+
+}
+// widgetdom.js
+
+class widgetdom extends widgetdom__tools {
+    static _debug = true
+    static _trace = true
+
+
+    static debug(clss, method){
+        return function(){
+            if (widgetdom._debug){
+
+                console.group(arguments)
+                    console.info(`class: %c${clss} %cmethod:%c ${method} `, 'color: #c00', 'color: #fff', 'color: #cc0')
+                    if (widgetdom._trace)
+                        console.trace()
+                console.groupEnd()
+            }
+        }
+    }
+    
+    /**
+     * UPDATE 
+     */
+    static update(currWidget, nextWidget){
+        if (!nextWidget) {
+
+                // удалить текущий widget и все 
+                // watcher
+                currWidget.delete()
+
+            return ['delete']
+        }
+        nextWidget = widgetconvertor.toWidget(nextWidget)
+        if (widgetdom.changedType(currWidget, nextWidget)) {
+
+
+            // заменить на next
+            currWidget.replace_on(nextWidget)
+
+            return ['replace', nextWidget]
+        } else {
+
+            // поменять свойства
+            currWidget.set_props_from_widget(nextWidget)
+
+            return ['change']
+        }
+    }
+
+    static changedType(currWidget, nextWidget){
+        const result = currWidget.element!=nextWidget.element
+        return result
+    }
+
+}
+
+// widget_smartprops.js
+
+
+class widget_smartprops {
+
+    static dragboard(dragboard, props) {
+        let mouseDown = false
+        let mouseDownPosition = []
+        const elements = []
+        const boxsizing = {
+            x: props.boxsizing?(props.boxsizing.x?props.boxsizing.x:props.boxsizing):0,
+            y: props.boxsizing?(props.boxsizing.y?props.boxsizing.y:props.boxsizing):0,
+        }
+
+        const width = props.width
+        const height = props.height
+
+
+        dragboard.domElement.style.position = 'relative'
+        dragboard.domElement.style.userSelect = 'none'
+        dragboard.domElement.style.width = width + boxsizing.x + 'px'
+        dragboard.domElement.style.height = props.height + 'px'
+
+        dragboard.domElement.innerHTML = '';
+
+        if ('childs' in props) {
+            widgetconvertor.toArray(props.childs).forEach(child => {
+                widgetconvertor.toWidget(child).setRootElement(dragboard.domElement, dragboard)
+            })
+        }
+
+        function rangeArray(){
+            return [props.state.get('range_min'), props.state.get('range_max')]
+        }
+
+        let shift = false;
+
+        let sliderMoveRange = {
+            x: {min: 0, max: props.width },
+            y: {min: 0, max: props.height},
+        }
+
+        if (props.useSlide){
+            props.state.watch(['slide_min_start', 'slide_min_finish', 'slide_max_start', 'slide_max_finish']).link(
+                function(slide_min_start, slide_min_finish, slide_max_start, slide_max_finish){
+
+                    if (slide_min_start=="rangeMin")
+                        slide_min_start = props.state.get('range_min')
+
+                    if (slide_max_finish=="rangeMax")
+                        slide_max_finish = props.state.get('range_max')
+
+
+                    sliderMoveRange = [
+                        {
+                            x: {
+                                min: widgetconvertor.map(slide_min_start, rangeArray(), [0, props.width]),
+                                max: widgetconvertor.map(slide_min_finish, rangeArray(), [0, props.width]),
+                            }
+                        },
+                        {
+                            x: {
+                                min: widgetconvertor.map(slide_max_start, rangeArray(), [0, props.width]),
+                                max: widgetconvertor.map(slide_max_finish, rangeArray(), [0, props.width]),
+                            }
+                        }
+                    ]
+                    
+                })
+        }
+
+
+        function mousemove(x, y){
+            let posx, posy = 0
+
+            const range = Array.isArray(sliderMoveRange)?sliderMoveRange[mouseDown]:sliderMoveRange
+
+            if (props?.axis != 'y'){
+                posx = ((parseInt(elements[mouseDown].domElement.style.left) || 0) + x)
+                if (posx>range.x.max)
+                    posx = range.x.max
+                if (posx < range.x.min)
+                    posx = range.x.min
+                    
+                elements[mouseDown].style('left', posx + 'px')
+            }
+            if (props?.axis != 'x'){
+                posy = ((parseInt(elements[mouseDown].domElement.style.top) || 0) + y)
+                if (posy>range.y.max)
+                    posy = range.y.max
+                if (posy < range.y.min)
+                    posy = range.y.min
+
+                elements[mouseDown].style('top', posy + 'px')
+            }
+
+            if (typeof props.ondrag == 'function'){
+                let valposx = posx
+                let valposy = posy
+
+                valposx = widgetconvertor.map(posx, [0, width],  [0, 100])
+                valposy = widgetconvertor.map(posy, [0, height], [0, 100])
+                props.ondrag(mouseDown, valposx, valposy, posx, posy)
+            }
+        }
+
+        const dragType = widgetconvertor.getType(props.drag)
+        let widgets = []
+        switch (dragType){
+            case 'Object': 
+                widgets = Object.values(props.drag)
+                shift = Object.keys(props.drag)
+            break;
+            default: 
+                widgets = props.drag
+            break;  
+        }
+
+        function shiftXY(shiftVal){
+            let left = 0
+            let top = 0
+            if (props?.axis != 'y')
+                left = shiftVal
+
+            if (props?.axis != 'x')
+                top = shiftVal
+
+            left = widgetconvertor.map(left, rangeArray(), [0, width])
+            top =  widgetconvertor.map(top, rangeArray(), [0, height])
+
+            return [left, top]
+        }
+
+        widgets = widgetconvertor.toArray(widgets)
+        widgets.forEach((point, key) => {
+            point = widgetconvertor.toWidget(point)
+            point.setRootElement(dragboard.domElement, dragboard)
+
+            point.style('position', 'absolute')
+            
+            if (shift){
+                if ('state' in props) {
+                    props.state.watch([shift[key], 'range_' + shift[key]]).link(function(newValue){
+                        if (mouseDown===false){
+                            const left = widgetconvertor.map(newValue[0], rangeArray(), [0, props.width])
+                            point.style('left', left + 'px')
+                        }
+                    })
+                } else {
+                    const [left, top] = shiftXY(shift[key])
+                    point.assignProp('style', `position: absolute; left: ${left}px; top: ${top}px`)
+                }
+            } else {
+                point.assignProp('style', 'position: absolute; left: 0px; top: 0px')
+            }
+
+            point.assignProp('onmousedown', (event) => {
+                mouseDownPosition = [event.screenX, event.screenY]; 
+                mouseDown = key
+            })
+
+            elements.push(point)
+        })
+
+
+
+
+        dragboard.domElement.onmousemove = (event) => {
+            if (mouseDown!==false){
+                let x = event.screenX - mouseDownPosition[0]
+                let y = event.screenY - mouseDownPosition[1]
+
+                mousemove(x, y);
+                mouseDownPosition = [event.screenX, event.screenY];
+            }
+        }
+
+        dragboard.domElement.onmouseup = () => { mouseDown = false }
+        dragboard.domElement.onmouseleave = () => { mouseDown = false }
+    }
+}
+// widgetcontentcontroller.js
+
+class widgetcontentcontroller {
+
+    removeProps(props){
+        props.forEach(prop => {
+            if (prop in this.props)
+                delete this.props[prop]
+
+            if (prop=='child')
+                this.childs = []
+        })
+    }
+
+    checkWatchers(prop, value){
+        if (prop in this.watcher){
+            if (this.watcher[prop]===value){
+                return false
+            } else {
+                this.watcher[prop] = value
+            }
+        } else {
+            this.props[prop] = value;
+        }
+        return true
+    }
+
+    checkContentProp(prop, type, value){
+        if (prop == 'child'){
+            return this.checkChilds(type, value);
+        } else if (['innerText', 'innerHTML'].includes(prop)){
+            return this.checkText(type, prop, value);
+        } else {
+            if (prop in this.watcher){
+                return [false, this.watcher[prop]!=value];
+            } else {
+                return [false, true];
+            }
+        }
+    }
+
+
+    checkChilds(type, value){
+        let result = false 
+        let update = true 
+
+        switch (type) {
+            case 'String':
+            case 'Int':
+            case 'Bool':
+                result = 'innerText'
+
+                if ('child' in this.watcher){
+                    this.clearWatcherFrom(this.childs)
+                    this.childs = []
+
+                    this.watcher['innerText'] = this.watcher['child']
+                    delete this.watcher['child']
+                }
+
+                this.props['innerText'] = value
+
+                delete this.props['child']
+                this.childs = []
+            break;
+            default:
+                this.removeProps(['innerText', 'innerHTML'])
+                update = this.checkWatchers('child', value)
+            break;
+        }
+        return [result, update]
+    }
+
+
+    checkText(type, prop, value){
+        let result = false 
+        let update = true 
+
+
+        switch (type) {
+            case 'Array':
+            case 'Widget':
+            case 'Element':
+                this.watcher['child'] = this.watcher[prop]
+                delete this.watcher[prop]
+                result = 'child'
+
+                this.sequreAssign('innerText', '')
+                this.childs = []
+
+                delete this.props[prop]
+
+                this.props['child'] = value
+            break;
+            default:
+                switch(prop){
+                    case 'innerText': 
+                        this.removeProps(['innerHTML', 'child'])
+                    break;
+                    case 'innerHTML': 
+                        this.removeProps(['innerText', 'child'])
+                    break;
+                }
+                update = this.checkWatchers(prop, value) 
+            break;
+        }
+        return [result, update]
+    }
+}
+// widget__tools.js
+
+
+class widget__tools extends widgetcontentcontroller {
+    static current_id = 0
+
+    static next_id(){
+        return ++widget__tools.current_id
+    }
+
+    /**
+     * проверка на существование элемента
+    */
+    checkDomElement(){
+        const type = widgetconvertor.getType(this.domElement)
+        if (type!='HTML'){
+            this.domElement = window.document.createElement(this.element)
+            this.domElement.setAttribute('key_id', this.id);
+        }
+        return this
+    }
+
+
+    mix_props(next){
+        const props = Object.keys(this.props)
+        Object.keys(next.props).forEach(prop => {
+            if (!(prop in this.props))
+                props.push(prop)
+        })
+        return props
+    }
+
+
+    delete(){
+        if (this.domElement && this.domElement.parentElement)
+            this.domElement.parentElement.removeChild(this.domElement)
+        this.domElement = null
+
+        this.watchlist_clear()
+    }
+
+    watchlist_push(watcher_props){
+        this.watchlist.push(watcher_props)
+        if (this.parent)
+            this.parent.watchlist_push(watcher_props)
+    }
+
+    watchlist_clear(){
+        this.watchlist.forEach(watcher_props => {
+            widgetwatcher.removeFromGlobal(watcher_props[0], watcher_props[1])
+        })
+    }
+
+    // replace on next
+    replace_on(next){
+        next.checkDomElement()
+
+        this.domElement.parentElement.replaceChild(
+            next.domElement, 
+            this.domElement
+        );
+
+        this.delete()
+        next.render()
+    }
+
+
+    set_props_from_widget(next){
+        const props = this.mix_props(next)
+        // this.checkDomElement() ??
+
+        for (const prop of props){
+            const currvalue = prop in this.props?this.props[prop]:''
+
+            let nextvalue = ''
+            if (prop in next.props)
+                nextvalue = next.props[prop]
+
+            if (currvalue!=nextvalue){
+                this.assignProp(prop, nextvalue)
+                this.props[prop] = nextvalue
+            }
+        }
+    }
+
+}
+// widget.js
+
+class widget extends widget__tools {
+    constructor(element, props = {}, root = false){
+        super()
+
+        this.element = element
+        this.childs = []
+        this.watchlist = []
+        this.watcher = {}
+
+        // this.child = widgetconvertor.toArray(child)
+        this.props = props
+        this.id = widget__tools.next_id()
+        this.templateData = false
+
+        this.parent = false
+
+        this.eventControllList = {}
+    }
+
+    setRootElement(rootElement, parent = false){
+        this.rootElement = rootElement
+        this.checkDomElement()
+        this.rootElement.appendChild(this.domElement)
+        this.parent = parent
+
+        this.render()
+
+        return this
+    }
+
+    render(){
+        for (const [prop, value] of Object.entries(this.props)){
+            this.assignProp(prop, value)
+        }
+        return this
+    }
+
+    
+
+    updateChilds(next){
+        next = widgetconvertor.toArray(next)
+        
+        const deleteIndexs = []
+        const max = Math.max(this.childs.length, next.length) 
+        
+        for (let i = 0; i < max; i++) {
+            if (this.childs[i]) {
+                const updateresult = widgetdom.update(
+                    this.childs[i],
+                    next[i]
+                )
+
+                switch (updateresult[0]) {
+                    case 'delete':
+                        deleteIndexs.push(i)
+                    break;
+                    case 'replace':
+                        this.childs[i] = updateresult[1]
+                    break;
+                    case 'change':
+                        
+                    break;
+                }
+
+
+            } else {
+                const child = widgetconvertor.toWidget(next[i])
+                child.setRootElement(this.domElement, this)
+                this.childs[i] = child
+            }
+        }
+
+        if (deleteIndexs.length>0){
+            const temp = this.childs.filter((child, index) => {
+                return !deleteIndexs.includes(index)
+            })
+            this.childs = temp
+        }
+
+        return this
+    }
+
+
+    templateFillContents(template){
+        const regex = /\$\{(\w+)\}/gm;
+        template = template.replace(regex, '${tval("$1")}')
+
+        current_template_data['data'] = this.templateData
+        let val = '';
+        eval(`val = \`${template}\``)
+        return val
+    }
+
+
+
+
+
+    assignProp(prop, value) {
+        if (prop in widget_smartprops && typeof widget_smartprops[prop] == 'function')
+            return widget_smartprops[prop](this, value)
+
+        let type = widgetconvertor.getType(value)
+        let result = false;
+        switch(type){
+            case 'Watcher':
+                this.watcher[prop] = undefined;
+                const active = value.link(this, prop)
+                this.watchlist_push(active)
+            return result
+            case 'String':
+                if (this.templateData){
+                    value = this.templateFillContents(value)
+                }
+            break;
+            case 'StateMethod':
+                value = widgetstate__methods.getFromElement(value) 
+            break;
+            case 'Element':
+                value = widgetelement.make(value)
+            break;
+            case 'Array':
+                if (prop.substr(0, 2)=='on'){
+                    value = widgetconvertor.toFunction(value);
+                }
+            break;
+            case 'Function':
+                if (['innerText', 'innerHTML', 'child'].includes(prop)){
+                    return this.assignProp(prop, value());
+                }
+            break;
+        }
+
+        if (widgetconvertor.getType(value)!=type){
+            if (!(prop in this.watcher))
+                this.props[prop] = value;
+
+            return this.assignProp(prop, value);
+        }
+        
+        const [newProp, update] = this.checkContentProp(prop, type, value)
+        if (newProp){
+            prop = newProp
+            result = newProp
+        }
+
+        
+        if (update)
+        if (prop=='child'){
+            this.updateChilds(value)
+        } else {
+            this.sequreAssign(prop, value, type)
+        }
+
+        return result
+    }
+    
+    /**
+     * ASSIGN PROP to dom element
+     */
+    
+    sequreAssign(prop, value, type = false){
+        if (type==false)
+            type = widgetconvertor.getType(value)
+        
+        const targetOnly = prop.substr(0, 1)=='_';
+        if (targetOnly)
+            prop = prop.substr(1)
+
+
+        switch(type){
+            case 'Bool':
+                const attrListBool = ['innerHTML', 'innerText', 'value'];
+                if (attrListBool.includes(prop)){
+                    this.domElement[prop] = ''
+                } else {
+                    this.domElement[prop] = value
+                }
+            break;
+            case 'String':
+            case 'Int':
+                const attrList = ['for'];
+
+                if (attrList.includes(prop)){
+                    this.domElement.setAttribute(prop, value)
+                } else {
+                    this.domElement[prop] = value
+                }
+            break;
+            case 'HTML':
+                if (prop=='innerHTML' || prop=='innerText'){
+                    this.domElement.appendChild(value)
+                } else {
+                    console.info('не знаю как применить в', prop, ' ->', value)
+                }
+            break;
+            case 'Function':
+                if (prop.substr(0, 2)=='on'){
+                    const func = function(event){
+                        if (targetOnly) 
+                            if (event.target!=this) 
+                                return false
+
+                        return  value.apply(this, [event])
+                    }
+
+                    this.on(prop.substr(2), func)
+                } else {
+                    this.domElement[prop] = value()
+                }
+            break;
+            case 'Array':
+                console.info('ARRAY', `${prop} (${type})`, value)
+            break;
+            default:
+                console.info('Не применено - ', 'prop: ', prop, 'value: ', value, 'type: ', type)
+            break;
+        }
+    }
+
+    on(prop, callback, type = ''){
+        const event = prop + type
+        if (!(event in this.eventControllList)){
+            this.eventControllList[event] = callback
+            this.domElement.addEventListener(prop, callback)
+        }
+    }
+
+    style(prop, value){
+        if (this.domElement)
+            this.domElement.style[prop] = value
+    }
+
+    styles(styles){
+        for (const [prop, val] of Object.entries(styles)) {
+            this.style(prop, val)
+        }
+    }
+
+    setTemplateData(data){
+        this.templateData = data
+        return this
+    }
+
+    clearWatcherFrom(childs){
+        childs.forEach(child => {
+
+            child.watchlist.forEach(watcherprop => {
+                // console.info('delete watcher', watcherprop)
+                delete widgetwatcher.global[watcherprop[0]][watcherprop[1]]
+            })
+
+            this.clearWatcherFrom(child.childs)
+        })
+    }
+}
+// widgetdialog.js
+
+class widgetdialog {
+
+    static props = {
+        template: 'template',
+        message: '__message',
+        title: 'title',
+        buttons: '__buttons', 
+
+        hidetitle: 'hidetitle',
+        width: 'width',
+        height: 'height',
+        
+        active: '_active',
+        active_arrow: 'active_arrow',
+
+        // form
+        enctype: 'enctype',
+        action: 'action',
+        method: 'method',
+        onsubmit: 'onsubmit',
+    }
+
+    static defaultProps = {
+        template: false,
+        message: '',
+        title: 'dialog',
+        buttons: false, 
+
+        hidetitle: false,
+        width: 650,
+        height: 400,
+        
+        active: false,
+        active_arrow: false,
+
+        // form
+        enctype: false,
+        action: false,
+        method: 'POST',
+        onsubmit: false,
+    }
+
+    static styles = {
+        black_h12nbsx9dk23m32ui4948382: "position:fixed;left:0;top:0;bottom:0;right:0;background:#0004;z-index:9999999999999999;overflow:auto;padding:10px;transition:all.1s;font-family:'Segoe UI', Roboto, Oxygen,Ubuntu,Cantarell,'Open Sans','Helvetica Neue','sans-serif';",
+        black_habsolute: "position:absolute;background:#0000;",
+        window_h12nbsx9dk23m32ui4948382: "background:#fff;box-shadow: 5px 8px 20px 1px #00000057;color:#000;margin:12% auto;$table",
+        dialogTitle_h12nbsx9dk23m32ui4948382: "padding:10px !important;font-weight:bold !important;font-family:Verdana, Geneva, Tahoma, sans-serif !important;color:inherit;font-size:11pt !important;",
+        form_panel_h12nbsx9dk23m32ui4948382: "	display:flex !important; color:inherit;",
+        _form_h12nbsx9dk23m32ui4948382: "width: 100% !important;padding: 10px !important;border-radius: 0;",
+        close_panel_h12nbsx9dk23m32ui4948382: "border-bottom: 1px solid #0002;position: sticky !important;top: 0px !important;display: flex !important;background: #ffffff30;align-items: center !important;justify-content: space-between !important;color: inherit;",
+        buttons_panel_h12nbsx9dk23m32ui4948382: "background: #ffffff30;position: sticky !important;bottom: 0px !important;display: flex !important;justify-content: flex-start !important;color: inherit;flex-direction: row-reverse;border-top: 1px solid #0002;",
+        black_h12nbsx9dk23m32ui4948382__fieldset: "padding: 0 !important;margin: 0 !important;border: none !important;color: inherit;",
+        btnh12n: "display: inline-block !important;padding: 2px 10px !important;background: #fff2;margin: 5px 0 !important;border: 1px solid #0003;border-radius: 3px !important;cursor: pointer !important;margin-right: 5px !important;margin-left: 5px !important;font-size: 14px !important;box-shadow: none;color: inherit;",
+    }   
+
+    static templates = []
+
+    static __init__(){
+
+        const $state = state.dialogstate
+        const window = c.div({
+            child: c.div({
+                child: [
+                    $state.watchif('hidetitle', false,
+                        c.div({
+                            child: [
+                                '',
+                                c.div({
+                                    innerText: $state.watch('title'),
+                                    style: widgetdialog.styles.dialogTitle_h12nbsx9dk23m32ui4948382,
+                                }),
+                                c.button({
+                                    child: '✖',
+                                    onclick(){
+                                        $state.__message = false
+                                    },
+                                    style: widgetdialog.styles.btnh12n,
+                                })
+                            ],
+                            style: widgetdialog.styles.close_panel_h12nbsx9dk23m32ui4948382,
+                        }),
+                        false
+                    ),
+                    c.div({
+                        child: c.form({
+                            child: c.fieldset({
+                                child: $state.watch('__message'),
+                                style: widgetdialog.styles.black_h12nbsx9dk23m32ui4948382__fieldset,
+                            }),
+                            style: $state.watch(height => `${widgetdialog.styles._form_h12nbsx9dk23m32ui4948382}; min-height: ${height?height:0}px;`),
+                            enctype: $state.watch('enctype'),
+                            action: $state.watch('action'),
+                            method: $state.watch('method'),
+                            onsubmit(){
+                                event.preventDefault()
+                                return false;
+                            },
+                        }),
+                        style: widgetdialog.styles.form_panel_h12nbsx9dk23m32ui4948382,
+                    }),
+                    c.div({
+                        child: ['', $state.watch('__buttons')],
+                        style: widgetdialog.styles.buttons_panel_h12nbsx9dk23m32ui4948382,
+                    })
+                ],
+                style: $state.watch(width => 
+                    `max-width:${width?width:650}px;${widgetdialog.styles.window_h12nbsx9dk23m32ui4948382}`
+                ) 
+            }),
+            style: $state.watch(__style => `${widgetdialog.styles.black_h12nbsx9dk23m32ui4948382}; ${__style}`),
+            _onmousedown(){
+                $state.__message = false
+            }
+        })
+
+        $state.watch('__message').link(message => { 
+            const style = message==false?'opacity: 0; visibility: hidden;':''
+            widgetdom.querySelector('body').then(body => {
+                if ($state.get('__style'))
+                    body.style.overflow = 'auto'
+                else
+                    body.style.overflow = 'hidden'
+            })
+
+            $state.__style = style
+        })
+
+        $state.watch(['width', 'height', '_active', 'hidetitle'])
+        .link((width, height, active, hidetitle) => {
+            let window_style = ''
+
+            if (width) window_style += `width: ${width}px; `
+            if (height) window_style += `min-height: ${hidetitle?height:height+39}px; `
+
+            if (active){
+                if ('element' in active){
+                    widgetdom.querySelector(active.element).then(element => {
+                        const rect = element.getBoundingClientRect()
+                        window_style += `position: absolute; margin: 0;`
+
+
+                        window_style += `bottom: calc(100% - ${rect.y-10}px); `
+                        window_style += `left: ${rect.x}px; `
+                        $state.active_arrow = 'bottom'
+                        $state.__position = window_style
+                    })
+                }
+            } else {
+                $state.active_arrow = false
+            }
+
+
+            $state.__position = window_style
+        })
+
+
+        c.render('body', window, 'append')
+    }
+
+
+    static setup(template_name, props){
+        widgetdialog.templates[template_name] = props
+    }
+
+    static template(template_name){
+        if (template_name)
+        if (template_name in widgetdialog.templates){
+
+            const template = widgetdialog.templates[template_name];
+
+            for (const [statekey, objectkey] of Object.entries(widgetdialog.props)){
+                if (objectkey in template){
+                    widgetdialog.setPorp(statekey, template[objectkey])
+                } else {
+                    widgetdialog.setPorp(statekey, false)
+                }
+            }
+        } else {
+            if (widgetdom.debug)
+                console.info(template_name, ' отсутствует')
+        }
+
+        return widgetdialog
+    }
+
+    static show(props = true, title = false){
+        const proptype = widgetconvertor.getType(props)
+
+        switch (proptype) {
+            case 'String':
+            case 'Array':
+
+                state.dialogstate.__message = props
+                if (title)
+                state.dialogstate.title = title
+            break;
+            case 'Object':
+
+
+                for (const [key, defaultValue] of Object.entries(widgetdialog.defaultProps)){
+                    let value = defaultValue
+                    const statekey = widgetdialog.props[key]
+                    if (key in props){
+                        value = props[key]
+                    }
+
+                    widgetdialog.setPorp(statekey, value)
+                } 
+
+                /* 
+                for (const [key, value] of Object.entries(props)){
+                    if (key in widgetdialog.props){
+                        const statekey = widgetdialog.props[key]
+                        widgetdialog.setPorp(statekey, value)
+                    }
+                } 
+                */
+
+
+            break;
+            case 'Bool':
+                if (!props)
+                state.dialogstate.__message = false
+            break;
+        }
+    }
+
+    static setPorp(prop, value){
+        switch (prop){
+            case '__buttons':
+                if (typeof value == 'object'){
+                    const buttons = [];
+                    for (const [buttontitle, func] of Object.entries(value)){
+                        buttons.push(
+                            c.button({
+                                innerText: buttontitle,
+                                style: widgetdialog.styles.btnh12n,
+                                onclick: () => {
+                                    widgetconvertor.toFunction(func).apply(this)
+                                } 
+                            })
+                        )
+                    }
+
+                    state.dialogstate[prop] = buttons
+                }
+            break;
+            case 'template':
+                widgetdialog.template(value)
+            break;
+            default:
+                state.dialogstate[prop] = value
+            break;
+        }
+    }
+}
+
+
+function showDialog(props, title = false){
+    widgetdialog.show(props, title)
+}
+
+
+
+widgetdialog.__init__();
+
