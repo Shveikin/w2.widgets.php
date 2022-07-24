@@ -14,7 +14,7 @@ class widgetapp extends widgetapp__tools {
     const htmlRender = true;
     const structure = false;
     const cigaretteBurn = true;
-    const hashApp = false;
+    const hashApp = true;
 
     const onlyComplection = false;
 
