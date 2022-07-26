@@ -432,8 +432,6 @@ class widgetelement {
     static make(element){
         let result = false;
 
-        console.log('make:: ', element?.element);
-
 
         if (widgetelement.tools.includes(element.element)){
             result = widgetelement[element.element](element.props)
@@ -461,8 +459,12 @@ class widgetelement {
         return new Function(body);
     }
 
-    static list({list}){
-        return list;
+    static list(list){
+        if (Array.isArray(list))
+            return list[0]
+        else
+            if ('list' in list)
+                return list['list']
     }
 
     static requeststore_element({hash, bind, then}){

@@ -26,11 +26,11 @@ class requeststorage {
         if ($data){
             $data = json_decode($data, true);
             if ($data){
-                if ($data['state']){
+                if (isset($data['state'])){
                     $this->applyPostDataToStates($data['state']);
                 }
 
-                if ($data['executor'])
+                if (isset($data['executor']))
                     $this->execute($data['executor'], $data['request_id']);
             }
         } else {
