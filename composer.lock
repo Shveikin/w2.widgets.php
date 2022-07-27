@@ -4,23 +4,22 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fecd29429dba4f30832708105806c2bb",
+    "content-hash": "8ad4d199852270c5bd18636fb1e428a3",
     "packages": [
         {
             "name": "di2/container",
-            "version": "dev-main",
+            "version": "1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Shveikin/DI2.Container.git",
-                "reference": "34d9cbc3ebfd95e95e5c6d443c3d1bf8be191dc9"
+                "reference": "ae9db22b045fb911a9a32ec92a8f5a5c76ee32b1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/34d9cbc3ebfd95e95e5c6d443c3d1bf8be191dc9",
-                "reference": "34d9cbc3ebfd95e95e5c6d443c3d1bf8be191dc9",
+                "url": "https://api.github.com/repos/Shveikin/DI2.Container/zipball/ae9db22b045fb911a9a32ec92a8f5a5c76ee32b1",
+                "reference": "ae9db22b045fb911a9a32ec92a8f5a5c76ee32b1",
                 "shasum": ""
             },
-            "default-branch": true,
             "type": "library",
             "autoload": {
                 "psr-4": {
@@ -41,17 +40,15 @@
             "description": "DI2",
             "support": {
                 "issues": "https://github.com/Shveikin/DI2.Container/issues",
-                "source": "https://github.com/Shveikin/DI2.Container/tree/main"
+                "source": "https://github.com/Shveikin/DI2.Container/tree/v1.0.0"
             },
-            "time": "2022-05-05T12:48:32+00:00"
+            "time": "2022-06-17T02:37:10+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "di2/container": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

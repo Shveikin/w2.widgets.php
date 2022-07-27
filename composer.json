@@ -32,6 +32,6 @@
         }
     ],
     "require": {
-        "di2/container": "@dev"
+        "di2/container": "^1.0"
     }
 }
