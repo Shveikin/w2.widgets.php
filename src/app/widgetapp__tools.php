@@ -20,7 +20,7 @@ abstract class widgetapp__tools {
 
     function __construct() {
         if (static::script == widgetapp::SCRIPT_CONNECTED_AUTOMATICALLY) {
-            $this->script_js_content = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/w2.mini.js'));
+            $this->script_js_content = str_replace("\n", ' ', file_get_contents(__DIR__ . '/js/cs.min.js'));
         }
     }
 
